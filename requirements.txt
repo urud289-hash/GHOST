@@ -3,3 +3,5 @@ google-genai
 edge-tts
 opencv-python
 pillow
+streamlit
+openai

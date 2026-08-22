@@ -1,7 +1,5 @@
 streamlit
-google-genai
-edge-tts
-opencv-python
-pillow
-streamlit
 openai
+supabase
+requests
+pandas

@@ -13,7 +13,7 @@ st.set_page_config(
     page_title="GHOST AI - Ultimate Komuta Merkezi", page_icon="👻", layout="wide"
 )
 
-# --- SİBER ARAYÜZ VE STİLLER (Yazı Rengi ve Kutu Düzeltmeleriyle) ---
+# --- SİBER ARAYÜZ VE STİLLER (Kesin Siyah Kalın Yazı Ayarlı) ---
 st.markdown(
     """
 <style>
@@ -31,7 +31,7 @@ st.markdown(
         padding-right: 10px;
     }
     
-    /* Streamlit Chat Input (Sohbet Yazma Kutusu) Kesin Siyah & Kalın Harf Stili */
+    /* Streamlit Chat Input Yazı Rengi ve Kutusu */
     [data-testid="stChatInput"] textarea {
         color: #000000 !important;
         font-weight: 800 !important;
@@ -79,7 +79,7 @@ def init_supabase(url, key):
 
 supabase = init_supabase(SUPABASE_URL, SUPABASE_KEY)
 
-# Hafıza Yönetimi (İnternet erişim yetkisi netleştirildi)
+# Hafıza Yönetimi
 if "messages" not in st.session_state:
   st.session_state.messages = [{
       "role": "system",
@@ -190,8 +190,8 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v7.0<br>Net"
-    " İnternet Erişimi & Siyah Yazı Aktif 🟢</p>",
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v7.1<br>Hata"
+    " Giderildi & Stabil 🟢</p>",
     unsafe_allow_html=True,
 )
 
@@ -265,8 +265,7 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
     with st.chat_message("assistant"):
       message_placeholder = st.empty()
       try:
-        # Otomatik İnternet Arama Tetikleyicisi
-         aktif_mesajlar = st.session_state.messages
+        aktif_mesajlar = st.session_state.messages
         if any(
             kelime in prompt.lower()
             for kelime in [

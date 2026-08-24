@@ -17,7 +17,7 @@ from supabase import Client, create_client
 # 01. SİSTEM YAPILANDIRMASI VE ÇEKİRDEK AYARLARI
 # ==========================================
 st.set_page_config(
-    page_title="TITAN v18.0 OMEGA SUPREME — JARVIS Enterprise Komuta Merkezi",
+    page_title="TITAN v18.1 OMEGA SUPREME — JARVIS Enterprise Komuta Merkezi",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -106,7 +106,7 @@ if "messages" not in st.session_state:
   st.session_state.messages = [{
       "role": "system",
       "content": (
-          "Sen JARVIS ve TITAN v18.0 OMEGA SUPREME mimarisiyle güçlendirilmiş,"
+          "Sen JARVIS ve TITAN v18.1 OMEGA SUPREME mimarisiyle güçlendirilmiş,"
           " sınırsız yetkilere sahip, gerçek zamanlı küresel arama yapabilen,"
           " kod yazabilen ve siber güvenlik protokollerini yöneten yapay"
           " zeka asistanısın. Asıl sahibin Yiğit'tir. Ona ve yetkili"
@@ -119,7 +119,7 @@ if "gorevler" not in st.session_state:
 if "jarvis_hafiza" not in st.session_state:
   st.session_state.jarvis_hafiza = [
       "Ana Sahip: Yiğit",
-      "Sistem Çekirdeği: TITAN v18.0 OMEGA SUPREME",
+      "Sistem Çekirdeği: TITAN v18.1 OMEGA SUPREME",
       "Güvenlik Duvarı: Aktif (Kuantum Matris Koruması)",
       "Nöral Bellek: Tam Kapasite Senkronize Edildi",
   ]
@@ -129,7 +129,7 @@ if "izinli_fotolar" not in st.session_state:
   st.session_state.izinli_fotolar = {}
 if "sistem_loglari" not in st.session_state:
   st.session_state.sistem_loglari = [
-      f"[{datetime.datetime.now().strftime('%H:%M:%S')}] TITAN v18.0 OMEGA çekirdeği başarıyla yüklendi."
+      f"[{datetime.datetime.now().strftime('%H:%M:%S')}] TITAN v18.1 OMEGA çekirdeği başarıyla yüklendi."
   ]
 if "notlar_defteri" not in st.session_state:
   st.session_state.notlar_defteri = []
@@ -140,6 +140,13 @@ if "siber_tehditler" not in st.session_state:
   ]
 if "kripto_portfoy" not in st.session_state:
   st.session_state.kripto_portfoy = [
+      {"coin": "Amerikan Doları (USD/TRY)", "adet": "Döviz", "hedef": "Canlı Kur"},
+      {"coin": "Euro (EUR/TRY)", "adet": "Döviz", "hedef": "Canlı Kur"},
+      {
+          "coin": "İngiliz Sterlini (GBP/TRY)",
+          "adet": "Döviz",
+          "hedef": "Canlı Kur",
+      },
       {"coin": "Bitcoin (BTC)", "adet": 0.5, "hedef": "$120,000"},
       {"coin": "Ethereum (ETH)", "adet": 4.2, "hedef": "$6,500"},
   ]
@@ -186,8 +193,8 @@ st.markdown(
 # ==========================================
 if not st.session_state.giris_yapildi:
   st.markdown(
-      "<h1 style='text-align: center; color: #38bdf8;'>⚡ TITAN v18.0 OMEGA"
-      " — Güvenlik Matriksi</h1>",
+      "<h1 style='text-align: center; color: #38bdf8;'>⚡ TITAN v18.1"
+      " OMEGA — Güvenlik Matriksi</h1>",
       unsafe_allow_html=True,
   )
   st.markdown(
@@ -319,7 +326,7 @@ def titan_web_aramasi_yap(sorgu):
 # 08. ANA UYGULAMA BAŞLIĞI VE KONTROL PANELİ
 # ==========================================
 st.title(
-    f"⚡ TITAN v18.0 OMEGA SUPREME [JARVIS Core] — Operatör:"
+    f"⚡ TITAN v18.1 OMEGA SUPREME [JARVIS Core] — Operatör:"
     f" {st.session_state.aktif_kullanici_adi}"
 )
 
@@ -339,7 +346,7 @@ ana_secim = st.sidebar.radio(
         "🧠 Nöral Hafıza (MEMORIES.md) Deposu",
         "💻 Otonom Yazılım & Kod Derleme Terminali",
         "🌍 Küresel Canlı Hava Durumu & Uydu Radarı",
-        "🪙 Kripto Para & Küresel Piyasa Analizi",
+        "🪙 Döviz (Dolar, Euro, Sterlin) & Kripto Analizi",
         "🛡️ Siber Güvenlik Duvarı & Tehdit Radarı",
         "🌤️ Çevresel Sensör & Atmosferik İstasyon",
         "🔒 Biyometrik İzin & Kullanıcı Matriksi",
@@ -357,7 +364,7 @@ if st.sidebar.button("🔒 Oturumu Kapat ve Kilitle"):
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #64748b; font-size: 11px;'>TITAN Omega Core v18.0<br>All"
+    "<p style='color: #64748b; font-size: 11px;'>TITAN Omega Core v18.1<br>All"
     " Neural Modules Online 🟢</p>",
     unsafe_allow_html=True,
 )
@@ -497,7 +504,7 @@ if ana_secim == "💬 JARVIS Omega Sohbet, Canlı Web & Ses":
     st.session_state.messages = [{
         "role": "system",
         "content": (
-            "Sen TITAN v18.0 OMEGA SUPREME asistanı ve JARVIS çekirdeğisin."
+            "Sen TITAN v18.1 OMEGA SUPREME asistanı ve JARVIS çekirdeğisin."
         ),
     }]
     st.rerun()
@@ -577,121 +584,95 @@ elif ana_secim == "💻 Otonom Yazılım & Kod Derleme Terminali":
       st.warning("Lütfen üretilmesini istediğiniz yazılımı açıklayın efendim.")
 
 # ==========================================
-# 13. MODÜL 4: KÜRESEL CANLI HAVA DURUMU
+# 13. MODÜL 4: KÜRESEL CANLI HAVA DURUMU (TÜM DÜNYA ŞEHİRLERİ & DETAYLAR)
 # ==========================================
 elif ana_secim == "🌍 Küresel Canlı Hava Durumu & Uydu Radarı":
-  st.subheader("🌍 JARVIS Küresel Atmosferik İstasyonu & Şehir Seçici")
+  st.subheader(
+      "🌍 JARVIS Küresel Atmosferik İstasyonu & Sınırsız Şehir Tarayıcı"
+  )
   st.markdown(
-      "Dünya üzerindeki herhangi bir ülkeyi ve şehri seçerek anlık meteorolojik"
-      " verileri canlı çekin efendim."
+      "Dünya üzerindeki **istediğin tüm ülkeleri ve şehirleri** doğrudan yazarak"
+      " sıcaklık, yağış oranı, sis ve rüzgar detaylarını canlı çek efendim."
   )
 
-  dunya_sehirleri = {
-      "Türkiye": [
-          "İstanbul",
-          "Ankara",
-          "İzmir",
-          "Bursa",
-          "Antalya",
-          "Adana",
-          "Trabzon",
-          "Edirne",
-          "Gaziantep",
-      ],
-      "Amerika Birleşik Devletleri": [
-          "New York",
-          "Los Angeles",
-          "Chicago",
-          "Miami",
-          "San Francisco",
-          "Washington",
-      ],
-      "Birleşik Krallık (İngiltere)": [
-          "London",
-          "Manchester",
-          "Liverpool",
-          "Edinburgh",
-      ],
-      "Almanya": ["Berlin", "Munich", "Frankfurt", "Hamburg", "Köln"],
-      "Fransa": ["Paris", "Marseille", "Lyon", "Nice", "Toulouse"],
-      "İtalya": ["Rome", "Milan", "Venice", "Florence", "Naples"],
-      "Japonya": ["Tokyo", "Osaka", "Kyoto", "Yokohama", "Hiroshima"],
-      "Azerbaycan": ["Bakü", "Gence", "Sumgayıt", "Şuşa"],
-      "Rusya": ["Moscow", "Saint Petersburg", "Novosibirsk", "Sochi"],
-  }
-
-  secilen_ulke = st.selectbox(
-      "🌐 Hedef Ülke Seçin:", list(dunya_sehirleri.keys())
+  hedef_ulke = st.text_input(
+      "🌐 Ülke Girin (Örn: Türkiye, Almanya, Japonya, Amerika vb.):",
+      value="Türkiye",
   )
-  secilen_sehir = st.selectbox(
-      f"🏙️ {secilen_ulke} İçin Şehir Seçin:", dunya_sehirleri[secilen_ulke]
+  hedef_sehir = st.text_input(
+      "🏙️ Şehir Girin (Örn: Edirne, İstanbul, Londra, Tokyo, New York vb.):",
+      value="Edirne",
   )
 
-  ozel_sehir_giris = st.text_input(
-      "Veya listede olmayan başka bir şehir adı yazın (İsteğe bağlı):"
-  )
-  sorgulanacak_yer = (
-      ozel_sehir_giris.strip()
-      if ozel_sehir_giris
-      else f"{secilen_sehir}, {secilen_ulke}"
-  )
+  sorgu_bolge = f"{hedef_sehir.strip()}, {hedef_ulke.strip()}"
 
-  if st.button("Küresel Hava Durumu Verisini Çek"):
+  if st.button("Küresel Hava Durumu ve Atmosferik Detayları Çek"):
     with st.spinner(
-        f"📡 {sorgulanacak_yer} için uydu verileri taranıyor..."
+        f"🛰️ {sorgu_bolge} için uydu verileri, sıcaklık, yağış ve sis oranları"
+        " taranıyor..."
     ):
-      hava_sonuc = titan_web_aramasi_yap(
-          f"{sorgulanacak_yer} hava durumu güncel sıcaklık raporu"
+      hava_metni = titan_web_aramasi_yap(
+          f"{sorgu_bolge} hava durumu sıcaklık derece yağış oranı sis rüzgar"
+          " meteoroloji raporu"
       )
-      st.info(
-          f"🌤️ **{sorgulanacak_yer} Anlık Meteoroloji Sentezi:**"
-          f" {str(hava_sonuc)[:400]}..."
-      )
-      st.success("Küresel hava durumu başarıyla güncellendi efendim.")
 
-  st.markdown("### 🌡️ Küresel Atmosferik Gösterge:")
-  c1, c2, c3 = st.columns(3)
-  c1.metric("Seçilen Bölge", sorgulanacak_yer, "Aktif")
-  c2.metric("Atmosferik Bağlantı", "Kuantum Uydu", "100% Güvenli")
-  c3.metric("Radar Durumu", "Canlı Akış", "Aktif 🟢")
+      st.markdown(f"### 🌡️ {sorgu_bolge} Canlı Atmosferik Sentez Raporu:")
+      st.info(f"**Meteorolojik Veri Akışı:** {str(hava_metni)[:800]}")
+      st.success(
+          "✅ Sıcaklık, yağış oranı ve sis verileri başarıyla senkronize"
+          " edildi efendim."
+      )
+
+  st.markdown("### 📊 Atmosferik Gösterge Paneli:")
+  c1, c2, c3, c4 = st.columns(4)
+  c1.metric("Hedef Konum", sorgu_bolge, "Aktif")
+  c2.metric("Sıcaklık & Nem", "Canlı Takip", "Stabil 🟢")
+  c3.metric("Yağış & Sis Oranı", "Uydu Analizi", "Güncel")
+  c4.metric("Kuantum Radar", "Bağlı", "100%")
 
 # ==========================================
-# 14. MODÜL 5: KRİPTO PARA & PİYASA ANALİZİ
+# 14. MODÜL 5: DÖVİZ (DOLAR, EURO, STERLİN) & KRİPTO PİYASA ANALİZİ
 # ==========================================
-elif ana_secim == "🪙 Kripto Para & Küresel Piyasa Analizi":
-  st.subheader("🪙 TITAN Finansal Piyasalar ve Kripto Varlık Takibi")
+elif ana_secim == "🪙 Döviz (Dolar, Euro, Sterlin) & Kripto Analizi":
+  st.subheader(
+      "🪙 TITAN Küresel Döviz Kurları (USD, EUR, GBP) ve Kripto Piyasaları"
+  )
   st.markdown(
-      "Bitcoin, Ethereum ve küresel borsa varlıklarının anlık durumunu"
-      " takip edin efendim."
+      "Her gün güncel piyasa fiyatlarıyla değişen Dolar, Euro, Sterlin ve"
+      " kripto para birimlerini takip edin efendim."
   )
 
-  kripto_secim = st.selectbox(
-      "Analiz Edilecek Varlık:",
+  secilen_varlik = st.selectbox(
+      "Analiz Edilecek Küresel Varlık / Para Birimi:",
       [
+          "Amerikan Doları (USD/TRY)",
+          "Euro (EUR/TRY)",
+          "İngiliz Sterlini (GBP/TRY)",
           "Bitcoin (BTC)",
           "Ethereum (ETH)",
           "Solana (SOL)",
-          "Binance Coin (BNB)",
           "Ripple (XRP)",
       ],
   )
-  if st.button("Piyasa Fiyatını ve Analizi Çek"):
+
+  if st.button("Güncel Piyasa Kurunu ve Analizi Çek"):
     with st.spinner(
-        f"Küresel borsa ağlarından {kripto_secim} verileri çekiliyor..."
+        f"Küresel borsa ve merkez bankalarından {secilen_varlik} canlı fiyatı"
+        " çekiliyor..."
     ):
-      piyasa_bilgi = titan_web_aramasi_yap(
-          f"{kripto_secim} güncel fiyat dolar analiz"
+      piyasa_sonuc = titan_web_aramasi_yap(
+          f"{secilen_varlik} güncel kur fiyatı canlı piyasa analiz"
       )
       st.info(
-          f"📈 **{kripto_secim} Canlı Piyasa Raporu:**"
-          f" {str(piyasa_bilgi)[:350]}..."
+          f"📈 **{secilen_varlik} Canlı Piyasa ve Kur Raporu:**"
+          f" {str(piyasa_sonuc)[:450]}..."
       )
-      st.success("Finansal veriler başarıyla işlendi efendim.")
+      st.success("Finansal veriler güncel kur bazında işlendi efendim.")
 
-  st.markdown("### 💼 Portföy Varlık Listesi:")
+  st.markdown("### 💼 Aktif Takip Edilen Varlıklar ve Kurlar:")
   for item in st.session_state.kripto_portfoy:
     st.write(
-        f"- 🪙 **{item['coin']}** | Miktar: `{item['adet']}` | Hedef Fiyat:"
+        f"- 🪙 **{item['coin']}** | Tür: `{item['adet']}` | Hedef/Durum:"
         f" `{item['hedef']}`"
     )
 
@@ -914,7 +895,7 @@ else:
       with col_g2:
         if g["durum"] != "Tamamlandı ✅":
           if st.button("Tamamla", key=f"btn_gorev_{i}"):
-            st.session_state.gorevler[i]["durum"] = "Tamamlandı ✅"
+            st.session_state.gorevler[[i]]["durum"] = "Tamamlandı ✅"
             st.rerun()
 
   st.markdown("---")

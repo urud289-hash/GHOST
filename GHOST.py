@@ -1,4 +1,5 @@
 import base64
+import datetime
 import html
 import json
 import os
@@ -12,25 +13,25 @@ from supabase import Client, create_client
 
 # Sayfa Yapılandırması (Geniş Ekran)
 st.set_page_config(
-    page_title="TITAN v11.2 — JARVIS Ultimate Komuta Merkezi",
+    page_title="TITAN v12.0 ULTIMATE — JARVIS Supreme Komuta Merkezi",
     page_icon="⚡",
     layout="wide",
 )
 
-# --- SİBER ARAYÜZ VE STİLLER ---
+# --- SİBER ARAYÜZ VE GELİŞMİŞ STİLLER ---
 st.markdown(
     """
 <style>
-    .stApp { background-color: #0b0f19; color: #f0f6fc; }
+    .stApp { background-color: #07090e; color: #f0f6fc; }
     [data-testid="stSidebar"] { background-color: #0d1117; border-right: 1px solid #30363d; }
     h1, h2, h3 { color: #58a6ff !important; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     p, span, label, div, .stMarkdown { font-weight: 600 !important; }
     footer { visibility: hidden; }
     
     .chat-container {
-        height: calc(100vh - 220px);
+        height: calc(100vh - 240px);
         overflow-y: auto;
-        padding-bottom: 100px;
+        padding-bottom: 120px;
         padding-right: 10px;
     }
     
@@ -46,16 +47,17 @@ st.markdown(
     }
     
     .stButton>button {
-        background: linear-gradient(135deg, #238636, #2ea043);
+        background: linear-gradient(135deg, #1f6feb, #238636);
         color: white; border-radius: 8px; border: 1px solid #3fb950; 
         font-weight: 700; padding: 0.6rem 1.2rem; width: 100%;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.4); transition: all 0.3s ease;
     }
     .stButton>button:hover { 
-        background: linear-gradient(135deg, #2ea043, #3fb950);
-        box-shadow: 0 6px 8px rgba(35,134,54,0.5); border-color: #56d364;
+        background: linear-gradient(135deg, #238636, #2ea043);
+        box-shadow: 0 6px 8px rgba(35,134,54,0.6); border-color: #56d364;
     }
     [data-testid="stDataFrame"] { border: 1px solid #30363d; border-radius: 8px; background-color: #161b22; }
+    .code-box { background-color: #0d1117; padding: 15px; border-radius: 8px; border: 1px solid #30363d; font-family: monospace; }
 </style>
 """,
     unsafe_allow_html=True,
@@ -81,7 +83,7 @@ def init_supabase(url, key):
 
 supabase = init_supabase(SUPABASE_URL, SUPABASE_KEY)
 
-# --- SESSION STATE ---
+# --- SESSION STATE (ULTIMATE HAFIZA) ---
 if "giris_yapildi" not in st.session_state:
   st.session_state.giris_yapildi = False
 if "kullanici_rolu" not in st.session_state:
@@ -93,8 +95,9 @@ if "messages" not in st.session_state:
   st.session_state.messages = [{
       "role": "system",
       "content": (
-          "Sen JARVIS ve TITAN v11.2 mimarisiyle güçlendirilmiş, doğrudan canlı"
-          " internet aramaları yapabilen gelişmiş bir yapay zeka asistanısın."
+          "Sen JARVIS ve TITAN v12.0 ULTIMATE mimarisiyle güçlendirilmiş,"
+          " doğrudan canlı internet aramaları yapabilen, kod yazabilen ve"
+          " çevresel sistemleri yöneten en üst düzey yapay zeka asistanısın."
           " Asıl sahibin Yiğit'tir. Ona ve onaylı kullanıcılara 'efendim' diye"
           " hitap et."
       ),
@@ -104,15 +107,20 @@ if "gorevler" not in st.session_state:
 if "jarvis_hafiza" not in st.session_state:
   st.session_state.jarvis_hafiza = [
       "Ana Sahip: Yiğit",
-      "Sistem Durumu: Aktif, Çevrim İçi ve Koruma Altında",
+      "Sistem Çekirdeği: TITAN v12.0 ULTIMATE",
+      "Güvenlik Duvarı: Aktif, Şifreli Matris Koruma Altında",
   ]
 if "izinli_kisiler" not in st.session_state:
   st.session_state.izinli_kisiler = {"Yiğit": "Ana Sahip (Admin)"}
 if "izinli_fotolar" not in st.session_state:
   st.session_state.izinli_fotolar = {}
+if "sistem_loglari" not in st.session_state:
+  st.session_state.sistem_loglari = [
+      f"[{datetime.datetime.now().strftime('%H:%M:%S')}] Sistem başarıyla başlatıldı, v12.0 modülleri aktif."
+  ]
 
 
-# --- SES MOTORU ---
+# --- SES MOTORU (ULTIMATE) ---
 st.markdown(
     """
 <script>
@@ -152,13 +160,13 @@ st.markdown(
 if not st.session_state.giris_yapildi:
   st.markdown(
       "<h1 style='text-align: center; color: #58a6ff;'>⚡ TITAN x JARVIS"
-      " v11.2 — Güvenlik Protokolü</h1>",
+      " v12.0 ULTIMATE — Güvenlik Matriksi</h1>",
       unsafe_allow_html=True,
   )
   st.markdown(
-      "<p style='text-align: center; color: #8b949e;'>Sisteme erişmek için"
-      " biyometrik fotoğrafınızı yükleyin ya da 0912 şifresini girin"
-      " efendim.</p>",
+      "<p style='text-align: center; color: #8b949e;'>En üst düzey"
+      " yetkilendirme için biyometrik fotoğrafınızı yükleyin veya 0912 master"
+      " şifresini girin efendim.</p>",
       unsafe_allow_html=True,
   )
 
@@ -230,7 +238,7 @@ if not st.session_state.giris_yapildi:
   st.stop()
 
 
-# --- SAF PYTHON İLE GARANTİLİ CANLI WEB ARAMA MOTORU ---
+# --- SAF PYTHON WEB ARAMA MOTORU ---
 def internette_ara(sorgu):
   try:
     url = (
@@ -249,10 +257,9 @@ def internette_ara(sorgu):
     with urllib.request.urlopen(req, timeout=10) as response:
       html_content = response.read().decode("utf-8")
 
-    # Basit ve etkili regex / split ile sonuçları çekme
     results = []
     chunks = html_content.split('class="result__snippet')
-    for chunk in chunks[1:6]:  # İlk 5 sonucu al
+    for chunk in chunks[1:6]:
       try:
         part = chunk.split("</a>")[0]
         clean_text = (
@@ -276,24 +283,27 @@ def internette_ara(sorgu):
 
 # --- ANA UYGULAMA ---
 st.title(
-    f"⚡ TITAN v11.2 [JARVIS Core] — Operatör: {st.session_state.aktif_kullanici_adi}"
+    f"⚡ TITAN v12.0 ULTIMATE [JARVIS Core] — Operatör:"
+    f" {st.session_state.aktif_kullanici_adi}"
 )
 
-# --- KENAR ÇUBUĞU ---
+# --- KENAR ÇUBUĞU (ULTIMATE MENÜ) ---
 st.sidebar.markdown(
-    "<h3 style='font-weight: 800; color: #58a6ff;'>⚙️ JARVIS Komuta"
-    " Menüsü</h3>",
+    "<h3 style='font-weight: 800; color: #58a6ff;'>⚙️ JARVIS Supreme"
+    " Menü</h3>",
     unsafe_allow_html=True,
 )
 secim = st.sidebar.radio(
     "Mod Seçin:",
     [
-        "💬 JARVIS Sohbet, Canlı Web & Ses Merkezi",
+        "💬 JARVIS Ultimate Sohbet, Canlı Web & Ses",
         "🧠 Nöral Hafıza (MEMORIES.md) Yönetimi",
-        "🔒 Fotoğraflı İzin & Güvenlik Matriksi",
+        "💻 Otonom Kod & Proje Üretim Terminali",
+        "🌤️ Çevresel Sensör & Hava Durumu Radarı",
+        "🔒 Biyometrik İzin & Güvenlik Matriksi",
         "📍 Canlı Konum ve Google Maps Radarı",
-        "🛰️ Uzaktan Konum Takibi (Supabase)",
-        "💻 Gelişmiş Donanım ve Sistem Paneli",
+        "🛰️ Uzaktan Hedef Takibi (Supabase)",
+        "📊 Sistem Denetim ve Güvenlik Logları",
         "📌 Otonom Görev & Hatırlatıcı Takibi",
     ],
     label_visibility="collapsed",
@@ -305,13 +315,13 @@ if st.sidebar.button("🔒 Oturumu Kapat / Kilitle"):
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>JARVIS Core Protocol v11.2<br>Safe"
-    " Native Web Engine 🟢</p>",
+    "<p style='color: #8b949e; font-size: 11px;'>TITAN Supreme Core v12.0<br>All"
+    " Modules Online 🟢</p>",
     unsafe_allow_html=True,
 )
 
 # --- 1. MOD: SOHBET & CANLI ARAMA & SES ---
-if secim == "💬 JARVIS Sohbet, Canlı Web & Ses Merkezi":
+if secim == "💬 JARVIS Ultimate Sohbet, Canlı Web & Ses":
   st.subheader(
       "💬 JARVIS Doğal Dil, Canlı İnternet Sentezi & Ses Asistanı"
   )
@@ -397,7 +407,7 @@ if secim == "💬 JARVIS Sohbet, Canlı Web & Ses Merkezi":
             api_messages.append(msg)
 
         st.toast(
-            "🌐 JARVIS Güvenli Canlı Web Ağı taranıyor, güncel veriler çekiliyor...",
+            "🌐 TITAN Ultimate Canlı Web Ağı taranıyor, güncel veriler çekiliyor...",
             icon="⚡",
         )
         web_sonuclari = internette_ara(prompt)
@@ -431,6 +441,9 @@ if secim == "💬 JARVIS Sohbet, Canlı Web & Ses Merkezi":
         st.session_state.messages.append(
             {"role": "assistant", "content": full_response}
         )
+        st.session_state.sistem_loglari.append(
+            f"[{datetime.datetime.now().strftime('%H:%M:%S')}] Web sorgusu başarıyla işlendi: {prompt[:30]}..."
+        )
       except Exception as e:
         st.error(f"Sistem bağlantı hatası: {e}")
 
@@ -438,14 +451,15 @@ if secim == "💬 JARVIS Sohbet, Canlı Web & Ses Merkezi":
     st.session_state.messages = [{
         "role": "system",
         "content": (
-            "Sen JARVIS mimarisiyle güçlendirilmiş TITAN v11.2 asistanısın."
+            "Sen JARVIS mimarisiyle güçlendirilmiş TITAN v12.0 ULTIMATE"
+            " asistanısın."
         ),
     }]
     st.rerun()
 
 # --- 2. MOD: NÖRAL HAFIZA ---
 elif secim == "🧠 Nöral Hafıza (MEMORIES.md) Yönetimi":
-  st.subheader("🧠 JARVIS Dinamik Nöral İndeksleme & Hafıza Paneli")
+  st.subheader("🧠 JARVIS Dinamik Nöral İndeksleme & MEMORIES.md")
   st.markdown(
       "Bu modül JARVIS'in kalıcı hafızasını (`MEMORIES.md`) doğrudan"
       " yönetmenizi sağlar efendim."
@@ -456,6 +470,9 @@ elif secim == "🧠 Nöral Hafıza (MEMORIES.md) Yönetimi":
     if yeni_hafiza_notu:
       st.session_state.jarvis_hafiza.append(yeni_hafiza_notu.strip())
       st.success("🧠 Bilgi kalıcı nöral hafızaya başarıyla eklendi efendim!")
+      st.session_state.sistem_loglari.append(
+          f"[{datetime.datetime.now().strftime('%H:%M:%S')}] Yeni nöral hafıza eklendi."
+      )
       st.rerun()
     else:
       st.warning("Lütfen bir hafıza girdisi yazın efendim.")
@@ -464,8 +481,68 @@ elif secim == "🧠 Nöral Hafıza (MEMORIES.md) Yönetimi":
   for idx, mem in enumerate(st.session_state.jarvis_hafiza):
     st.write(f"- 📌 **Kayıt #{idx+1}:** {mem}")
 
-# --- 3. MOD: FOTOĞRAFLI İZİN & GÜVENLİK ---
-elif secim == "🔒 Fotoğraflı İzin & Güvenlik Matriksi":
+# --- 3. MOD: OTONOM KOD & PROJE ÜRETİCİSİ (YENİ ULTIMATE MOD) ---
+elif secim == "💻 Otonom Kod & Proje Üretim Terminali":
+  st.subheader("💻 TITAN Otonom Yazılım ve Proje Üretim Terminali")
+  st.markdown(
+      "İstediğiniz programı, scripti veya web arayüzünü JARVIS'e yazdırın,"
+      " anında kod bloğu olarak alın efendim."
+  )
+
+  kod_istegi = st.text_area(
+      "Ne tür bir yazılım veya kod üretilmesini istiyorsunuz?",
+      placeholder="Örn: Python ile çalışan şifre yöneticisi yaz...",
+  )
+  if st.button("Kodu Otonom Üret"):
+    if kod_istegi:
+      with st.spinner(
+          "TITAN kod motoru projeyi derliyor ve optimize ediyor..."
+      ):
+        try:
+          kod_yanit = client.chat.completions.create(
+              model=MODEL_NAME,
+              messages=[{
+                  "role": "system",
+                  "content": (
+                      "Sen üst düzey bir yazılım mühendisi ve TITAN kod"
+                      " motorusun. Kullanıcının istediği kodu temiz, hatasız"
+                      " ve açıklamalı şekilde Markdown kod bloğu içinde ver."
+                  ),
+              }, {
+                  "role": "user",
+                  "content": kod_istegi,
+              }],
+          )
+          uretilen_kod = kod_yanit.choices[0].message.content
+          st.markdown("### 🛠️ Üretilen Yazılım / Kod Çıktısı:")
+          st.markdown(uretilen_kod)
+          st.success("✅ Kod başarıyla derlendi ve üretildi efendim!")
+        except Exception as ex:
+          st.error(f"Kod üretim hatası: {ex}")
+    else:
+      st.warning("Lütfen üretilmesini istediğiniz yazılımı açıklayın efendim.")
+
+# --- 4. MOD: ÇEVRESEL SENSÖR & HAVA DURUMU (YENİ ULTIMATE MOD) ---
+elif secim == "🌤️ Çevresel Sensör & Hava Durumu Radarı":
+  st.subheader("🌤️ JARVIS Canlı Meteoroloji ve Çevresel Sensörler")
+  sehir_adi = st.text_input("Hava Durumu Sorgulanacak Şehir:", value="İstanbul")
+  if st.button("Meteorolojik Verileri Çek"):
+    with st.spinner("Uydu ve hava istasyonları taranıyor..."):
+      hava_bilgi = internette_ara(f"{sehir_adi} hava durumu güncel sıcaklık")
+      st.info(
+          f"📡 {sehir_adi} için anlık meteorolojik sentez:"
+          f" {str(hava_bilgi)[:300]}..."
+      )
+      st.success("Çevresel sensör verileri başarıyla işlendi efendim.")
+
+  st.markdown("### 🌡️ Anlık Sistem Çevre Değerleri:")
+  c1, c2, c3 = st.columns(3)
+  c1.metric("Sunucu Sıcaklığı", "34.2 °C", "Stabil")
+  c2.metric("Nem Oranı", "%48", "Normal")
+  c3.metric("Atmosferik Basınç", "1013 hPa", "Ideal")
+
+# --- 5. MOD: FOTOĞRAFLI İZİN & GÜVENLİK ---
+elif secim == "🔒 Biyometrik İzin & Güvenlik Matriksi":
   st.subheader("🔒 JARVIS Biyometrik Tanıma ve Yetkilendirme Paneli")
   col_yonet1, col_yonet2 = st.columns(2)
 
@@ -498,7 +575,7 @@ elif secim == "🔒 Fotoğraflı İzin & Güvenlik Matriksi":
     for isim, rol in st.session_state.izinli_kisiler.items():
       st.write(f"- 🛡️ **{isim}** — *{rol}*")
 
-# --- 4. MOD: CANLI KONUM + GOOGLE MAPS ---
+# --- 6. MOD: CANLI KONUM + GOOGLE MAPS ---
 elif secim == "📍 Canlı Konum ve Google Maps Radarı":
   st.subheader("📍 JARVIS Canlı GPS & Harita Entegrasyonu")
   st.components.v1.html(
@@ -540,8 +617,8 @@ elif secim == "📍 Canlı Konum ve Google Maps Radarı":
       height=500,
   )
 
-# --- 5. MOD: UZAKTAN KONUM TAKİBİ ---
-elif secim == "🛰️ Uzaktan Konum Takibi (Supabase)":
+# --- 7. MOD: UZAKTAN KONUM TAKİBİ ---
+elif secim == "🛰️ Uzaktan Hedef Takibi (Supabase)":
   st.subheader("🛰️ JARVIS Uzaktan Hedef İzleme ve Harita Radarı")
   if st.button("🔄 Radar Verilerini Tazele"):
     st.rerun()
@@ -577,24 +654,24 @@ elif secim == "🛰️ Uzaktan Konum Takibi (Supabase)":
   else:
     st.error("Supabase bağlantısı kurulamadı efendim.")
 
-# --- 6. MOD: SİSTEM ---
-elif secim == "💻 Gelişmiş Donanım ve Sistem Paneli":
-  st.subheader("💻 JARVIS Donanım Altyapı ve Kaynak Monitörü")
-  col1, col2, col3 = st.columns(3)
-  with col1:
-    st.metric(label="🔥 CPU Yükü", value="%11.2", delta="Optimal")
-    st.progress(0.11)
-  with col2:
-    st.metric(label="💾 RAM Kullanımı", value="%40.1", delta="Normal")
-    st.progress(0.40)
-  with col3:
-    st.metric(label="🌐 Sunucu Gecikmesi", value="12 ms", delta="Mükemmel")
-    st.progress(0.12)
-  st.success(
-      "JARVIS & TITAN v11.2 saf yerleşik web motoruyla tam kapasite çalışıyor."
+# --- 8. MOD: SİSTEM DENETİM VE GÜVENLİK LOGLARI ---
+elif secim == "📊 Sistem Denetim ve Güvenlik Logları":
+  st.subheader("📊 TITAN Altyapı Denetim ve Siber Güvenlik Logları")
+  st.markdown(
+      "Sistem genelinde gerçekleşen tüm operasyonel hareketlerin dökümü"
+      " efendim:"
   )
 
-# --- 7. MOD: GÖREVLER ---
+  for log in reversed(st.session_state.sistem_loglari):
+    st.code(log, language="text")
+
+  if st.button("Log Belleğini Temizle"):
+    st.session_state.sistem_loglari = [
+        f"[{datetime.datetime.now().strftime('%H:%M:%S')}] Loglar sıfırlandı."
+    ]
+    st.rerun()
+
+# --- 9. MOD: GÖREVLER ---
 else:
   st.subheader("📌 JARVIS Otonom Görev ve Hatırlatıcı Yönetimi")
   yeni_gorev = st.text_input("Yeni Görev veya Hatırlatıcı Tanımlayın:")

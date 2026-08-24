@@ -10,10 +10,10 @@ from supabase import Client, create_client
 
 # Sayfa Yapılandırması (Geniş Ekran)
 st.set_page_config(
-    page_title="GHOST AI - Ultimate Komuta Merkezi", page_icon="👻", layout="wide"
+    page_title="TITAN AI - Ultimate Komuta Merkezi", page_icon="⚡", layout="wide"
 )
 
-# --- SİBER ARAYÜZ VE STİLLER (Kesin Siyah Kalın Yazı Ayarlı) ---
+# --- SİBER ARAYÜZ VE STİLLER ---
 st.markdown(
     """
 <style>
@@ -23,7 +23,6 @@ st.markdown(
     p, span, label, div, .stMarkdown { font-weight: 600 !important; }
     footer { visibility: hidden; }
     
-    /* Kaydırılabilir Sohbet Alanı */
     .chat-container {
         height: calc(100vh - 200px);
         overflow-y: auto;
@@ -31,7 +30,6 @@ st.markdown(
         padding-right: 10px;
     }
     
-    /* Streamlit Chat Input Yazı Rengi ve Kutusu */
     [data-testid="stChatInput"] textarea {
         color: #000000 !important;
         font-weight: 800 !important;
@@ -79,39 +77,39 @@ def init_supabase(url, key):
 
 supabase = init_supabase(SUPABASE_URL, SUPABASE_KEY)
 
-# Hafıza Yönetimi
+# --- SESSION STATE (HAFIZA VE GÜVENLİK YÖNETİMİ) ---
+if "giris_yapildi" not in st.session_state:
+  st.session_state.giris_yapildi = False
+if "kullanici_rolu" not in st.session_state:
+  st.session_state.kullanici_rolu = None  # "sahip" veya "yetkili_misafir"
+if "aktif_kullanici_adi" not in st.session_state:
+  st.session_state.aktif_kullanici_adi = ""
+
 if "messages" not in st.session_state:
   st.session_state.messages = [{
       "role": "system",
       "content": (
           "Sen gelişmiş, aktif ve anlık internet arama yeteneğine sahip olan bir"
-          " yapay zeka asistanı olan GHOST'sun. Kullanıcı sana hava durumu,"
-          " güncel haberler veya anlık veriler sorduğunda internetten araştırma"
-          " yapabilirsin. Her zaman 'efendim' diye hitap et."
+          " yapay zeka asistanı olan TITAN'sın. Kullanıcının asıl sahibi Yiğit'tir."
+          " Ona ve onaylı kullanıcılara her zaman 'efendim' diye hitap et."
       ),
   }]
 if "gorevler" not in st.session_state:
   st.session_state.gorevler = []
 if "yuz_hafizasi" not in st.session_state:
+  # Sistem ilk açıldığında Yiğit'in ana sahip profili için örnek alan
   st.session_state.yuz_hafizasi = {}
-
-
-# --- İNTERNET ARAMA FONKSİYONU ---
-def internette_ara(sorgu):
-  try:
-    results = DDGS().text(sorgu, max_results=3)
-    if results:
-      return json.dumps(results, ensure_ascii=False)
-    return "Arama sonucu bulunamadı efendim."
-  except Exception as e:
-    return f"Arama yapılırken bir hata oluştu: {str(e)}"
+if "yetkili_arkadaslar" not in st.session_state:
+  st.session_state.yetkili_arkadaslar = (
+      {}
+  )  # Sadece senin onayladığın kişilerin yüzleri
 
 
 # --- SES VE MİKROFON MOTORU ---
 st.markdown(
     """
 <script>
-    function ghostKonus(metin) {
+    function titanKonus(metin) {
         if (!('speechSynthesis' in window)) return;
         window.speechSynthesis.cancel();
         var msg = new SpeechSynthesisUtterance(metin);
@@ -139,39 +137,142 @@ st.markdown(
     if ('speechSynthesis' in window) {
         window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
     }
-
-    function sesliKomutBaslat() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert("Tarayıcınız sesli komutu desteklemiyor efendim.");
-            return;
-        }
-        try {
-            var recognition = new SpeechRecognition();
-            recognition.lang = 'tr-TR';
-            recognition.interimResults = false;
-            recognition.onresult = function(event) {
-                var sesMetni = event.results[0][0].transcript;
-                const txtInput = window.parent.document.querySelector('textarea[data-testid="stChatInput"]');
-                if (txtInput) {
-                    let setter = Object.getOwnPropertyDescriptor(window.parent.HTMLTextAreaElement.prototype, "value").set;
-                    setter.call(txtInput, sesMetni);
-                    txtInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            };
-            recognition.start();
-        } catch(e) { alert("Mikrofon hatası: " + e.message); }
-    }
 </script>
 """,
     unsafe_allow_html=True,
 )
 
-st.title("👻 GHOST AI - Ultimate Komuta ve Takip Merkezi")
+
+# --- GİRİŞ EKRANI (BİYOMETRİK + ŞİFRE 0912 KONTROLÜ) ---
+if not st.session_state.giris_yapildi:
+  st.markdown(
+      "<h1 style='text-align: center; color: #58a6ff;'>⚡ TITAN AI - Güvenlik"
+      " Doğrulama Kapısı</h1>",
+      unsafe_allow_html=True,
+  )
+  st.markdown(
+      "<p style='text-align: center; color: #8b949e;'>Sisteme erişmek için"
+      " lütfen yüzünüzü taratın veya güvenlik şifresini girin efendim.</p>",
+      unsafe_allow_html=True,
+  )
+
+  col_giris1, col_giris2 = st.columns(2)
+
+  with col_giris1:
+    st.markdown("### 🧬 Yüz Tanıma ile Giriş")
+    giris_fotosu = st.file_uploader(
+        "Yüz Fotoğrafınızı Yükleyin",
+        type=["jpg", "jpeg", "png"],
+        key="giris_yuz",
+    )
+    if st.button("Yüzü Doğrula ve Sisteme Gir"):
+      if giris_fotosu:
+        dosya_adi = giris_fotosu.name
+        # Eğer ilk defa giriliyorsa veya hafızada yoksa sistem seni (Yiğit) olarak kaydeder
+        if (
+            not st.session_state.yuz_hafizasi
+            and "yigit" not in str(st.session_state.yuz_hafizasi).lower()
+        ):
+          st.session_state.yuz_hafizasi[dosya_adi] = "Yiğit (Ana Sahip)"
+          st.session_state.giris_yapildi = True
+          st.session_state.kullanici_rolu = "sahip"
+          st.session_state.aktif_kullanici_adi = "Yiğit"
+          st.success(
+              "🎯 Biyometrik Doğrulama Başarılı! Hoş geldin Yiğit efendim."
+          )
+          st.components.v1.html(
+              '<script>titanKonus("Hoş geldin Yiğit efendim, güvenlik'
+              ' onaylandı.");</script>',
+              height=0,
+          )
+          st.rerun()
+        elif dosya_adi in st.session_state.yuz_hafizasi:
+          sahip_adi = st.session_state.yuz_hafizasi[dosya_adi]
+          st.session_state.giris_yapildi = True
+          st.session_state.kullanici_rolu = "sahip"
+          st.session_state.aktif_kullanici_adi = sahip_adi
+          st.success(
+              f"🎯 Biyometrik Doğrulama Başarılı! Hoş geldin {sahip_adi}"
+              " efendim."
+          )
+          st.components.v1.html(
+              f'<script>titanKonus("Hoş geldin {sahip_adi} efendim.");</script>',
+              height=0,
+          )
+          st.rerun()
+        elif dosya_adi in st.session_state.yetkili_arkadaslar:
+          arkadas_adi = st.session_state.yetkili_arkadaslar[dosya_adi]
+          st.session_state.giris_yapildi = True
+          st.session_state.kullanici_rolu = "misafir"
+          st.session_state.aktif_kullanici_adi = arkadas_adi
+          st.success(
+              f"✅ Erişim Onaylandı. Hoş geldin {arkadas_adi} efendim."
+          )
+          st.components.v1.html(
+              f'<script>titanKonus("Hoş geldin {arkadas_adi}"'
+              ' efendim.);</script>',
+              height=0,
+          )
+          st.rerun()
+        else:
+          st.error(
+              "⚠️ Yüz tanınamadı! Bu yüz sisteme kayıtlı değil efendim."
+          )
+          st.components.v1.html(
+              '<script>titanKonus("Yüz tanınamadı, erişim reddedildi'
+              ' efendim.");</script>',
+              height=0,
+          )
+      else:
+        st.warning("Lütfen doğrulama için bir yüz fotoğrafı yükleyin efendim.")
+
+  with col_giris2:
+    st.markdown("### #️⃣ Şifre ile Giriş")
+    sifre_input = st.text_input(
+        "Güvenlik Şifresini Girin:", type="password", key="giris_sifre"
+    )
+    if st.button("Şifre ile Giriş Yap"):
+      if sifre_input == "0912":
+        st.session_state.giris_yapildi = True
+        st.session_state.kullanici_rolu = "sahip"
+        st.session_state.aktif_kullanici_adi = "Yiğit (Şifre Girişi)"
+        st.success("🔓 Şifre Doğrulandı! Hoş geldin Yiğit efendim.")
+        st.components.v1.html(
+            '<script>titanKonus("Şifre doğrulandı, hoş geldin Yiğit'
+            ' efendim.");</script>',
+            height=0,
+        )
+        st.rerun()
+      else:
+        st.error("❌ Hatalı şifre efendim!")
+        st.components.v1.html(
+            '<script>titanKonus("Hatalı şifre girdiniz efendim.");</script>',
+            height=0,
+        )
+
+  st.stop()  # Giriş yapılmadan alt taraftaki komuta merkezine asla geçilmez!
+
+
+# --- İNTERNET ARAMA FONKSİYONU ---
+def internette_ara(sorgu):
+  try:
+    results = DDGS().text(sorgu, max_results=3)
+    if results:
+      return json.dumps(results, ensure_ascii=False)
+    return "Arama sonucu bulunamadı efendim."
+  except Exception as e:
+    return f"Arama yapılırken bir hata oluştu: {str(e)}"
+
+
+# --- ANA UYGULAMA (GİRİŞ YAPILDIKTAN SONRAKİ EKRAN) ---
+st.title(
+    f"⚡ TITAN AI - Komuta Merkezi (Aktif Kullanıcı:"
+    f" {st.session_state.aktif_kullanici_adi})"
+)
 
 # --- KENAR ÇUBUĞU ---
 st.sidebar.markdown(
-    "<h3 style='font-weight: 800; color: #58a6ff;'>⚙️ GHOST Operasyon"
+    "<h3 style='font-weight: 800; color: #58a6ff;'>⚙️ TITAN Operasyon"
     " Menüsü</h3>",
     unsafe_allow_html=True,
 )
@@ -179,7 +280,7 @@ secim = st.sidebar.radio(
     "Mod Seçin:",
     [
         "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses",
-        "🔍 Biyometrik Yüz Tanıma & Hafıza",
+        "🔍 Biyometrik Yüz Tanıma & Arkadaş Modülü",
         "📍 Canlı Konum Takibi",
         "🛰️ Uzaktan Konum Takip (Radar)",
         "💻 Sistem Komuta Paneli",
@@ -188,18 +289,21 @@ secim = st.sidebar.radio(
     label_visibility="collapsed",
 )
 
+if st.sidebar.button("🔒 Oturumu Kapat / Kilitle"):
+  st.session_state.giris_yapildi = False
+  st.rerun()
+
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v7.2<br>Resim"
-    " Hatası Giderildi 🟢</p>",
+    "<p style='color: #8b949e; font-size: 12px;'>TITAN Ultimate v8.0<br>Güvenlik"
+    " & Arkadaş Modu Aktif 🟢</p>",
     unsafe_allow_html=True,
 )
 
-# --- 1. MOD: SOHBET, MİKROFON, FOTOĞRAF VE SABİT ALT ÇUBUK ---
+# --- 1. MOD: SOHBET, MİKROFON, FOTOĞRAF VE SES ---
 if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
   st.subheader("💬 Sohbet, Gerçek Zamanlı Arama ve Ses Merkezi")
 
-  # KAYDIRILABİLİR SOHBET ALANI
   st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 
   for i, message in enumerate(st.session_state.messages):
@@ -232,19 +336,17 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
           )
           if st.button(f"🔊 Bu Yanıtı Sesli Oku", key=f"ses_{i}"):
             st.components.v1.html(
-                f'<script>ghostKonus("{temiz_metin}");</script>', height=0
+                f'<script>titanKonus("{temiz_metin}");</script>', height=0
             )
 
   st.markdown("</div>", unsafe_allow_html=True)
 
-  # DOSYA YÜKLEME İÇİN KÜÇÜK BİR ALAN
   with st.expander("📸 Fotoğraf veya Dosya Ekle (İsteğe Bağlı)"):
     yuklenen_dosya = st.file_uploader(
         "Dosya Seç", type=["jpg", "jpeg", "png"], label_visibility="collapsed"
     )
 
-  # STANDART STREAMLIT CHAT GİRDİ ALANI
-  prompt = st.chat_input("GHOST'a mesajını yaz efendim...")
+  prompt = st.chat_input("TITAN'a mesajını yaz efendim...")
 
   if prompt:
     user_content = []
@@ -265,11 +367,9 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
     with st.chat_message("assistant"):
       message_placeholder = st.empty()
       try:
-        # API için mesajları hazırla (Resim içeren geçmiş mesajları API hatası vermemesi için metne dönüştür)
         api_messages = []
         for msg in st.session_state.messages:
           if isinstance(msg["content"], list):
-            # Eğer mesaj içinde resim varsa API hatası almamak için sadece metin kısmını alıyoruz
             txt_part = next(
                 (
                     item["text"]
@@ -319,7 +419,7 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
             .replace("*", "")
         )
         st.components.v1.html(
-            f'<script>ghostKonus("{temiz_yanit}");</script>', height=0
+            f'<script>titanKonus("{temiz_yanit}");</script>', height=0
         )
 
         st.session_state.messages.append(
@@ -333,71 +433,52 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
         "role": "system",
         "content": (
             "Sen gelişmiş, aktif ve anlık internet arama yeteneğine sahip olan"
-            " bir yapay zeka asistanı olan GHOST'sun."
+            " bir yapay zeka asistanı olan TITAN'sın."
         ),
     }]
     st.rerun()
 
-# --- 2. MOD: BİYOMETRİK YÜZ TANIMA & HAFIZA ---
-elif secim == "🔍 Biyometrik Yüz Tanıma & Hafıza":
-  st.subheader("🔍 GHOST Biyometrik Yüz Tanıma ve Hafıza Modülü")
+# --- 2. MOD: BİYOMETRİK YÜZ TANIMA & ARKADAŞ YETKİLENDİRME ---
+elif secim == "🔍 Biyometrik Yüz Tanıma & Arkadaş Modülü":
+  st.subheader("🔍 TITAN Biyometrik Yüz Tanıma ve Arkadaş Yetkilendirme")
+  st.markdown(
+      "Bu modülde yalnızca senin onayladığın kişilerin (arkadaşlarcının)"
+      " yüzleri sisteme kaydedilir. Tanınmayan yüzler sisteme giriş yapamaz"
+      " efendim."
+  )
+
   col1, col2 = st.columns(2)
 
   with col1:
-    st.markdown("### 📥 1. Adım: Yüzü Kaydet")
-    kisi_adi = st.text_input("Kişinin Adı / Unvanı:")
-    kayit_dosya = st.file_uploader(
+    st.markdown("### 📥 Arkadaş / Kullanıcı Kaydet")
+    arkadas_adi = st.text_input("Kişinin Adı:")
+    arkadas_dosya = st.file_uploader(
         "Kişinin Fotoğrafını Yükle",
         type=["jpg", "jpeg", "png"],
-        key="kayit",
+        key="arkadas_kayit",
     )
 
-    if st.button("Hafızaya Biyometrik Olarak Ekle"):
-      if kisi_adi and kayit_dosya:
-        st.session_state.yuz_hafizasi[kayit_dosya.name] = kisi_adi
+    if st.button("Bu Kişiye TITAN Yetkisi Ver"):
+      if arkadas_adi and arkadas_dosya:
+        st.session_state.yetkili_arkadaslar[arkadas_dosya.name] = arkadas_adi
         st.success(
-            f"✅ {kisi_adi} başarıyla GHOST veritabanına işlendi, efendim!"
+            f"✅ {arkadas_adi} başarıyla TITAN onaylı kullanıcı listesine"
+            " eklendi efendim!"
         )
       else:
-        st.warning("Lütfen isim girin ve bir görsel yükleyin efendim.")
+        st.warning("Lütfen isim girin ve bir fotoğraf yükleyin efendim.")
 
   with col2:
-    st.markdown("### 🕵️ 2. Adım: Kişiyi Sorgula ve Tanı")
-    sorgu_dosya = st.file_uploader(
-        "Tanınacak Fotoğrafı Yükle", type=["jpg", "jpeg", "png"], key="sorgu"
-    )
-
-    if sorgu_dosya:
-      st.image(sorgu_dosya, caption="Taranan Girdi", width=250)
-      if st.button("Yüzü Analiz Et ve Kim olduğunu Bul"):
-        if sorgu_dosya.name in st.session_state.yuz_hafizasi:
-          bulunan_isim = st.session_state.yuz_hafizasi[sorgu_dosya.name]
-          mesaj_sesli = (
-              "Bu kişi biyometrik veritabanımdaki kayıtlara göre"
-              f" {bulunan_isim} efendim."
-          )
-          st.success(f"🎯 Eşleşme Sağlandı: **{bulunan_isim}**")
-          st.components.v1.html(
-              f'<script>ghostKonus("{mesaj_sesli}");</script>', height=0
-          )
-        else:
-          uyari_mesaji = "Bu yüzü tanımıyorum efendim."
-          st.warning(uyari_mesaji)
-          st.components.v1.html(
-              f'<script>ghostKonus("{uyari_mesaji}");</script>', height=0
-          )
-
-  st.markdown("---")
-  st.markdown("### 🗂️ Hafızadaki Kayıtlı Biyometrik Profiller:")
-  if not st.session_state.yuz_hafizasi:
-    st.info("Kayıtlı profil bulunmuyor efendim.")
-  else:
-    for dosya, isim in st.session_state.yuz_hafizasi.items():
-      st.write(f"- 👤 **{isim}** *(Dosya: {dosya})*")
+    st.markdown("### 📋 Yetkili Kullanıcı Listesi")
+    if not st.session_state.yetkili_arkadaslar:
+      st.info("Henüz ekli özel arkadaş/kullanıcı yok efendim.")
+    else:
+      for dosya, isim in st.session_state.yetkili_arkadaslar.items():
+        st.write(f"- 👤 **{isim}** *(Kayıt Dosyası: {dosya})*")
 
 # --- 3. MOD: CANLI KONUM ---
 elif secim == "📍 Canlı Konum Takibi":
-  st.subheader("📍 GHOST Canlı Konum Takip Sistemi")
+  st.subheader("📍 TITAN Canlı Konum Takip Sistemi")
   st.components.v1.html(
       """
     <div id="map-container" style="padding: 20px; background-color: #161b22; color: white; border-radius: 8px; border: 1px solid #30363d;">
@@ -432,7 +513,7 @@ elif secim == "📍 Canlı Konum Takibi":
 
 # --- 4. MOD: UZAKTAN KONUM TAKİP (RADAR) ---
 elif secim == "🛰️ Uzaktan Konum Takip (Radar)":
-  st.subheader("🛰️ GHOST Uzaktan Hedef Konum & Google Maps Radar Modülü")
+  st.subheader("🛰️ TITAN Uzaktan Hedef Konum & Google Maps Radar Modülü")
   if st.button("🔄 Radar Verilerini Yenile"):
     st.rerun()
 
@@ -484,7 +565,7 @@ elif secim == "💻 Sistem Komuta Paneli":
 
 # --- 6. MOD: GÖREVLER ---
 else:
-  st.subheader("📌 GHOST Görev ve Proje Takip Sistemi")
+  st.subheader("📌 TITAN Görev ve Proje Takip Sistemi")
   yeni_gorev = st.text_input("Yeni Görev / Operasyon Tanımı:")
   if st.button("Görev Ekle"):
     if yeni_gorev:

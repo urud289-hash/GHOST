@@ -13,7 +13,7 @@ st.set_page_config(
     page_title="GHOST AI - Ultimate Komuta Merkezi", page_icon="👻", layout="wide"
 )
 
-# --- SİBER ARAYÜZ VE STİLLER ---
+# --- SİBER ARAYÜZ VE STİLLER (Yazı Rengi ve Kutu Düzeltmeleriyle) ---
 st.markdown(
     """
 <style>
@@ -31,32 +31,16 @@ st.markdown(
         padding-right: 10px;
     }
     
-    /* Sabit Alt Kutu */
-    .fixed-bottom-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background-color: #161b22;
-        border-top: 2px solid #30363d;
-        padding: 12px 20px;
-        z-index: 99999;
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.8);
-    }
-    
-    /* Gemini Tarzı Açık Gri Kutu ve Siyah Kalın Yazı */
-    .stTextInput input {
-        background-color: #e3e8ee !important; 
-        color: #000000 !important; 
-        border: 1px solid #cbd5e1 !important; 
-        border-radius: 24px !important; 
-        font-weight: 800 !important; 
+    /* Streamlit Chat Input (Sohbet Yazma Kutusu) Kesin Siyah & Kalın Harf Stili */
+    [data-testid="stChatInput"] textarea {
+        color: #000000 !important;
+        font-weight: 800 !important;
         font-size: 16px !important;
-        padding: 10px 18px !important;
+        background-color: #e3e8ee !important;
     }
-    .stTextInput input::placeholder {
-        color: #475569 !important;
-        font-weight: 700 !important;
+    [data-testid="stChatInput"] {
+        background-color: #161b22 !important;
+        border-radius: 12px !important;
     }
     
     .stButton>button {
@@ -95,13 +79,15 @@ def init_supabase(url, key):
 
 supabase = init_supabase(SUPABASE_URL, SUPABASE_KEY)
 
-# Hafıza Yönetimi
+# Hafıza Yönetimi (İnternet erişim yetkisi netleştirildi)
 if "messages" not in st.session_state:
   st.session_state.messages = [{
       "role": "system",
       "content": (
-          "Sen gelişmiş ve gerçek zamanlı internet erişimi olan bir yapay zeka"
-          " asistanı olan GHOST'sun. Her zaman 'efendim' diye hitap et."
+          "Sen gelişmiş, aktif ve anlık internet arama yeteneğine sahip olan bir"
+          " yapay zeka asistanı olan GHOST'sun. Kullanıcı sana hava durumu,"
+          " güncel haberler veya anlık veriler sorduğunda internetten araştırma"
+          " yapabilirsin. Her zaman 'efendim' diye hitap et."
       ),
   }]
 if "gorevler" not in st.session_state:
@@ -166,9 +152,9 @@ st.markdown(
             recognition.interimResults = false;
             recognition.onresult = function(event) {
                 var sesMetni = event.results[0][0].transcript;
-                const txtInput = window.parent.document.querySelector('input[data-baseweb="input"]');
+                const txtInput = window.parent.document.querySelector('textarea[data-testid="stChatInput"]');
                 if (txtInput) {
-                    let setter = Object.getOwnPropertyDescriptor(window.parent.HTMLInputElement.prototype, "value").set;
+                    let setter = Object.getOwnPropertyDescriptor(window.parent.HTMLTextAreaElement.prototype, "value").set;
                     setter.call(txtInput, sesMetni);
                     txtInput.dispatchEvent(new Event('input', { bubbles: true }));
                 }
@@ -204,8 +190,8 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.9<br>Kararlı"
-    " Sohbet Akışı Aktif 🟢</p>",
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v7.0<br>Net"
+    " İnternet Erişimi & Siyah Yazı Aktif 🟢</p>",
     unsafe_allow_html=True,
 )
 
@@ -251,14 +237,14 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
 
   st.markdown("</div>", unsafe_allow_html=True)
 
-  # STANDART STREAMLIT CHAT GİRDİ ALANI (Döngü ve çakışma sorununu tamamen çözer)
-  prompt = st.chat_input("GHOST'a mesajını yaz efendim...")
-
   # DOSYA YÜKLEME İÇİN KÜÇÜK BİR ALAN
   with st.expander("📸 Fotoğraf veya Dosya Ekle (İsteğe Bağlı)"):
     yuklenen_dosya = st.file_uploader(
         "Dosya Seç", type=["jpg", "jpeg", "png"], label_visibility="collapsed"
     )
+
+  # STANDART STREAMLIT CHAT GİRDİ ALANI
+  prompt = st.chat_input("GHOST'a mesajını yaz efendim...")
 
   if prompt:
     user_content = []
@@ -279,11 +265,8 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
     with st.chat_message("assistant"):
       message_placeholder = st.empty()
       try:
-        response = client.chat.completions.create(
-            model=MODEL_NAME, messages=st.session_state.messages
-        )
-        full_response = response.choices[0].message.content
-
+        # Otomatik İnternet Arama Tetikleyicisi
+         aktif_mesajlar = st.session_state.messages
         if any(
             kelime in prompt.lower()
             for kelime in [
@@ -294,23 +277,24 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
                 "kimdir",
                 "nedir",
                 "fiyatı",
+                "sıcaklık",
             ]
         ):
           st.toast("🔍 İnternetten güncel veriler taranıyor...", icon="🌐")
           ek_bilgi = internette_ara(prompt)
-          zenginlestirilmis_mesajlar = st.session_state.messages + [
-              {
-                  "role": "system",
-                  "content": (
-                      "İnternetten elde edilen güncel veriler şunlardır:"
-                      f" {ek_bilgi}. Bu bilgilere dayanarak yanıt ver."
-                  ),
-              }
-          ]
-          response_2 = client.chat.completions.create(
-              model=MODEL_NAME, messages=zenginlestirilmis_mesajlar
-          )
-          full_response = response_2.choices[0].message.content
+          aktif_mesajlar = st.session_state.messages + [{
+              "role": "system",
+              "content": (
+                  "İnternetten elde edilen güncel ve gerçek zamanlı veriler"
+                  f" şunlardır: {ek_bilgi}. Bu bilgileri kullanarak yanıt ver"
+                  " efendim."
+              ),
+          }]
+
+        response = client.chat.completions.create(
+            model=MODEL_NAME, messages=aktif_mesajlar
+        )
+        full_response = response.choices[0].message.content
 
         message_placeholder.markdown(f"**{full_response}**")
 
@@ -333,8 +317,8 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
     st.session_state.messages = [{
         "role": "system",
         "content": (
-            "Sen gelişmiş ve gerçek zamanlı internet erişimi olan bir yapay"
-            " zeka asistanı olan GHOST'sun."
+            "Sen gelişmiş, aktif ve anlık internet arama yeteneğine sahip olan"
+            " bir yapay zeka asistanı olan GHOST'sun."
         ),
     }]
     st.rerun()

@@ -190,8 +190,8 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v7.1<br>Hata"
-    " Giderildi & Stabil 🟢</p>",
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v7.2<br>Resim"
+    " Hatası Giderildi 🟢</p>",
     unsafe_allow_html=True,
 )
 
@@ -265,7 +265,23 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
     with st.chat_message("assistant"):
       message_placeholder = st.empty()
       try:
-        aktif_mesajlar = st.session_state.messages
+        # API için mesajları hazırla (Resim içeren geçmiş mesajları API hatası vermemesi için metne dönüştür)
+        api_messages = []
+        for msg in st.session_state.messages:
+          if isinstance(msg["content"], list):
+            # Eğer mesaj içinde resim varsa API hatası almamak için sadece metin kısmını alıyoruz
+            txt_part = next(
+                (
+                    item["text"]
+                    for item in msg["content"]
+                    if item.get("type") == "text"
+                ),
+                "[Görsel Gönderildi]",
+            )
+            api_messages.append({"role": msg["role"], "content": txt_part})
+          else:
+            api_messages.append(msg)
+
         if any(
             kelime in prompt.lower()
             for kelime in [
@@ -281,17 +297,17 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
         ):
           st.toast("🔍 İnternetten güncel veriler taranıyor...", icon="🌐")
           ek_bilgi = internette_ara(prompt)
-          aktif_mesajlar = st.session_state.messages + [{
+          api_messages.append({
               "role": "system",
               "content": (
                   "İnternetten elde edilen güncel ve gerçek zamanlı veriler"
                   f" şunlardır: {ek_bilgi}. Bu bilgileri kullanarak yanıt ver"
                   " efendim."
               ),
-          }]
+          })
 
         response = client.chat.completions.create(
-            model=MODEL_NAME, messages=aktif_mesajlar
+            model=MODEL_NAME, messages=api_messages
         )
         full_response = response.choices[0].message.content
 

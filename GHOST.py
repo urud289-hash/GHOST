@@ -13,7 +13,7 @@ st.set_page_config(
     page_title="GHOST AI - Ultimate Komuta Merkezi", page_icon="👻", layout="wide"
 )
 
-# --- SİBER ARAYÜZ VE SABİT ALT CHAT ÇUBUĞU CSS ---
+# --- SİBER ARAYÜZ VE SABİT ALT CHAT ÇUBUĞU STİLLERİ ---
 st.markdown(
     """
 <style>
@@ -23,24 +23,25 @@ st.markdown(
     p, span, label, div, .stMarkdown { font-weight: 600 !important; }
     footer { visibility: hidden; }
     
-    /* Sohbet Alanını Kaydırılabilir Yapma ve Giriş Çubuğunu Sabitleme */
+    /* Sohbet Alanı (Alt kısım taşmasın diye boşluk bırakıldı) */
     .chat-container {
-        max-height: calc(100vh - 260px);
+        max-height: calc(100vh - 240px);
         overflow-y: auto;
         padding-right: 10px;
-        margin-bottom: 110px;
+        margin-bottom: 100px;
     }
     
-    /* Sabit Alt Giriş Alanı Kutusu */
+    /* Sabit Alt Siyah Komuta Kutusu */
     .fixed-bottom-bar {
         position: fixed;
         bottom: 0;
         left: 0;
         width: 100%;
-        background-color: #0b0f19;
-        border-top: 1px solid #30363d;
-        padding: 12px 20px;
+        background-color: #161b22;
+        border-top: 2px solid #30363d;
+        padding: 15px 20px;
         z-index: 99999;
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.5);
     }
     
     .stButton>button {
@@ -55,7 +56,7 @@ st.markdown(
     }
     [data-testid="stDataFrame"] { border: 1px solid #30363d; border-radius: 8px; background-color: #161b22; }
     .stTextInput input {
-        background-color: #161b22 !important; color: #ffffff !important;
+        background-color: #0b0f19 !important; color: #ffffff !important;
         border: 1px solid #30363d !important; border-radius: 6px !important; font-weight: 700 !important;
     }
 </style>
@@ -218,8 +219,8 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.3<br>Sabit"
-    " Alt Çubuk Aktif 🟢</p>",
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.4<br>Sabit"
+    " Alt Siyah Kutu Aktif 🟢</p>",
     unsafe_allow_html=True,
 )
 
@@ -227,7 +228,7 @@ st.sidebar.markdown(
 if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
   st.subheader("💬 Sohbet, Gerçek Zamanlı Arama ve Ses Merkezi")
 
-  # KAYDIRILABİLİR SOHBET KUTUSU
+  # KAYDIRILABİLİR SOHBET ALANI
   st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 
   for i, message in enumerate(st.session_state.messages):
@@ -263,11 +264,11 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
                 f'<script>ghostKonus("{temiz_metin}");</script>', height=0
             )
 
-  st.markdown("</div>", unsafe_allow_html=True)  # Kaydırılabilir alan sonu
+  st.markdown("</div>", unsafe_allow_html=True)
 
-  # SABİT ALT GİRİŞ ÇUBUĞU (Mikrofon, Kamera, Yazı Alanı)
+  # SABİT ALT ÖZEL SİYAH KUTU VE GİRİŞ ÇUBUĞU
   st.markdown('<div class="fixed-bottom-bar">', unsafe_allow_html=True)
-  col_mic, col_cam, col_input = st.columns([0.6, 0.6, 5.8])
+  col_mic, col_cam, col_input = st.columns([0.5, 0.5, 6.0])
 
   with col_mic:
     if st.button("🎙️", help="Sesli Konuş"):
@@ -287,7 +288,7 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
 
   st.markdown("</div>", unsafe_allow_html=True)
 
-  # Mesaj Gönderildiğinde veya Dosya Yüklendiğinde Çalışan Mantık
+  # MESAJ GÖNDERME VEYA DOSYA YÜKLEME İŞLEMLERİ
   if prompt or yuklenen_dosya:
     user_content = []
     if yuklenen_dosya:
@@ -314,11 +315,9 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
     with st.chat_message("assistant"):
       message_placeholder = st.empty()
       try:
+        # Hata vermemesi için tool_choice parametresi kaldırıldı
         response = client.chat.completions.create(
-            model=MODEL_NAME,
-            messages=st.session_state.messages,
-            tools=tools,
-            tool_choice="auto",
+            model=MODEL_NAME, messages=st.session_state.messages, tools=tools
         )
 
         response_message = response.choices[0].message

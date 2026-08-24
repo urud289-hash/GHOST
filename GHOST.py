@@ -121,7 +121,7 @@ if "gorevler" not in st.session_state:
 if "yuz_hafizasi" not in st.session_state:
   st.session_state.yuz_hafizasi = {}
 
-# --- GELİŞTİRİLMİŞ SES VE MİKROFON MOTORU (Tarayıcı Uyumluluk Kontrollü) ---
+# --- GELİŞTİRİLMİŞ SES VE MİKROFON MOTORU ---
 st.markdown(
     """
 <script>
@@ -135,7 +135,6 @@ st.markdown(
         msg.lang = 'tr-TR';
         msg.rate = 1.0;
         
-        // Türkçe ses motorunu seçmeye çalış
         var voices = window.speechSynthesis.getVoices();
         for(var i = 0; i < voices.length; i++) {
             if(voices[i].lang === 'tr-TR' || voices[i].lang === 'tr_TR') {
@@ -143,11 +142,9 @@ st.markdown(
                 break;
             }
         }
-        
         window.speechSynthesis.speak(msg);
     }
 
-    // Sesler yüklendiğinde tetiklensin
     if ('speechSynthesis' in window) {
         window.speechSynthesis.onvoiceschanged = function() {
             window.speechSynthesis.getVoices();
@@ -157,7 +154,7 @@ st.markdown(
     function sesliKomutBaslat() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-            alert("Tarayıcınız sesli komut (Speech Recognition) özelliğini desteklemiyor efendim. Lütfen güncel bir Google Chrome tarayıcısı kullanın.");
+            alert("Tarayıcınız sesli komut özelliğini desteklemiyor efendim.");
             return;
         }
 
@@ -167,13 +164,8 @@ st.markdown(
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
             
-            recognition.onstart = function() {
-                console.log("Mikrofon aktif, dinleniyor...");
-            };
-
             recognition.onresult = function(event) {
                 var sesMetni = event.results[0][0].transcript;
-                // Streamlit input alanını bul ve metni yazdır
                 const inputs = window.parent.document.querySelectorAll('input[type="text"], input');
                 let targetInput = null;
                 for (let input of inputs) {
@@ -194,10 +186,6 @@ st.markdown(
                         targetInput.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', code: 'Enter', keyCode: 13, bubbles: true}));
                     }, 400);
                 }
-            };
-
-            recognition.onerror = function(event) {
-                alert("Mikrofon hatası: " + event.error + ". Lütfen tarayıcı mikrofon iznini kontrol edin efendim.");
             };
 
             recognition.start();
@@ -233,7 +221,7 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v5.6<br>Durum:"
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v5.7<br>Durum:"
     " Çevrimiçi & Güvenli 🟢</p>",
     unsafe_allow_html=True,
 )
@@ -248,7 +236,6 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
       unsafe_allow_html=True,
   )
 
-  # Sohbet Geçmişi Görüntüleme
   for i, message in enumerate(st.session_state.messages):
     if message["role"] != "system":
       with st.chat_message(message["role"]):
@@ -282,13 +269,6 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
             )
 
   st.markdown("---")
-
-  # --- ALT KONTROL PANELİ ---
-  st.markdown(
-      "<h3 style='font-size: 16px; color: #58a6ff;'>🎛️ Alt Komuta ve Girdi"
-      " Panelim</h3>",
-      unsafe_allow_html=True,
-  )
 
   col_alt1, col_alt2 = st.columns([1, 4])
 
@@ -453,13 +433,15 @@ elif secim == "📍 Canlı Konum Takibi":
       height=250,
   )
 
-# --- 4. MOD: UZAKTAN KONUM TAKİP (RADAR & SUPABASE) ---
+# --- 4. MOD: UZAKTAN KONUM TAKİP (RADAR, SUPABASE & GOOGLE MAPS) ---
 elif secim == "🛰️ Uzaktan Konum Takip (Radar)":
-  st.subheader("🛰️ GHOST Uzaktan Hedef Konum ve Radar Modülü (Supabase)")
+  st.subheader(
+      "🛰️ GHOST Uzaktan Hedef Konum, Sokak & Google Maps Radar Modülü"
+  )
   st.markdown(
-      "<p style='color: #8b949e; font-size: 14px;'>Mobil cihazlardan"
-      " Supabase veritabanına (`konum_takip` tablosu) gönderilen anlık hedef"
-      " konum sinyalleri aşağıdadır efendim.</p>",
+      "<p style='color: #8b949e; font-size: 14px;'>Supabase'den gelen"
+      " koordinatlar artık Google Maps altyapısıyla haritalandırılıyor ve"
+      " sokak/bina bilgileri çözümleniyor efendim.</p>",
       unsafe_allow_html=True,
   )
 
@@ -472,23 +454,52 @@ elif secim == "🛰️ Uzaktan Konum Takip (Radar)":
           supabase.table("konum_takip")
           .select("*")
           .order("id", desc=True)
-          .limit(15)
+          .limit(10)
           .execute()
       )
       data = response.data
       if data:
         df = pd.DataFrame(data)
         st.dataframe(df, use_container_width=True)
-        st.success(
-            "✅ Hedef konum verileri başarıyla radara yansıtıldı efendim."
+
+        st.markdown(
+            "### 🗺️ Google Maps Entegreli Canlı Hedef Nokta Gösterimi:"
         )
+
+        # En son gelen konumu baz alalım
+        son_konum = data[0]
+        if "latitude" in son_konum and "longitude" in son_konum:
+          lat = son_konum["latitude"]
+          lon = son_konum["longitude"]
+
+          st.info(
+              f"🎯 Son Hedef Koordinatları -> Enlem: `{lat}` | Boylam: `{lon}`"
+          )
+
+          # Google Maps Embed (Interaktif Sokak ve Bina Görünümü)
+          maps_html = f"""
+                    <iframe
+                        width="100%"
+                        height="400"
+                        style="border:1px solid #30363d; border-radius: 8px;"
+                        loading="lazy"
+                        allowfullscreen
+                        src="https://maps.google.com/maps?q={lat},{lon}&z=16&output=embed">
+                    </iframe>
+                    """
+          st.components.v1.html(maps_html, height=420)
+        else:
+          st.warning(
+              "Tabloda `latitude` ve `longitude` sütunları bulunamadı efendim."
+          )
+
       else:
         st.warning(
             "⚠️ Henüz `konum_takip` tablosuna düşmüş bir sinyal bulunmuyor"
-            " efendim. Mobil alıcıdan konum gönderin."
+            " efendim."
         )
     except Exception as ex:
-      st.error(f"Radar veritabanı bağlantı hatası: {ex}")
+      st.error(f"Radar / Harita bağlantı hatası: {ex}")
   else:
     st.error(
         "Supabase bağlantısı kurulamadı efendim. API anahtarlarını kontrol edin."

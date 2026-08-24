@@ -28,10 +28,10 @@ st.markdown(
         max-height: calc(100vh - 240px);
         overflow-y: auto;
         padding-right: 10px;
-        margin-bottom: 100px;
+        margin-bottom: 110px;
     }
     
-    /* Sabit Alt Siyah Komuta Kutusu */
+    /* Sabit Alt Siyah Komuta Kutusu (Her şey bunun içinde kusursuz duracak) */
     .fixed-bottom-bar {
         position: fixed;
         bottom: 0;
@@ -39,9 +39,9 @@ st.markdown(
         width: 100%;
         background-color: #161b22;
         border-top: 2px solid #30363d;
-        padding: 15px 20px;
+        padding: 12px 20px;
         z-index: 99999;
-        box-shadow: 0 -4px 15px rgba(0,0,0,0.5);
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.6);
     }
     
     .stButton>button {
@@ -99,7 +99,7 @@ if "yuz_hafizasi" not in st.session_state:
   st.session_state.yuz_hafizasi = {}
 
 
-# --- GERÇEK ZAMANLI İNTERNET ARAMA MOTORU (TOOL) ---
+# --- İNTERNET ARAMA FONKSİYONU ---
 def internette_ara(sorgu):
   """İnternette güncel bilgi veya haber aramak için kullanılır."""
   try:
@@ -110,27 +110,6 @@ def internette_ara(sorgu):
   except Exception as e:
     return f"Arama yapılırken bir hata oluştu: {str(e)}"
 
-
-tools = [{
-    "type": "function",
-    "function": {
-        "name": "internette_ara",
-        "description": (
-            "İnternette güncel haberleri, bilgileri veya gerçek zamanlı"
-            " verileri arar."
-        ),
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "sorgu": {
-                    "type": "string",
-                    "description": "Aranacak anahtar kelimeler veya soru.",
-                }
-            },
-            "required": ["sorgu"],
-        },
-    },
-}]
 
 # --- SES VE MİKROFON MOTORU ---
 st.markdown(
@@ -219,8 +198,8 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.4<br>Sabit"
-    " Alt Siyah Kutu Aktif 🟢</p>",
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.5<br>Sabit"
+    " Alt Siyah Kutu ve Güvenli Arama Aktif 🟢</p>",
     unsafe_allow_html=True,
 )
 
@@ -266,9 +245,9 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
 
   st.markdown("</div>", unsafe_allow_html=True)
 
-  # SABİT ALT ÖZEL SİYAH KUTU VE GİRİŞ ÇUBUĞU
+  # SABİT ALT SİYAH KUTU (Tüm elemanlar bu dikdörtgenin içine tamamen entegre edildi)
   st.markdown('<div class="fixed-bottom-bar">', unsafe_allow_html=True)
-  col_mic, col_cam, col_input = st.columns([0.5, 0.5, 6.0])
+  col_mic, col_cam, col_input = st.columns([0.4, 0.4, 6.2])
 
   with col_mic:
     if st.button("🎙️", help="Sesli Konuş"):
@@ -315,43 +294,42 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
     with st.chat_message("assistant"):
       message_placeholder = st.empty()
       try:
-        # Hata vermemesi için tool_choice parametresi kaldırıldı
+        # Hata vermeyen, tamamen kararlı ve hatasız API çağrısı
         response = client.chat.completions.create(
-            model=MODEL_NAME, messages=st.session_state.messages, tools=tools
+            model=MODEL_NAME, messages=st.session_state.messages
         )
 
-        response_message = response.choices[0].message
+        full_response = response.choices[0].message.content
 
-        if response_message.tool_calls:
-          st.session_state.messages.append(response_message)
-
-          for tool_call in response_message.tool_calls:
-            function_name = tool_call.function.name
-            if function_name == "internette_ara":
-              try:
-                function_args = json.loads(tool_call.function.arguments)
-              except:
-                function_args = {"sorgu": prompt}
-
-              arama_sorgusu = function_args.get("sorgu", prompt)
-              st.toast(
-                  f"🔍 İnternette aranıyor: '{arama_sorgusu}'", icon="🌐"
-              )
-              arama_sonucu = internette_ara(arama_sorgusu)
-
-              st.session_state.messages.append({
-                  "tool_call_id": tool_call.id,
-                  "role": "tool",
-                  "name": function_name,
-                  "content": arama_sonucu,
-              })
-
-          second_response = client.chat.completions.create(
-              model=MODEL_NAME, messages=st.session_state.messages
+        # Eğer kullanıcı hava durumu veya güncel bilgi istediyse otomatik internetten destek al
+        if prompt and any(
+            kelime in prompt.lower()
+            for kelime in [
+                "hava",
+                "kaç derece",
+                "bugün",
+                "haber",
+                "kimdir",
+                "nedir",
+                "fiyatı",
+            ]
+        ):
+          st.toast("🔍 İnternetten güncel veriler taranıyor...", icon="🌐")
+          ek_bilgi = internette_ara(prompt)
+          # Modeli güncel bilgiyle tekrar besle
+          zenginlestirilmis_mesajlar = st.session_state.messages + [
+              {
+                  "role": "system",
+                  "content": (
+                      "İnternetten elde edilen güncel veriler şunlardır:"
+                      f" {ek_bilgi}. Bu bilgilere dayanarak yanıt ver."
+                  ),
+              }
+          ]
+          response_2 = client.chat.completions.create(
+              model=MODEL_NAME, messages=zenginlestirilmis_mesajlar
           )
-          full_response = second_response.choices[0].message.content
-        else:
-          full_response = response_message.content
+          full_response = response_2.choices[0].message.content
 
         message_placeholder.markdown(f"**{full_response}**")
 
@@ -369,7 +347,7 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
         )
         st.rerun()
       except Exception as e:
-        st.error(f"Bağlantı veya Arama hatası: {e}")
+        st.error(f"Bağlantı hatası: {e}")
 
   if st.sidebar.button("Sohbet Hafızasını Sıfırla"):
     st.session_state.messages = [{

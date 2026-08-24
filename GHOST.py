@@ -44,7 +44,7 @@ st.markdown(
         background-color: #0b0f19 !important;
     }
     
-    /* Özel Buton Stilleri (Mobil Uyumlu Genişlik) */
+    /* Özel Buton Stilleri */
     .stButton>button {
         background: linear-gradient(135deg, #238636, #2ea043);
         color: white; 
@@ -121,7 +121,7 @@ if "gorevler" not in st.session_state:
 if "yuz_hafizasi" not in st.session_state:
   st.session_state.yuz_hafizasi = {}
 
-# --- GELİŞTİRİLMİŞ SES VE MİKROFON MOTORU ---
+# --- GELİŞTİRİLMİŞ SES VE MİKROFON MOTORU (Microsoft Edge - Ahmet Ses Desteği) ---
 st.markdown(
     """
 <script>
@@ -136,12 +136,25 @@ st.markdown(
         msg.rate = 1.0;
         
         var voices = window.speechSynthesis.getVoices();
+        let selectedVoice = null;
+        
+        // Edge üzerinde 'Ahmet' veya Türkçe erkek seslerini bulmaya çalış
         for(var i = 0; i < voices.length; i++) {
-            if(voices[i].lang === 'tr-TR' || voices[i].lang === 'tr_TR') {
-                msg.voice = voices[i];
-                break;
+            var vName = voices[i].name.toLowerCase();
+            if(vName.includes('ahmet') || vName.includes('tr-tr') || vName.includes('turkish')) {
+                if(vName.includes('ahmet') || vName.includes('male')) {
+                    selectedVoice = voices[i];
+                    break;
+                } else if(!selectedVoice && (voices[i].lang === 'tr-TR' || voices[i].lang === 'tr_TR')) {
+                    selectedVoice = voices[i];
+                }
             }
         }
+        
+        if (selectedVoice) {
+            msg.voice = selectedVoice;
+        }
+        
         window.speechSynthesis.speak(msg);
     }
 
@@ -221,7 +234,7 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v5.8<br>Durum:"
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v5.9<br>Durum:"
     " Çevrimiçi & Güvenli 🟢</p>",
     unsafe_allow_html=True,
 )
@@ -270,25 +283,28 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
 
   st.markdown("---")
 
-  col_alt1, col_alt2 = st.columns([1, 4])
+  # --- DÜZENLENMİŞ YENİ ALT KONTROL PANELİ (Mikrofon -> Kamera -> Yazı Alanı) ---
+  col_mic, col_cam, col_input = st.columns([0.6, 0.6, 4.8])
 
-  with col_alt1:
-    if st.button("🎙️ Sesli Konuş"):
+  with col_mic:
+    st.markdown(
+        "<div style='margin-top: 28px;'></div>", unsafe_allow_html=True
+    )
+    if st.button("🎙️", help="Sesli Konuş"):
       st.components.v1.html(
           "<script>sesliKomutBaslat();</script>", height=0
       )
-      st.toast(
-          "Dinliyorum efendim, mikrofon izni verdiğinizden emin olun...",
-          icon="🎙️",
-      )
+      st.toast("Dinliyorum efendim...", icon="🎙️")
 
+  with col_cam:
     yuklenen_dosya = st.file_uploader(
-        "📸 Fotoğraf Yükle",
+        "📸",
         type=["jpg", "jpeg", "png"],
         label_visibility="collapsed",
+        help="Fotoğraf Yükle",
     )
 
-  with col_alt2:
+  with col_input:
     prompt = st.chat_input("GHOST'a mesajını yaz efendim...")
 
   if prompt or yuklenen_dosya:
@@ -466,9 +482,7 @@ elif secim == "🛰️ Uzaktan Konum Takip (Radar)":
             "### 🗺️ Google Maps Entegreli Canlı Hedef Nokta Gösterimi:"
         )
 
-        # En son gelen konumu baz alalım
         son_konum = data[0]
-        # Tablodaki sütun isimleri 'enlem' ve 'boylam' olduğu için onlara bakıyoruz:
         if "enlem" in son_konum and "boylam" in son_konum:
           lat = son_konum["enlem"]
           lon = son_konum["boylam"]
@@ -477,7 +491,6 @@ elif secim == "🛰️ Uzaktan Konum Takip (Radar)":
               f"🎯 Son Hedef Koordinatları -> Enlem: `{lat}` | Boylam: `{lon}`"
           )
 
-          # Google Maps Embed (Interaktif Sokak ve Bina Görünümü)
           maps_html = f"""
                     <iframe
                         width="100%"

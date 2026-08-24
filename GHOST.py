@@ -86,12 +86,12 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# API Anahtarı ve Güncel Model Tanımı (Groq / OpenAI Uyumlu)
+# API Anahtarı ve Güncel Model Tanımı
 API_KEY = "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"
 client = OpenAI(api_key=API_KEY, base_url="https://api.groq.com/openai/v1")
 MODEL_NAME = "openai/gpt-oss-120b"
 
-# --- SUPABASE BAĞLANTI MERKEZİ (Verdiğin Güncel Key Entegre Edildi) ---
+# --- SUPABASE BAĞLANTI MERKEZİ ---
 SUPABASE_URL = "https://luzzmraohsaqajinnyhk.supabase.co"
 SUPABASE_KEY = "sb_publishable_Z8MQbBctodUb7jiwiEiigw_eYANG9JW"
 
@@ -121,36 +121,89 @@ if "gorevler" not in st.session_state:
 if "yuz_hafizasi" not in st.session_state:
   st.session_state.yuz_hafizasi = {}
 
-# --- SES MOTORU (JavaScript) ---
+# --- GELİŞTİRİLMİŞ SES VE MİKROFON MOTORU (Tarayıcı Uyumluluk Kontrollü) ---
 st.markdown(
     """
 <script>
     function ghostKonus(metin) {
+        if (!('speechSynthesis' in window)) {
+            alert("Tarayıcınız ses sentezleme özelliğini desteklemiyor efendim.");
+            return;
+        }
         window.speechSynthesis.cancel();
         var msg = new SpeechSynthesisUtterance(metin);
         msg.lang = 'tr-TR';
         msg.rate = 1.0;
+        
+        // Türkçe ses motorunu seçmeye çalış
+        var voices = window.speechSynthesis.getVoices();
+        for(var i = 0; i < voices.length; i++) {
+            if(voices[i].lang === 'tr-TR' || voices[i].lang === 'tr_TR') {
+                msg.voice = voices[i];
+                break;
+            }
+        }
+        
         window.speechSynthesis.speak(msg);
     }
 
-    function sesliKomutBaslat() {
-        var recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'tr-TR';
-        recognition.interimResults = false;
-        
-        recognition.onresult = function(event) {
-            var sesMetni = event.results[0][0].transcript;
-            const input = window.parent.document.querySelector('input[type="text"]');
-            if (input) {
-                let setter = Object.getOwnPropertyDescriptor(window.parent.HTMLInputElement.prototype, "value").set;
-                setter.call(input, sesMetni);
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-                setTimeout(() => {
-                    input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', code: 'Enter', keyCode: 13, bubbles: true}));
-                }, 400);
-            }
+    // Sesler yüklendiğinde tetiklensin
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = function() {
+            window.speechSynthesis.getVoices();
         };
-        recognition.start();
+    }
+
+    function sesliKomutBaslat() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Tarayıcınız sesli komut (Speech Recognition) özelliğini desteklemiyor efendim. Lütfen güncel bir Google Chrome tarayıcısı kullanın.");
+            return;
+        }
+
+        try {
+            var recognition = new SpeechRecognition();
+            recognition.lang = 'tr-TR';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            
+            recognition.onstart = function() {
+                console.log("Mikrofon aktif, dinleniyor...");
+            };
+
+            recognition.onresult = function(event) {
+                var sesMetni = event.results[0][0].transcript;
+                // Streamlit input alanını bul ve metni yazdır
+                const inputs = window.parent.document.querySelectorAll('input[type="text"], input');
+                let targetInput = null;
+                for (let input of inputs) {
+                    if (input.placeholder && input.placeholder.includes("GHOST")) {
+                        targetInput = input;
+                        break;
+                    }
+                }
+                if (!targetInput && inputs.length > 0) {
+                    targetInput = inputs[inputs.length - 1];
+                }
+
+                if (targetInput) {
+                    let setter = Object.getOwnPropertyDescriptor(window.parent.HTMLInputElement.prototype, "value").set;
+                    setter.call(targetInput, sesMetni);
+                    targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    setTimeout(() => {
+                        targetInput.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', code: 'Enter', keyCode: 13, bubbles: true}));
+                    }, 400);
+                }
+            };
+
+            recognition.onerror = function(event) {
+                alert("Mikrofon hatası: " + event.error + ". Lütfen tarayıcı mikrofon iznini kontrol edin efendim.");
+            };
+
+            recognition.start();
+        } catch(e) {
+            alert("Mikrofon başlatılamadı: " + e.message);
+        }
     }
 </script>
 """,
@@ -180,7 +233,7 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v5.5<br>Durum:"
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v5.6<br>Durum:"
     " Çevrimiçi & Güvenli 🟢</p>",
     unsafe_allow_html=True,
 )
@@ -218,7 +271,11 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
               if not isinstance(content, list)
               else "Yanıt seslendirildi."
           )
-          temiz_metin = metin_icerik.replace('"', "'").replace("\n", " ")
+          temiz_metin = (
+              metin_icerik.replace('"', "'")
+              .replace("\n", " ")
+              .replace("*", "")
+          )
           if st.button(f"🔊 Bu Yanıtı Sesli Oku", key=f"ses_{i}"):
             st.components.v1.html(
                 f'<script>ghostKonus("{temiz_metin}");</script>', height=0
@@ -229,7 +286,7 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
   # --- ALT KONTROL PANELİ ---
   st.markdown(
       "<h3 style='font-size: 16px; color: #58a6ff;'>🎛️ Alt Komuta ve Girdi"
-      " Paneli</h3>",
+      " Panelim</h3>",
       unsafe_allow_html=True,
   )
 
@@ -240,7 +297,10 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
       st.components.v1.html(
           "<script>sesliKomutBaslat();</script>", height=0
       )
-      st.toast("Dinliyorum efendim, konuşabilirsiniz...", icon="🎙️")
+      st.toast(
+          "Dinliyorum efendim, mikrofon izni verdiğinizden emin olun...",
+          icon="🎙️",
+      )
 
     yuklenen_dosya = st.file_uploader(
         "📸 Fotoğraf Yükle",

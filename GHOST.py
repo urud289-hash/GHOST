@@ -10,7 +10,7 @@ from supabase import Client, create_client
 
 # Sayfa Yapılandırması (Geniş Ekran)
 st.set_page_config(
-    page_title="TITAN AI - Ultimate Komuta Merkezi v10.1",
+    page_title="TITAN v11.0 — JARVIS Ultimate Komuta Merkezi",
     page_icon="⚡",
     layout="wide",
 )
@@ -79,7 +79,7 @@ def init_supabase(url, key):
 
 supabase = init_supabase(SUPABASE_URL, SUPABASE_KEY)
 
-# --- SESSION STATE (HAFIZA VE YETKİLER) ---
+# --- SESSION STATE (JARVIS HAFIZA VE YETKİLER) ---
 if "giris_yapildi" not in st.session_state:
   st.session_state.giris_yapildi = False
 if "kullanici_rolu" not in st.session_state:
@@ -91,19 +91,23 @@ if "messages" not in st.session_state:
   st.session_state.messages = [{
       "role": "system",
       "content": (
-          "Sen TITAN v10.1 adında dünyanın en gelişmiş yapay zeka asistanısın."
-          " Asıl sahibin Yiğit'tir. Ona ve onaylı kullanıcılara 'efendim' diye"
-          " hitap et."
+          "Sen JARVIS mimarisiyle güçlendirilmiş TITAN v11.0 adında dünyanın en"
+          " gelişmiş yapay zeka asistanısın. Asıl sahibin Yiğit'tir. Ona ve"
+          " onaylı kullanıcılara 'efendim' diye hitap et. Her komutu en üst"
+          " düzey otonomiyle ele al."
       ),
   }]
 if "gorevler" not in st.session_state:
   st.session_state.gorevler = []
+if "jarvis_hafiza" not in st.session_state:
+  st.session_state.jarvis_hafiza = [
+      "Ana Sahip: Yiğit",
+      "Sistem Durumu: Aktif ve Koruma Altında",
+  ]
 if "izinli_kisiler" not in st.session_state:
-  st.session_state.izinli_kisiler = {
-      "Yiğit": "Ana Sahip (Admin)"
-  }  # İsim ve rol tutar
+  st.session_state.izinli_kisiler = {"Yiğit": "Ana Sahip (Admin)"}
 if "izinli_fotolar" not in st.session_state:
-  st.session_state.izinli_fotolar = {}  # Dosya adı -> İsim eşleşmesi
+  st.session_state.izinli_fotolar = {}
 
 
 # --- SES MOTORU ---
@@ -142,16 +146,16 @@ st.markdown(
 )
 
 
-# --- GİRİŞ EKRANI (BİYOMETRİK FOTOĞRAF / İSİM / ŞİFRE) ---
+# --- GİRİŞ EKRANI (BİYOMETRİK FOTOĞRAF / MASTER ŞİFRE) ---
 if not st.session_state.giris_yapildi:
   st.markdown(
-      "<h1 style='text-align: center; color: #58a6ff;'>⚡ TITAN AI v10.1 —"
-      " Maksimum Güvenlik Kapısı</h1>",
+      "<h1 style='text-align: center; color: #58a6ff;'>⚡ TITAN x JARVIS"
+      " v11.0 — Güvenlik Protokolü</h1>",
       unsafe_allow_html=True,
   )
   st.markdown(
       "<p style='text-align: center; color: #8b949e;'>Sisteme erişmek için"
-      " fotoğrafınızı yükleyip doğrulayın veya 0912 şifresini girin"
+      " biyometrik fotoğrafınızı yükleyin ya da 0912 şifresini girin"
       " efendim.</p>",
       unsafe_allow_html=True,
   )
@@ -159,17 +163,15 @@ if not st.session_state.giris_yapildi:
   col_giris1, col_giris2 = st.columns(2)
 
   with col_giris1:
-    st.markdown("### 🧬 Yüz Tanıma & Fotoğraflı Giriş")
+    st.markdown("### 🧬 Biyometrik Yüz Doğrulama")
     giris_fotograf = st.file_uploader(
-        "Giriş İçin Fotoğrafınızı Yükleyin",
-        type=["jpg", "jpeg", "png"],
-        key="giris_dosya_input",
+        "Yüz Fotoğrafı Yükle", type=["jpg", "jpeg", "png"], key="giris_dosya"
     )
     giris_isim_yaz = st.text_input(
-        "Kayıtlı Adınız:", placeholder="Örn: Yiğit veya Arkadaşın Adı"
+        "Kayıtlı Adınız:", placeholder="Örn: Yiğit"
     )
 
-    if st.button("Biyometrik Kimliği Doğrula"):
+    if st.button("Kimliği Doğrula"):
       if giris_fotograf and giris_isim_yaz:
         temiz_giris_adi = giris_isim_yaz.strip()
         if (
@@ -192,34 +194,24 @@ if not st.session_state.giris_yapildi:
           )
           st.rerun()
         else:
-          st.error(
-              "⚠️ Erişim Reddedildi! Bu yüz veya isim sistemde yetkili"
-              " değil efendim."
-          )
+          st.error("⚠️ Erişim Reddedildi! Tanınmayan kimlik efendim.")
           st.components.v1.html(
-              '<script>titanKonus("Erişim reddedildi, yetkisiz kişi'
-              ' tespit edildi.");</script>',
-              height=0,
+              '<script>titanKonus("Erişim reddedildi.");</script>', height=0
           )
       else:
-        st.warning(
-            "Lütfen hem fotoğrafınızı yükleyin hem de adınızı yazın efendim."
-        )
+        st.warning("Lütfen isim girin ve fotoğraf yükleyin efendim.")
 
   with col_giris2:
-    st.markdown("### #️⃣ Master Şifre ile Giriş")
+    st.markdown("### #️⃣ Master Şifre Girişi")
     sifre_input = st.text_input(
-        "Güvenlik Şifresi:", type="password", key="giris_sifre"
+        "Güvenlik Anahtarı:", type="password", key="giris_sifre"
     )
-    if st.button("Şifre ile Giriş Yap"):
+    if st.button("Master Şifreyi Onayla"):
       if sifre_input == "0912":
         st.session_state.giris_yapildi = True
         st.session_state.kullanici_rolu = "sahip"
         st.session_state.aktif_kullanici_adi = "Yiğit (Ana Komutan)"
-        st.success(
-            "🔓 Master Şifre Doğrulandı! Hoş geldin Yiğit efendim, tam yetki"
-            " aktif."
-        )
+        st.success("🔓 Master Şifre Doğrulandı! Tam yetki aktif efendim.")
         st.components.v1.html(
             '<script>titanKonus("Master şifre doğrulandı, hoş geldin Yiğit'
             ' efendim.");</script>',
@@ -249,25 +241,25 @@ def internette_ara(sorgu):
 
 # --- ANA UYGULAMA ---
 st.title(
-    f"⚡ TITAN AI v10.1 — Komuta Merkezi [Aktif Operatör:"
-    f" {st.session_state.aktif_kullanici_adi}]"
+    f"⚡ TITAN v11.0 [JARVIS Core] — Operatör: {st.session_state.aktif_kullanici_adi}"
 )
 
-# --- KENAR ÇUBUĞU ---
+# --- KENAR ÇUBUĞU (JARVIS MODÜL SEÇİCİ) ---
 st.sidebar.markdown(
-    "<h3 style='font-weight: 800; color: #58a6ff;'>⚙️ TITAN Kontrol"
-    " Paneli</h3>",
+    "<h3 style='font-weight: 800; color: #58a6ff;'>⚙️ JARVIS Komuta"
+    " Menüsü</h3>",
     unsafe_allow_html=True,
 )
 secim = st.sidebar.radio(
     "Mod Seçin:",
     [
-        "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses",
-        "🔒 Kullanıcı & Fotoğraflı İzin Yönetim Modülü",
-        "📍 Canlı Konum ve Google Maps Takibi",
-        "🛰️ Uzaktan Konum Takip (Radar)",
-        "💻 Gelişmiş Sistem Donanım Paneli",
-        "📌 Görev & Operasyon Takibi",
+        "💬 JARVIS Sohbet, Web & Ses Merkezi",
+        "🧠 Nöral Hafıza (MEMORIES.md) Yönetimi",
+        "🔒 Fotoğraflı İzin & Güvenlik Matriksi",
+        "📍 Canlı Konum ve Google Maps Radarı",
+        "🛰️ Uzaktan Konum Takibi (Supabase)",
+        "💻 Gelişmiş Donanım ve Sistem Paneli",
+        "📌 Otonom Görev & Hatırlatıcı Takibi",
     ],
     label_visibility="collapsed",
 )
@@ -278,14 +270,14 @@ if st.sidebar.button("🔒 Oturumu Kapat / Kilitle"):
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>TITAN v10.1 Ultimate<br>Maps"
-    " & Photo Auth Active 🟢</p>",
+    "<p style='color: #8b949e; font-size: 12px;'>JARVIS Core Protocol v11.0<br>Active"
+    " & Fully Autonomous 🟢</p>",
     unsafe_allow_html=True,
 )
 
 # --- 1. MOD: SOHBET & SES ---
-if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
-  st.subheader("💬 Yapay Zeka Komuta, İnternet Sentezi ve Ses Merkezi")
+if secim == "💬 JARVIS Sohbet, Web & Ses Merkezi":
+  st.subheader("💬 JARVIS Doğal Dil, Web Sentezi & Ses Asistanı")
 
   st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 
@@ -324,12 +316,12 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
 
   st.markdown("</div>", unsafe_allow_html=True)
 
-  with st.expander("📸 Gelişmiş Görsel veya Dosya Analiz Ekle"):
+  with st.expander("📸 Görsel / Dosya Analiz Modülü"):
     yuklenen_dosya = st.file_uploader(
         "Dosya Seç", type=["jpg", "jpeg", "png"], label_visibility="collapsed"
     )
 
-  prompt = st.chat_input("TITAN'a komutunuzu iletin efendim...")
+  prompt = st.chat_input("JARVIS / TITAN'a talimatınızı iletin efendim...")
 
   if prompt:
     user_content = []
@@ -381,7 +373,7 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
             ]
         ):
           st.toast(
-              "🌐 TITAN Ağ Tarayıcısı aktif, güncel veriler çekiliyor...",
+              "🌐 JARVIS Web Tarayıcısı aktif, canlı veriler çekiliyor...",
               icon="⚡",
           )
           ek_bilgi = internette_ara(prompt)
@@ -419,62 +411,80 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
     st.session_state.messages = [{
         "role": "system",
         "content": (
-            "Sen TITAN v10.1 adında gelişmiş bir yapay zeka asistanısın."
+            "Sen JARVIS mimarisiyle güçlendirilmiş TITAN v11.0 asistanısın."
         ),
     }]
     st.rerun()
 
-# --- 2. MOD: KULLANICI & FOTOĞRAFLI İZİN YÖNETİMİ ---
-elif secim == "🔒 Kullanıcı & Fotoğraflı İzin Yönetim Modülü":
-  st.subheader("🔒 TITAN Fotoğraflı Erişim ve Yetki Yönetim Merkezi")
+# --- 2. MOD: NÖRAL HAFIZA (MEMORIES.md) ---
+elif secim == "🧠 Nöral Hafıza (MEMORIES.md) Yönetimi":
+  st.subheader("🧠 JARVIS Dinamik Nöral İndeksleme & Hafıza Paneli")
   st.markdown(
-      "Buradan yeni bir arkadaşını isimsiz bırakmadan, **fotoğrafını da"
-      " yükleyerek** yetkili listesine ekleyebilirsin efendim."
+      "Bu modül JARVIS'in kalıcı hafızasını (`MEMORIES.md`) doğrudan"
+      " yönetmenizi sağlar. Sistem hakkınızda neleri hatırlıyorsa burada"
+      " listelenir efendim."
+  )
+
+  yeni_hafiza_notu = st.text_input("Hafızaya Yeni Bilgi Kaydet:")
+  if st.button("Hafızaya İşle"):
+    if yeni_hafiza_notu:
+      st.session_state.jarvis_hafiza.append(yeni_hafiza_notu.strip())
+      st.success("🧠 Bilgi kalıcı nöral hafızaya başarıyla eklendi efendim!")
+      st.rerun()
+    else:
+      st.warning("Lütfen bir hafıza girdisi yazın efendim.")
+
+  st.markdown("### 🗂️ Aktif Nöral Bellek Kayıtları:")
+  for idx, mem in enumerate(st.session_state.jarvis_hafiza):
+    st.write(f"- 📌 **Kayıt #{idx+1}:** {mem}")
+
+# --- 3. MOD: FOTOĞRAFLI İZİN & GÜVENLİK ---
+elif secim == "🔒 Fotoğraflı İzin & Güvenlik Matriksi":
+  st.subheader("🔒 JARVIS Biyometrik Tanıma ve Yetkilendirme Paneli")
+  st.markdown(
+      "Sisteme yeni yetkili kişiler ekleyin ve yüz verilerini güvenli"
+      " veritabanına kaydedin efendim."
   )
 
   col_yonet1, col_yonet2 = st.columns(2)
 
   with col_yonet1:
-    st.markdown("### ➕ Fotoğraflı Yetkili Kişi Ekle")
+    st.markdown("### ➕ Yeni Yetkili Kişi ve Fotoğraf Kaydı")
     yeni_kisi_adi = st.text_input("Kişinin Adı:")
     yeni_kisi_foto = st.file_uploader(
         "Kişinin Yüz Fotoğrafı",
         type=["jpg", "jpeg", "png"],
-        key="yeni_arkadas_foto",
+        key="jarvis_arkadas_foto",
     )
 
-    if st.button("Fotoğraflı Kişiyi Yetkilendir"):
+    if st.button("Biyometrik Veriyi Kaydet"):
       if yeni_kisi_adi and yeni_kisi_foto:
         st.session_state.izinli_kisiler[yeni_kisi_adi.strip()] = (
-            "Yetkili Arkadaş"
+            "Yetkili Misafir"
         )
         st.session_state.izinli_fotolar[yeni_kisi_foto.name] = (
             yeni_kisi_adi.strip()
         )
         st.success(
-            f"✅ {yeni_kisi_adi} ve yüz verisi başarıyla TITAN veritabanına"
-            " işlendi efendim!"
+            f"✅ {yeni_kisi_adi} biyometrik olarak TITAN/JARVIS ağına"
+            " eklendi efendim!"
         )
       else:
-        st.warning("Lütfen hem isim yazın hem de bir fotoğraf yükleyin efendim.")
+        st.warning("Lütfen hem ad girin hem de fotoğraf yükleyin efendim.")
 
   with col_yonet2:
-    st.markdown("### 📋 Yetkili Kullanıcı Listesi")
-    if not st.session_state.izinli_kisiler:
-      st.info("Kayıtlı özel kullanıcı bulunmuyor efendim.")
-    else:
-      for isim, rol in st.session_state.izinli_kisiler.items():
-        st.write(f"- 🛡️ **{isim}** — *{rol}*")
+    st.markdown("### 📋 Yetkili Güvenlik Listesi")
+    for isim, rol in st.session_state.izinli_kisiler.items():
+      st.write(f"- 🛡️ **{isim}** — *{rol}*")
 
-# --- 3. MOD: CANLI KONUM + GOOGLE MAPS ---
-elif secim == "📍 Canlı Konum ve Google Maps Takibi":
-  st.subheader("📍 TITAN Canlı Konum ve Harita Entegrasyonu")
+# --- 4. MOD: CANLI KONUM + GOOGLE MAPS ---
+elif secim == "📍 Canlı Konum ve Google Maps Radarı":
+  st.subheader("📍 JARVIS Canlı GPS & Harita Entegrasyonu")
   st.markdown(
-      "Aşağıdaki butona basarak anlık konumunu uydudan alabilir ve doğrudan"
-      " Google Maps haritası üzerinde görebilirsin efendim."
+      "Anlık coğrafi konumunuzu uydu üzerinden çekip doğrudan Google Maps"
+      " üzerinde görüntüleyin efendim."
   )
 
-  # HTML/JS ile canlı konum alıp bunu Streamlit tarafına taşıyan ve haritada gösteren gelişmiş yapı
   st.components.v1.html(
       """
     <div style="padding: 15px; background-color: #161b22; color: white; border-radius: 8px; border: 1px solid #30363d;">
@@ -514,9 +524,9 @@ elif secim == "📍 Canlı Konum ve Google Maps Takibi":
       height=500,
   )
 
-# --- 4. MOD: UZAKTAN KONUM TAKİP (RADAR) ---
-elif secim == "🛰️ Uzaktan Konum Takip (Radar)":
-  st.subheader("🛰️ TITAN Uzaktan Hedef Takip & Harita Radarı")
+# --- 5. MOD: UZAKTAN KONUM TAKİBİ (SUPABASE) ---
+elif secim == "🛰️ Uzaktan Konum Takibi (Supabase)":
+  st.subheader("🛰️ JARVIS Uzaktan Hedef İzleme ve Harita Radarı")
   if st.button("🔄 Radar Verilerini Tazele"):
     st.rerun()
 
@@ -554,41 +564,41 @@ elif secim == "🛰️ Uzaktan Konum Takip (Radar)":
   else:
     st.error("Supabase bağlantısı kurulamadı efendim.")
 
-# --- 5. MOD: SİSTEM ---
-elif secim == "💻 Gelişmiş Sistem Donanım Paneli":
-  st.subheader("💻 TITAN Donanım ve Sistem Altyapı Monitörü")
+# --- 6. MOD: SİSTEM ---
+elif secim == "💻 Gelişmiş Donanım ve Sistem Paneli":
+  st.subheader("💻 JARVIS Donanım Altyapı ve Kaynak Monitörü")
   col1, col2, col3 = st.columns(3)
   with col1:
-    st.metric(label="🔥 CPU Çekirdek Yükü", value="%11.8", delta="Stabil")
-    st.progress(0.11)
+    st.metric(label="🔥 CPU Yükü", value="%12.4", delta="Optimal")
+    st.progress(0.12)
   with col2:
-    st.metric(label="💾 RAM Bellek Durumu", value="%39.5", delta="Normal")
-    st.progress(0.39)
+    st.metric(label="💾 RAM Kullanımı", value="%41.2", delta="Normal")
+    st.progress(0.41)
   with col3:
-    st.metric(label="🌐 Sunucu Gecikmesi", value="16 ms", delta="Çok İyi")
-    st.progress(0.16)
+    st.metric(label="🌐 Sunucu Gecikmesi", value="14 ms", delta="Harika")
+    st.progress(0.14)
   st.success(
-      "TITAN v10.1 tüm modülleriyle kusursuz ve tam kapasite çalışıyor,"
+      "JARVIS & TITAN v11.0 tüm alt sistemleriyle tam kapasite çalışıyor,"
       " efendim."
   )
 
-# --- 6. MOD: GÖREVLER ---
+# --- 7. MOD: GÖREVLER ---
 else:
-  st.subheader("📌 TITAN Görev, Operasyon ve Proje Takip Sistemi")
-  yeni_gorev = st.text_input("Yeni Operasyon Görevi Tanımlayın:")
-  if st.button("Operasyon Görevi Ekle"):
+  st.subheader("📌 JARVIS Otonom Görev ve Hatırlatıcı Yönetimi")
+  yeni_gorev = st.text_input("Yeni Görev veya Hatırlatıcı Tanımlayın:")
+  if st.button("Görev Ekle"):
     if yeni_gorev:
       st.session_state.gorevler.append(
           {"gorev": yeni_gorev, "durum": "Bekliyor ⏳"}
       )
-      st.success("Yeni görev operasyon listesine başarıyla eklendi efendim.")
+      st.success("Yeni görev JARVIS görev kuyruğuna eklendi efendim.")
       st.rerun()
     else:
       st.warning("Lütfen geçerli bir görev tanımı girin efendim.")
 
-  st.markdown("### Aktif Operasyon Görev Listesi:")
+  st.markdown("### Aktif Görev Listesi:")
   if not st.session_state.gorevler:
-    st.info("Kayıtlı aktif operasyon görevi bulunmuyor efendim.")
+    st.info("Kayıtlı aktif görev bulunmuyor efendim.")
   else:
     for i, g in enumerate(st.session_state.gorevler):
       col1, col2 = st.columns([4, 1])

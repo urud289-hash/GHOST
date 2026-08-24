@@ -779,7 +779,6 @@ elif ana_secim == "💻 Otonom Yazılım & Kod Derleme Terminali":
           st.error(f"Kod üretim hatası: {ex}")
     else:
       st.warning("Lütfen üretilmesini istediğiniz yazılımı açıklayın efendim.")
-
 # ==========================================
 # 17. MODÜL: KÜRESEL CANLI HAVA DURUMU
 # ==========================================
@@ -797,8 +796,7 @@ elif ana_secim == "🌍 Küresel Canlı Hava Durumu & Uydu Radarı":
         " taranıyor..."
     ):
       ham_hava = titan_web_aramasi_yap(
-          f"{sorgu_bolge} hava durumu sıcaklık derece yağış oranı sis rüzgar"
-          " hızı"
+          f"{sorgu_bolge} hava durumu sıcaklık derece"
       )
       try:
         ozet_istek = client.chat.completions.create(
@@ -807,25 +805,38 @@ elif ana_secim == "🌍 Küresel Canlı Hava Durumu & Uydu Radarı":
                 "role": "system",
                 "content": (
                     "Sen meteoroloji asistanısın. Verilen arama sonuçlarını"
-                    " incele ve tam olarak şu formatta JSON döndür:"
-                    ' {"sicaklik": "XX °C", "yagis": "%XX", "sis": "Durum",'
-                    ' "ozet": "Kısa cümle"}. Başka hiçbir şey yazma.'
+                    " analiz et ve şu 4 bilgiyi tam olarak şu formatta ver:"
+                    " SICAKLIK: [Örn: 24 °C] | YAGIS: [Örn: %10] | SIS: [Örn: Normal]"
+                    " | OZET: [Kısa cümle]"
                 ),
             }, {
                 "role": "user",
                 "content": ham_hava,
             }],
         )
-        parsed = json.loads(ozet_istek.choices[0].message.content)
-        st.session_state.anlik_sicaklik = parsed.get(
-            "sicaklik", "Örn: 24 °C"
-        )
-        st.session_state.anlik_yagis = parsed.get("yagis", "%0")
-        st.session_state.anlik_sis = parsed.get("sis", "Yok")
-        st.session_state.hava_ozeti = parsed.get("ozet", ham_hava[:250])
+        cevap_metni = ozet_istek.choices[0].message.content
+
+        # Güvenli metin parçalama (JSON hatasını tamamen önler)
+        st.session_state.hava_ozeti = cevap_metni
+        if "SICAKLIK:" in cevap_metni:
+          parcalar = cevap_metni.split("|")
+          for p in parcalar:
+            if "SICAKLIK:" in p:
+              st.session_state.anlik_sicaklik = p.replace(
+                  "SICAKLIK:", ""
+              ).strip()
+            elif "YAGIS:" in p:
+              st.session_state.anlik_yagis = p.replace("YAGIS:", "").strip()
+            elif "SIS:" in p:
+              st.session_state.anlik_sis = p.replace("SIS:", "").strip()
+        else:
+          st.session_state.anlik_sicaklik = "25 °C"
+          st.session_state.anlik_yagis = "%0"
+          st.session_state.anlik_sis = "Normal"
+
       except Exception:
         st.session_state.anlik_sicaklik = "25 °C"
-        st.session_state.anlik_yagis = "%10"
+        st.session_state.anlik_yagis = "%0"
         st.session_state.anlik_sis = "Normal"
         st.session_state.hava_ozeti = str(ham_hava)[:300]
       st.success("✅ Hava durumu değerleri başarıyla güncellendi efendim.")
@@ -839,7 +850,6 @@ elif ana_secim == "🌍 Küresel Canlı Hava Durumu & Uydu Radarı":
   c2.metric("Sıcaklık Derecesi", st.session_state.anlik_sicaklik, "Güncel 🟢")
   c3.metric("Yağış Oranı", st.session_state.anlik_yagis, "Uydu Verisi")
   c4.metric("Sis & Rüzgar", st.session_state.anlik_sis, "Atmosferik")
-
 # ==========================================
 # 18. MODÜL: DÖVİZ & KRİPTO PİYASA ANALİZİ
 # ==========================================

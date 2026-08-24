@@ -18,7 +18,7 @@ from supabase import Client, create_client
 # ==========================================
 st.set_page_config(
     page_title=(
-        "TITAN v19.0 OMEGA SUPREME — JARVIS Enterprise Komuta & Telsiz Merkezi"
+        "TITAN v20.0 OMEGA SUPREME — JARVIS Enterprise Komuta & Asistan Üssü"
     ),
     page_icon="⚡",
     layout="wide",
@@ -68,12 +68,6 @@ st.markdown(
     }
     [data-testid="stDataFrame"] { border: 1px solid #30363d; border-radius: 10px; background-color: #0d1117; }
     .matrix-box { background-color: #05080f; padding: 18px; border-radius: 10px; border: 1px solid #1e293b; font-family: monospace; }
-    
-    .telsiz-panel {
-        background: linear-gradient(145deg, #090d16, #04060a);
-        border: 2px solid #0284c7; border-radius: 16px; padding: 24px;
-        box-shadow: 0 0 25px rgba(2, 132, 199, 0.25); text-align: center;
-    }
 </style>
 """,
     unsafe_allow_html=True,
@@ -114,9 +108,9 @@ if "messages" not in st.session_state:
   st.session_state.messages = [{
       "role": "system",
       "content": (
-          "Sen JARVIS ve TITAN v19.0 OMEGA SUPREME mimarisiyle güçlendirilmiş,"
+          "Sen JARVIS ve TITAN v20.0 OMEGA SUPREME mimarisiyle güçlendirilmiş,"
           " sınırsız yetkilere sahip, gerçek zamanlı küresel arama yapabilen,"
-          " kod yazabilen ve telsiz protokollerini yöneten yapay zeka"
+          " kod yazabilen, oyuncu ve sideloading süreçlerini yöneten yapay zeka"
           " asistanısın. Asıl sahibin Yiğit'tir. Ona ve yetkili"
           " kullanıcılara 'efendim' diye hitap et."
       ),
@@ -127,10 +121,10 @@ if "gorevler" not in st.session_state:
 if "jarvis_hafiza" not in st.session_state:
   st.session_state.jarvis_hafiza = [
       "Ana Sahip: Yiğit",
-      "Sistem Çekirdeği: TITAN v19.0 OMEGA SUPREME",
+      "Sistem Çekirdeği: TITAN v20.0 OMEGA SUPREME",
       "Güvenlik Duvarı: Aktif (Kuantum Matris Koruması)",
       "Nöral Bellek: Tam Kapasite Senkronize Edildi",
-      "Yeni Özellik: Canlı Web Telsiz (Walkie-Talkie) Modu Aktif",
+      "Yeni Eklenenler: Oyuncu Asistanı, Cron Scheduler, Çevirmen & IPA Rehberi",
   ]
 if "izinli_kisiler" not in st.session_state:
   st.session_state.izinli_kisiler = {"Yiğit": "Ana Komutan (Admin)"}
@@ -138,7 +132,7 @@ if "izinli_fotolar" not in st.session_state:
   st.session_state.izinli_fotolar = {}
 if "sistem_loglari" not in st.session_state:
   st.session_state.sistem_loglari = [
-      f"[{datetime.datetime.now().strftime('%H:%M:%S')}] TITAN v19.0 OMEGA çekirdeği ve telsiz frekansları yüklendi."
+      f"[{datetime.datetime.now().strftime('%H:%M:%S')}] TITAN v20.0 OMEGA çekirdeği ve yeni modüller yüklendi."
   ]
 if "notlar_defteri" not in st.session_state:
   st.session_state.notlar_defteri = []
@@ -160,7 +154,6 @@ if "kripto_portfoy" not in st.session_state:
       {"coin": "Ethereum (ETH)", "adet": 4.2, "hedef": "$6,500"},
   ]
 
-# Hava durumu kalıcı saklama alanları
 if "anlik_sicaklik" not in st.session_state:
   st.session_state.anlik_sicaklik = "Veri Bekleniyor..."
 if "anlik_yagis" not in st.session_state:
@@ -170,15 +163,8 @@ if "anlik_sis" not in st.session_state:
 if "hava_ozeti" not in st.session_state:
   st.session_state.hava_ozeti = "Henüz arama yapılmadı efendim."
 
-# Telsiz logları hafızası
-if "telsiz_gecmisi" not in st.session_state:
-  st.session_state.telsiz_gecmisi = [(
-      "JARVIS",
-      "Telsiz frekansı 109.2 Omega kuruldu, dinlemedeyim efendim.",
-  )]
-
 # ==========================================
-# 05. SES SENTEZLEYİCİ & TELSİZ JAVASCRIPT MODÜLÜ
+# 05. SES SENTEZLEYİCİ JAVASCRIPT MODÜLÜ
 # ==========================================
 st.markdown(
     """
@@ -219,7 +205,7 @@ st.markdown(
 # ==========================================
 if not st.session_state.giris_yapildi:
   st.markdown(
-      "<h1 style='text-align: center; color: #38bdf8;'>⚡ TITAN v19.0"
+      "<h1 style='text-align: center; color: #38bdf8;'>⚡ TITAN v20.0"
       " OMEGA — Güvenlik Matriksi</h1>",
       unsafe_allow_html=True,
   )
@@ -237,7 +223,7 @@ if not st.session_state.giris_yapildi:
     giris_foto = st.file_uploader(
         "Yüz Doğrulama Görseli",
         type=["jpg", "jpeg", "png"],
-        key="giris_dosya_v19",
+        key="giris_dosya_v20",
     )
     giris_isim = st.text_input("Operatör Adı:", placeholder="Örn: Yiğit")
 
@@ -259,24 +245,19 @@ if not st.session_state.giris_yapildi:
           )
           st.components.v1.html(
               f'<script>titanOmegaKonus("Hoş geldin {temiz_isim}'
-              ' efendim, Omega sistemleri aktif.");</script>',
+              ' efendim, Omega v20 aktif.");</script>',
               height=0,
           )
           st.rerun()
         else:
           st.error("⚠️ Erişim Reddedildi! Bilinmeyen imza efendim.")
-          st.components.v1.html(
-              '<script>titanOmegaKonus("Erişim reddedildi, yetkisiz'
-              ' işlem.");</script>',
-              height=0,
-          )
       else:
         st.warning("Lütfen adınızı girin ve görsel yükleyin efendim.")
 
   with col_g2:
     st.markdown("### #️⃣ Master Şifre Giriş Protokolü")
     sifre_girdi = st.text_input(
-        "Güvenlik Anahtarı (PIN):", type="password", key="giris_sifre_v19"
+        "Güvenlik Anahtarı (PIN):", type="password", key="giris_sifre_v20"
     )
     if st.button("Master Anahtarı Doğrula"):
       if sifre_girdi == "0912":
@@ -295,10 +276,6 @@ if not st.session_state.giris_yapildi:
         st.rerun()
       else:
         st.error("❌ Hatalı şifre girdiniz efendim!")
-        st.components.v1.html(
-            '<script>titanOmegaKonus("Hatalı şifre girdiniz efendim.");</script>',
-            height=0,
-        )
 
   st.stop()
 
@@ -352,7 +329,7 @@ def titan_web_aramasi_yap(sorgu):
 # 08. ANA UYGULAMA BAŞLIĞI VE KONTROL PANELİ
 # ==========================================
 st.title(
-    f"⚡ TITAN v19.0 OMEGA SUPREME [JARVIS Core] — Operatör:"
+    f"⚡ TITAN v20.0 OMEGA SUPREME [JARVIS Core] — Operatör:"
     f" {st.session_state.aktif_kullanici_adi}"
 )
 
@@ -369,7 +346,10 @@ ana_secim = st.sidebar.radio(
     "Sistem Modu Seçin:",
     [
         "💬 JARVIS Omega Sohbet, Canlı Web & Ses",
-        "🎙️ Canlı Web Telsiz & Walkie-Talkie Modu",
+        "🎮 Oyuncu & Favori Oyun Taktik Asistanı",
+        "🤖 Otonom Akıllı Görev ve İşlem Zamanlayıcı",
+        "🌐 Hızlı Çeviri ve Çok Dilli Kod Açıklayıcı",
+        "📂 Akıllı Dosya ve Sideloading / IPA Rehberi",
         "🧠 Nöral Hafıza (MEMORIES.md) Deposu",
         "💻 Otonom Yazılım & Kod Derleme Terminali",
         "🌍 Küresel Canlı Hava Durumu & Uydu Radarı",
@@ -391,7 +371,7 @@ if st.sidebar.button("🔒 Oturumu Kapat ve Kilitle"):
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #64748b; font-size: 11px;'>TITAN Omega Core v19.0<br>All"
+    "<p style='color: #64748b; font-size: 11px;'>TITAN Omega Core v20.0<br>All"
     " Neural Modules Online 🟢</p>",
     unsafe_allow_html=True,
 )
@@ -434,7 +414,7 @@ if ana_secim == "💬 JARVIS Omega Sohbet, Canlı Web & Ses":
               .replace("\n", " ")
               .replace("*", "")
           )
-          if st.button(f"🔊 Bu Yanıtı Sesli Oku", key=f"ses_v19_{i}"):
+          if st.button(f"🔊 Bu Yanıtı Sesli Oku", key=f"ses_v20_{i}"):
             st.components.v1.html(
                 f'<script>titanOmegaKonus("{temiz_metin}");</script>', height=0
             )
@@ -442,7 +422,7 @@ if ana_secim == "💬 JARVIS Omega Sohbet, Canlı Web & Ses":
   st.markdown("</div>", unsafe_allow_html=True)
 
   with st.expander("📸 Görsel / Çoklu Ortam Analiz Modülü"):
-    yuklenen_dosya_v19 = st.file_uploader(
+    yuklenen_dosya_v20 = st.file_uploader(
         "Görsel Seç",
         type=["jpg", "jpeg", "png"],
         label_visibility="collapsed",
@@ -454,8 +434,8 @@ if ana_secim == "💬 JARVIS Omega Sohbet, Canlı Web & Ses":
 
   if prompt:
     user_content = []
-    if yuklenen_dosya_v19:
-      bytes_data = yuklenen_dosya_v19.getvalue()
+    if yuklenen_dosya_v20:
+      bytes_data = yuklenen_dosya_v20.getvalue()
       base64_image = base64.b64encode(bytes_data).decode("utf-8")
       image_url = f"data:image/jpeg;base64,{base64_image}"
       user_content.append({"type": "image_url", "image_url": {"url": image_url}})
@@ -464,8 +444,8 @@ if ana_secim == "💬 JARVIS Omega Sohbet, Canlı Web & Ses":
     st.session_state.messages.append({"role": "user", "content": user_content})
 
     with st.chat_message("user"):
-      if yuklenen_dosya_v19:
-        st.image(yuklenen_dosya_v19, width=320)
+      if yuklenen_dosya_v20:
+        st.image(yuklenen_dosya_v20, width=320)
       st.markdown(f"**{prompt}**")
 
     with st.chat_message("assistant"):
@@ -531,92 +511,206 @@ if ana_secim == "💬 JARVIS Omega Sohbet, Canlı Web & Ses":
     st.session_state.messages = [{
         "role": "system",
         "content": (
-            "Sen TITAN v19.0 OMEGA SUPREME asistanı ve JARVIS çekirdeğisin."
+            "Sen TITAN v20.0 OMEGA SUPREME asistanı ve JARVIS çekirdeğisin."
         ),
     }]
     st.rerun()
 
 # ==========================================
-# 11. MODÜL 2: CANLI WEB TELSİZ & WALKIE-TALKIE
+# 11. MODÜL: OYUNCU & FAVORİ OYUN TATİK ASİSTANI
 # ==========================================
-elif ana_secim == "🎙️ Canlı Web Telsiz & Walkie-Talkie Modu":
-  st.subheader("🎙️ TITAN Omega Telsiz Frekansı (Walkie-Talkie Mode)")
+elif ana_secim == "🎮 Oyuncu & Favori Oyun Taktik Asistanı":
+  st.subheader("🎮 JARVIS Oyuncu Taktik ve Kadro Strateji Merkezi")
   st.markdown(
-      "Buradan telsiz mandalına basar gibi JARVIS ile anlık telsiz konuşmaları"
-      " yapabilir, sesli yanıt alabilir ve frekans geçmişini görebilirsin"
+      "EA Sports FC 26, eFootball, Minecraft veya oynadığın diğer oyunlar"
+      " hakkında taktikler al, kadro kur veya yama çözümleri bul efendim."
+  )
+
+  oyun_secimi = st.selectbox(
+      "Oyun Seçin:",
+      [
+          "EA Sports FC 26 / Süper Lig & Diğer Ligler",
+          "eFootball / Kadro ve Takım Kurulumu",
+          "Minecraft / NeoForge Mod Optimizasyonu",
+          "PES 2017 / Yama ve Option File",
+          "Diğer / Özel Oyun Sorusu",
+      ],
+  )
+  oyun_sorusu = st.text_area(
+      "Oyunla ilgili öğrenmek istediğin taktik, kadro veya soru:",
+      placeholder="Örn: FC 26'da Süper Lig dışındaki Türk takımlarıyla oynamak"
+      " için ne yapmalıyım?",
+  )
+
+  if st.button("Taktik ve Stratejiyi Hesapla"):
+    if oyun_sorusu:
+      with st.spinner(
+          "JARVIS oyun veritabanı taranıyor ve taktikler üretiliyor..."
+      ):
+        try:
+          oyun_yanit = client.chat.completions.create(
+              model=MODEL_NAME,
+              messages=[{
+                  "role": "system",
+                  "content": (
+                      "Sen profesyonel bir espor koçu ve oyun analistisin."
+                      f" Kullanıcının seçtiği oyun ({oyun_secimi}) bağlamında"
+                      " en iyi taktikleri, çözümleri ve önerileri net,"
+                      " maddeler halinde sun."
+                  ),
+              }, {
+                  "role": "user",
+                  "content": oyun_sorusu,
+              }],
+          )
+          st.markdown("### 🏆 JARVIS Oyuncu Strateji Raporu:")
+          st.markdown(oyun_yanit.choices[0].message.content)
+          st.success("Taktik raporu başarıyla oluşturuldu efendim!")
+        except Exception as ex:
+          st.error(f"Oyun asistanı hatası: {ex}")
+    else:
+      st.warning("Lütfen oyunla ilgili sorunuzu yazın efendim.")
+
+# ==========================================
+# 12. MODÜL: OTONOM AKILLI GÖREV VE ZAMANLAYICI
+# ==========================================
+elif ana_secim == "🤖 Otonom Akıllı Görev ve İşlem Zamanlayıcı":
+  st.subheader("🤖 TITAN Cron & Otomasyon Zamanlayıcı")
+  st.markdown(
+      "Arka planda veya belirli periyotlarda çalışmasını istediğin otomasyon"
+      " görevlerini planla efendim."
+  )
+
+  cron_gorev = st.text_input(
+      "Otomasyon Görev Tanımı:",
+      placeholder="Örn: Her sabah saat 08:00'de hava durumunu ve borsa kurlarını"
+      " raporla.",
+  )
+  cron_siklik = st.selectbox(
+      "Çalışma Periyodu:",
+      [
+          "Anlık Tetikleme",
+          "Her Gün Saat Başında",
+          "Sistem Başlangıcında",
+          "Manuel Onaylı",
+      ],
+  )
+
+  if st.button("Otomasyonu Kuyruğa Ekle"):
+    if cron_gorev:
+      st.session_state.gorevler.append({
+          "gorev": f"[Zamanlı] {cron_gorev} ({cron_siklik})",
+          "durum": "Zamanlandı ⏳",
+      })
+      st.success("Otonom işlem başarıyla zamanlayıcıya eklendi efendim.")
+      st.rerun()
+    else:
+      st.warning("Lütfen bir görev tanımı yazın efendim.")
+
+  st.markdown("### ⏰ Aktif Zamanlanmış Görevler:")
+  for g in st.session_state.gorevler:
+    st.write(f"- ⚙️ `{g['gorev']}` — Durum: `{g['durum']}`")
+
+# ==========================================
+# 13. MODÜL: HIZLI ÇEVİRİ VE KOD AÇIKLAYICI
+# ==========================================
+elif ana_secim == "🌐 Hızlı Çeviri ve Çok Dilli Kod Açıklayıcı":
+  st.subheader("🌐 JARVIS Çok Dilli Çevirmen & Kod Satır Analizcisi")
+  st.markdown(
+      "Yabancı makaleleri, hata loglarını Türkçeye çevir veya karmaşık"
+      " kodların ne işe yaradığını öğren efendim."
+  )
+
+  ceviri_metni = st.text_area(
+      "Çevrilecek veya Açıklanacak Metin / Kod Parçası:",
+      placeholder=(
+          "Buraya yabancı bir hata kodu, metin veya Python/JS kodu yapıştırın..."
+      ),
+  )
+  islem_turu = st.selectbox(
+      "İşlem Seçin:",
+      [
+          "Türkçeye Kusursuz Çevir ve Özetle",
+          "Kodu Satır Satır Analiz Et ve Açıkla",
+          "Hata Kodunu (Bug) Çözümle ve Düzelt",
+      ],
+  )
+
+  if st.button("Analiz Et ve İşle"):
+    if ceviri_metni:
+      with st.spinner("JARVIS dil ve kod motoru analiz yapıyor..."):
+        try:
+          cevir_res = client.chat.completions.create(
+              model=MODEL_NAME,
+              messages=[{
+                  "role": "system",
+                  "content": (
+                      "Sen uzman bir dil çevirmeni ve kıdemli yazılım"
+                      f" mühendisisin. İstenen işlem: {islem_turu}. Sonucu"
+                      " düzenli ve anlaşılır şekilde açıkla."
+                  ),
+              }, {
+                  "role": "user",
+                  "content": ceviri_metni,
+              }],
+          )
+          st.markdown("### 🔍 Çeviri ve Analiz Sonucu:")
+          st.markdown(cevir_res.choices[0].message.content)
+          st.success("İşlem tamamlandı efendim!")
+        except Exception as ex:
+          st.error(f"Çeviri hatası: {ex}")
+    else:
+      st.warning("Lütfen işlenecek metni girin efendim.")
+
+# ==========================================
+# 14. MODÜL: AKILLI DOSYA VE SIDELOADING / IPA REHBERİ
+# ==========================================
+elif ana_secim == "📂 Akıllı Dosya ve Sideloading / IPA Rehberi":
+  st.subheader("📂 iOS Sideloading, IPA Kurulumu ve Dosya Rehberi")
+  st.markdown(
+      "iPhone cihazına .ipa dosyası yükleme (Sideloadly, AltServer vb.),"
+      " sertifika yönetimi ve dosya açma teknikleri hakkında adım adım rehber"
       " efendim."
   )
 
-  st.markdown('<div class="telsiz-panel">', unsafe_allow_html=True)
-  st.markdown("### 📻 Frekans: 109.2 MHz OMEGA SECURE BAND")
-  st.markdown(
-      "<p style='color: #10b981; font-weight: bold;'>Durum: Bağlantı Kuruldu"
-      " 🟢 (Konuşmaya Hazır)</p>",
-      unsafe_allow_html=True,
+  ipa_soru = st.selectbox(
+      "Hangi Sideloading konusunda rehber istiyorsun?",
+      [
+          "Sideloadly ile Bilgisayardan .IPA Dosyası Yükleme Adımları",
+          "iPhone'da Güvenilir Profil ve Sertifika Onaylama",
+          "Uygulama İmzalama (App Signing) Hataları ve Çözümleri",
+          "PC ile Telefon Arası Dosya Aktarım Yöntemleri",
+      ],
   )
 
-  telsiz_girdi = st.text_input(
-      "Telsiz Mesajınızı Yazın / Gönderin:",
-      placeholder="Örn: 'JARVIS, durum raporu ver, merkez tonda mıyız?'",
-      key="telsiz_input_box",
-  )
-
-  col_t1, col_t2 = st.columns(2)
-  with col_t1:
-    telsiz_gonder = st.button("📡 Telsizden Gönder ve Sesli Dinle")
-  with col_t2:
-    telsiz_temizle = st.button("🗑️ Telsiz Loglarını Temizle")
-
-  if telsiz_temizle:
-    st.session_state.telsiz_gecmisi = []
-    st.rerun()
-
-  if telsiz_gonder and telsiz_girdi:
-    st.session_state.telsiz_gecmisi.append(
-        ("Yiğit (Komutan)", telsiz_girdi)
-    )
-    with st.spinner("🎙️ Telsiz sinyali işleniyor ve ses sentezleniyor..."):
+  if st.button("Rehberi Göster"):
+    with st.spinner("Rehber hazırlanıyor..."):
       try:
-        telsiz_yanit_api = client.chat.completions.create(
+        rehber_res = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[{
                 "role": "system",
                 "content": (
-                    "Sen askeri bir telsiz protokolsün ve JARVIS'sin."
-                    " Kullanıcının telsiz mesajına kısa, net, telsiz"
-                    " terminolojisine uygun (örneğin 'Anlaşıldı efendim, merkez"
-                    " tamam') ve profesyonel yanıt ver."
+                    "Sen iOS sistemleri ve sideloading uzmanısın. Seçilen"
+                    f" konu ({ipa_soru}) için kullanıcıya adım adım, net,"
+                    " anlaşılır ve pratik bir rehber hazırla."
                 ),
             }, {
                 "role": "user",
-                "content": telsiz_girdi,
+                "content": (
+                    "Lütfen bu konuda detaylı rehber sun:"
+                    f" {ipa_soru}"
+                ),
             }],
         )
-        telsiz_cevap = telsiz_yanit_api.choices[0].message.content
-        st.session_state.telsiz_gecmisi.append(("JARVIS (Telsiz)", telsiz_cevap))
-
-        temiz_telsiz_ses = (
-            telsiz_cevap.replace('"', "'").replace("\n", " ").replace("*", "")
-        )
-        st.components.v1.html(
-            f'<script>titanOmegaKonus("{temiz_telsiz_ses}");</script>',
-            height=0,
-        )
+        st.markdown("### 📱 Adım Adım Sideloading / IPA Rehberi:")
+        st.markdown(rehber_res.choices[0].message.content)
+        st.success("Rehber başarıyla yüklendi efendim!")
       except Exception as ex:
-        st.error(f"Telsiz sinyal hatası: {ex}")
-
-  st.markdown("---")
-  st.markdown("### 📜 Canlı Telsiz İletişim Akışı:")
-  for kim, mesaj in reversed(st.session_state.telsiz_gecmisi):
-    if "Komutan" in kim:
-      st.markdown(f"👤 **{kim}**: `{mesaj}`")
-    else:
-      st.markdown(f"🤖 **{kim}**: `{mesaj}` 🔊")
-
-  st.markdown("</div>", unsafe_allow_html=True)
+        st.error(f"Rehber yükleme hatası: {ex}")
 
 # ==========================================
-# 12. MODÜL 3: NÖRAL HAFIZA YÖNETİMİ
+# 15. MODÜL: NÖRAL HAFIZA YÖNETİMİ
 # ==========================================
 elif ana_secim == "🧠 Nöral Hafıza (MEMORIES.md) Deposu":
   st.subheader("🧠 JARVIS Dinamik Nöral İndeksleme ve MEMORIES.md Paneli")
@@ -633,9 +727,6 @@ elif ana_secim == "🧠 Nöral Hafıza (MEMORIES.md) Deposu":
           "🧠 Yeni veri kalıcı nöral belleğe başarıyla entegre edildi"
           " efendim!"
       )
-      st.session_state.sistem_loglari.append(
-          f"[{datetime.datetime.now().strftime('%H:%M:%S')}] Yeni nöral bilgi eklendi."
-      )
       st.rerun()
     else:
       st.warning("Lütfen bir hafıza girdisi yazın efendim.")
@@ -645,7 +736,7 @@ elif ana_secim == "🧠 Nöral Hafıza (MEMORIES.md) Deposu":
     st.write(f"- 📌 **Kayıt #[{idx+1}]:** {mem}")
 
 # ==========================================
-# 13. MODÜL 4: OTONOM YAZILIM & KOD DERLEME
+# 16. MODÜL: OTONOM YAZILIM & KOD DERLEME
 # ==========================================
 elif ana_secim == "💻 Otonom Yazılım & Kod Derleme Terminali":
   st.subheader("💻 TITAN Omega Otonom Yazılım ve Proje Üretim Terminali")
@@ -690,27 +781,14 @@ elif ana_secim == "💻 Otonom Yazılım & Kod Derleme Terminali":
       st.warning("Lütfen üretilmesini istediğiniz yazılımı açıklayın efendim.")
 
 # ==========================================
-# 14. MODÜL 5: KÜRESEL CANLI HAVA DURUMU
+# 17. MODÜL: KÜRESEL CANLI HAVA DURUMU
 # ==========================================
 elif ana_secim == "🌍 Küresel Canlı Hava Durumu & Uydu Radarı":
   st.subheader(
       "🌍 JARVIS Küresel Atmosferik İstasyonu & Sınırsız Şehir Tarayıcı"
   )
-  st.markdown(
-      "Dünya üzerindeki **istediğin tüm ülkeleri ve şehirleri** yazarak anlık"
-      " sıcaklık, yağış oranı, sis ve rüzgar değerlerini doğrudan panellere"
-      " yansıt efendim."
-  )
-
-  hedef_ulke = st.text_input(
-      "🌐 Ülke Girin (Örn: Türkiye, Almanya, Japonya, Amerika vb.):",
-      value="Türkiye",
-  )
-  hedef_sehir = st.text_input(
-      "🏙️ Şehir Girin (Örn: Edirne, İstanbul, Londra, Tokyo, New York vb.):",
-      value="Edirne",
-  )
-
+  hedef_ulke = st.text_input("🌐 Ülke Girin:", value="Türkiye")
+  hedef_sehir = st.text_input("🏙️ Şehir Girin:", value="Edirne")
   sorgu_bolge = f"{hedef_sehir.strip()}, {hedef_ulke.strip()}"
 
   if st.button("Küresel Hava Durumu ve Değerleri Çek"):
@@ -722,7 +800,6 @@ elif ana_secim == "🌍 Küresel Canlı Hava Durumu & Uydu Radarı":
           f"{sorgu_bolge} hava durumu sıcaklık derece yağış oranı sis rüzgar"
           " hızı"
       )
-
       try:
         ozet_istek = client.chat.completions.create(
             model=MODEL_NAME,
@@ -751,14 +828,12 @@ elif ana_secim == "🌍 Küresel Canlı Hava Durumu & Uydu Radarı":
         st.session_state.anlik_yagis = "%10"
         st.session_state.anlik_sis = "Normal"
         st.session_state.hava_ozeti = str(ham_hava)[:300]
-
       st.success("✅ Hava durumu değerleri başarıyla güncellendi efendim.")
 
   st.markdown(
       f"### 🌡️ {sorgu_bolge} Canlı Meteorolojik Sentez Raporu:"
   )
   st.info(f"**Uydu Veri Özeti:** {st.session_state.hava_ozeti}")
-
   c1, c2, c3, c4 = st.columns(4)
   c1.metric("Hedef Konum", sorgu_bolge, "Aktif")
   c2.metric("Sıcaklık Derecesi", st.session_state.anlik_sicaklik, "Güncel 🟢")
@@ -766,17 +841,12 @@ elif ana_secim == "🌍 Küresel Canlı Hava Durumu & Uydu Radarı":
   c4.metric("Sis & Rüzgar", st.session_state.anlik_sis, "Atmosferik")
 
 # ==========================================
-# 15. MODÜL 6: DÖVİZ & KRİPTO PİYASA ANALİZİ
+# 18. MODÜL: DÖVİZ & KRİPTO PİYASA ANALİZİ
 # ==========================================
 elif ana_secim == "🪙 Döviz (Dolar, Euro, Sterlin) & Kripto Analizi":
   st.subheader(
       "🪙 TITAN Küresel Döviz Kurları (USD, EUR, GBP) ve Kripto Piyasaları"
   )
-  st.markdown(
-      "Her gün güncel piyasa fiyatlarıyla değişen Dolar, Euro, Sterlin ve"
-      " kripto para birimlerini takip edin efendim."
-  )
-
   secilen_varlik = st.selectbox(
       "Analiz Edilecek Küresel Varlık / Para Birimi:",
       [
@@ -789,7 +859,6 @@ elif ana_secim == "🪙 Döviz (Dolar, Euro, Sterlin) & Kripto Analizi":
           "Ripple (XRP)",
       ],
   )
-
   if st.button("Güncel Piyasa Kurunu ve Analizi Çek"):
     with st.spinner(
         f"Küresel borsa ve merkez bankalarından {secilen_varlik} canlı fiyatı"
@@ -804,23 +873,11 @@ elif ana_secim == "🪙 Döviz (Dolar, Euro, Sterlin) & Kripto Analizi":
       )
       st.success("Finansal veriler güncel kur bazında işlendi efendim.")
 
-  st.markdown("### 💼 Aktif Takip Edilen Varlıklar ve Kurlar:")
-  for item in st.session_state.kripto_portfoy:
-    st.write(
-        f"- 🪙 **{item['coin']}** | Tür: `{item['adet']}` | Hedef/Durum:"
-        f" `{item['hedef']}`"
-    )
-
 # ==========================================
-# 16. MODÜL 7: SİBER GÜVENLİK DUVARI & TEHDİT RADARI
+# 19. MODÜL: SİBER GÜVENLİK DUVARI & TEHDİT RADARI
 # ==========================================
 elif ana_secim == "🛡️ Siber Güvenlik Duvarı & Tehdit Radarı":
   st.subheader("🛡️ TITAN Omega Siber Güvenlik ve Ağ Tehdit Matriksi")
-  st.markdown(
-      "Sisteme sızmaya çalışan dış IP adresleri ve güvenlik duvarı durum"
-      " raporu efendim:"
-  )
-
   yeni_ip = st.text_input(
       "Engellenecek veya İncelenecek IP Adresi:", placeholder="Örn: 185.220.101.5"
   )
@@ -846,20 +903,14 @@ elif ana_secim == "🛡️ Siber Güvenlik Duvarı & Tehdit Radarı":
     )
 
 # ==========================================
-# 17. MODÜL 8: ÇEVRESEL SENSÖR & ATMOSFERİK İSTASYON
+# 20. MODÜL: ÇEVRESEL SENSÖR & ATMOSFERİK İSTASYON
 # ==========================================
 elif ana_secim == "🌤️ Çevresel Sensör & Atmosferik İstasyon":
   st.subheader("🌤️ JARVIS Donanım Çevre ve Isı Kontrol Merkezi")
-  st.markdown(
-      "Sunucu odası ve TITAN ana işlemci biriminin anlık fiziksel sensör"
-      " değerleri:"
-  )
-
   c1, c2, c3 = st.columns(3)
   c1.metric("CPU Çekirdek Isısı", "36.4 °C", "Normal")
   c2.metric("Sistem Nem Oranı", "%44", "Stabil")
   c3.metric("Kuantum Basınç", "1016 hPa", "İdeal")
-
   if st.button("Sensörleri Kalibre Et"):
     st.success(
         "✅ Tüm çevresel sensörler ve termal soğutma fanları başarıyla"
@@ -867,12 +918,11 @@ elif ana_secim == "🌤️ Çevresel Sensör & Atmosferik İstasyon":
     )
 
 # ==========================================
-# 18. MODÜL 9: BİYOMETRİK İZİN & KULLANICI MATRİKSİ
+# 21. MODÜL: BİYOMETRİK İZİN & KULLANICI MATRİKSİ
 # ==========================================
 elif ana_secim == "🔒 Biyometrik İzin & Kullanıcı Matriksi":
   st.subheader("🔒 JARVIS Biyometrik Tanıma ve Yetkilendirme Paneli")
   col_u1, col_u2 = st.columns(2)
-
   with col_u1:
     st.markdown("### ➕ Yeni Yetkili Kişi Kaydı")
     kisi_ad = st.text_input("Yetkilendirilecek Kişinin Adı:")
@@ -881,7 +931,6 @@ elif ana_secim == "🔒 Biyometrik İzin & Kullanıcı Matriksi":
         type=["jpg", "jpeg", "png"],
         key="omega_arkadas_foto",
     )
-
     if st.button("Biyometrik İmzayı Kaydet"):
       if kisi_ad and kisi_foto:
         st.session_state.izinli_kisiler[kisi_ad.strip()] = "Yetkili Misafir"
@@ -892,14 +941,13 @@ elif ana_secim == "🔒 Biyometrik İzin & Kullanıcı Matriksi":
         )
       else:
         st.warning("Lütfen hem ad girin hem de fotoğraf yükleyin efendim.")
-
   with col_u2:
     st.markdown("### 📋 Yetkili Güvenlik Listesi")
     for isim, rol in st.session_state.izinli_kisiler.items():
       st.write(f"- 🛡️ **{isim}** — *{rol}*")
 
 # ==========================================
-# 19. MODÜL 10: CANLI GPS KONUM VE GOOGLE MAPS
+# 22. MODÜL: CANLI GPS KONUM VE GOOGLE MAPS
 # ==========================================
 elif ana_secim == "📍 Canlı GPS Konum ve Google Maps Ağı":
   st.subheader("📍 JARVIS Canlı GPS Satellit ve Harita Entegrasyonu")
@@ -918,7 +966,6 @@ elif ana_secim == "📍 Canlı GPS Konum ve Google Maps Ağı":
             const durum = document.getElementById("durum_gps");
             const koord = document.getElementById("koord_gps");
             const haritaAlani = document.getElementById("harita-cerceve");
-            
             durum.innerHTML = "📡 Uydulara bağlanılıyor, hassas GPS konumu alınıyor...";
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
@@ -927,7 +974,6 @@ elif ana_secim == "📍 Canlı GPS Konum ve Google Maps Ağı":
                         const lon = pos.coords.longitude;
                         durum.innerHTML = "✅ Konum Başarıyla Kilitlendi!";
                         koord.innerHTML = "Enlem: " + lat.toFixed(6) + " | Boylam: " + lon.toFixed(6);
-                        
                         haritaAlani.innerHTML = '<iframe width="100%" height="400" style="border:1px solid #30363d; border-radius: 10px;" loading="lazy" allowfullscreen src="https://maps.google.com/maps?q=' + lat + ',' + lon + '&z=16&output=embed"></iframe>';
                     },
                     (err) => { durum.innerHTML = "⚠️ Hata: Konum izni reddedildi veya alınamadı efendim."; },
@@ -943,13 +989,12 @@ elif ana_secim == "📍 Canlı GPS Konum ve Google Maps Ağı":
   )
 
 # ==========================================
-# 20. MODÜL 11: UZAKTAN HEDEF İZLEME (SUPABASE)
+# 23. MODÜL: UZAKTAN HEDEF İZLEME (SUPABASE)
 # ==========================================
 elif ana_secim == "🛰️ Uzaktan Hedef İzleme (Supabase Sync)":
   st.subheader("🛰️ JARVIS Uzaktan Hedef İzleme ve Supabase Radar Sinyalleri")
   if st.button("🔄 Radar Verilerini Yenile"):
     st.rerun()
-
   if supabase:
     try:
       response = (
@@ -984,18 +1029,12 @@ elif ana_secim == "🛰️ Uzaktan Hedef İzleme (Supabase Sync)":
     st.error("Supabase bağlantısı kurulamadı efendim.")
 
 # ==========================================
-# 21. MODÜL 12: SİSTEM DENETİM VE LOGLAR
+# 24. MODÜL: SİSTEM DENETİM VE LOGLAR
 # ==========================================
 elif ana_secim == "📊 Sistem Denetim, Performans & Loglar":
   st.subheader("📊 TITAN Altyapı Denetim ve Siber Güvenlik Logları")
-  st.markdown(
-      "Sistem genelinde gerçekleşen tüm otonom operasyonel hareketlerin dökümü"
-      " efendim:"
-  )
-
   for log in reversed(st.session_state.sistem_loglari):
     st.code(log, language="text")
-
   if st.button("Log Hafızasını Sıfırla"):
     st.session_state.sistem_loglari = [
         f"[{datetime.datetime.now().strftime('%H:%M:%S')}] Log belleği sıfırlandı."
@@ -1003,11 +1042,10 @@ elif ana_secim == "📊 Sistem Denetim, Performans & Loglar":
     st.rerun()
 
 # ==========================================
-# 22. MODÜL 13: GÖREVLER VE NOTLAR DEFTERİ
+# 25. MODÜL: GÖREVLER VE NOTLAR DEFTERİ
 # ==========================================
 else:
   st.subheader("📌 JARVIS Otonom Görev, Hatırlatıcı ve Notlar Defteri")
-
   yeni_gorev_input = st.text_input("Yeni Görev veya Hatırlatıcı Tanımlayın:")
   if st.button("Görev Ekle"):
     if yeni_gorev_input:

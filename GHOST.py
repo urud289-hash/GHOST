@@ -1,7 +1,9 @@
 import base64
+import html
 import json
 import os
-from duckduckgo_search import DDGS
+import urllib.parse
+import urllib.request
 import pandas as pd
 from openai import OpenAI
 from PIL import Image
@@ -10,7 +12,7 @@ from supabase import Client, create_client
 
 # Sayfa Yapılandırması (Geniş Ekran)
 st.set_page_config(
-    page_title="TITAN v11.1 — JARVIS Ultimate Komuta Merkezi",
+    page_title="TITAN v11.2 — JARVIS Ultimate Komuta Merkezi",
     page_icon="⚡",
     layout="wide",
 )
@@ -91,7 +93,7 @@ if "messages" not in st.session_state:
   st.session_state.messages = [{
       "role": "system",
       "content": (
-          "Sen JARVIS ve TITAN v11.1 mimarisiyle güçlendirilmiş, doğrudan canlı"
+          "Sen JARVIS ve TITAN v11.2 mimarisiyle güçlendirilmiş, doğrudan canlı"
           " internet aramaları yapabilen gelişmiş bir yapay zeka asistanısın."
           " Asıl sahibin Yiğit'tir. Ona ve onaylı kullanıcılara 'efendim' diye"
           " hitap et."
@@ -150,7 +152,7 @@ st.markdown(
 if not st.session_state.giris_yapildi:
   st.markdown(
       "<h1 style='text-align: center; color: #58a6ff;'>⚡ TITAN x JARVIS"
-      " v11.1 — Güvenlik Protokolü</h1>",
+      " v11.2 — Güvenlik Protokolü</h1>",
       unsafe_allow_html=True,
   )
   st.markdown(
@@ -228,13 +230,45 @@ if not st.session_state.giris_yapildi:
   st.stop()
 
 
-# --- GELİŞMİŞ CANLI İNTERNET ARAMA MOTORU (DOĞRUDAN ÇALIŞIR) ---
+# --- SAF PYTHON İLE GARANTİLİ CANLI WEB ARAMA MOTORU ---
 def internette_ara(sorgu):
   try:
-    with DDGS() as ddgs:
-      results = [r for r in ddgs.text(sorgu, max_results=5)]
-      if results:
-        return json.dumps(results, ensure_ascii=False)
+    url = (
+        "https://html.duckduckgo.com/html/?q="
+        + urllib.parse.quote_plus(sorgu)
+    )
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                " (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            )
+        },
+    )
+    with urllib.request.urlopen(req, timeout=10) as response:
+      html_content = response.read().decode("utf-8")
+
+    # Basit ve etkili regex / split ile sonuçları çekme
+    results = []
+    chunks = html_content.split('class="result__snippet')
+    for chunk in chunks[1:6]:  # İlk 5 sonucu al
+      try:
+        part = chunk.split("</a>")[0]
+        clean_text = (
+            part.split(">")[-1]
+            .replace("<b>", "")
+            .replace("</b>", "")
+            .strip()
+        )
+        clean_text = html.unescape(clean_text)
+        if clean_text:
+          results.append(clean_text)
+      except Exception:
+        continue
+
+    if results:
+      return json.dumps(results, ensure_ascii=False)
     return "Arama sonucuna ulaşılamadı efendim."
   except Exception as e:
     return f"Arama motoru bağlantı hatası: {str(e)}"
@@ -242,7 +276,7 @@ def internette_ara(sorgu):
 
 # --- ANA UYGULAMA ---
 st.title(
-    f"⚡ TITAN v11.1 [JARVIS Core] — Operatör: {st.session_state.aktif_kullanici_adi}"
+    f"⚡ TITAN v11.2 [JARVIS Core] — Operatör: {st.session_state.aktif_kullanici_adi}"
 )
 
 # --- KENAR ÇUBUĞU ---
@@ -271,8 +305,8 @@ if st.sidebar.button("🔒 Oturumu Kapat / Kilitle"):
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>JARVIS Core Protocol v11.1<br>Live"
-    " Web Search Enabled 🟢</p>",
+    "<p style='color: #8b949e; font-size: 12px;'>JARVIS Core Protocol v11.2<br>Safe"
+    " Native Web Engine 🟢</p>",
     unsafe_allow_html=True,
 )
 
@@ -362,9 +396,8 @@ if secim == "💬 JARVIS Sohbet, Canlı Web & Ses Merkezi":
           else:
             api_messages.append(msg)
 
-        # GÜÇLENDİRİLMİŞ İNTERNET TETİKLEYİCİSİ: Her mesajda web araması yapıp güncel veriyi modele besler!
         st.toast(
-            "🌐 JARVIS Canlı Web Ağı taranıyor, güncel veriler çekiliyor...",
+            "🌐 JARVIS Güvenli Canlı Web Ağı taranıyor, güncel veriler çekiliyor...",
             icon="⚡",
         )
         web_sonuclari = internette_ara(prompt)
@@ -405,7 +438,7 @@ if secim == "💬 JARVIS Sohbet, Canlı Web & Ses Merkezi":
     st.session_state.messages = [{
         "role": "system",
         "content": (
-            "Sen JARVIS mimarisiyle güçlendirilmiş TITAN v11.1 asistanısın."
+            "Sen JARVIS mimarisiyle güçlendirilmiş TITAN v11.2 asistanısın."
         ),
     }]
     st.rerun()
@@ -557,7 +590,9 @@ elif secim == "💻 Gelişmiş Donanım ve Sistem Paneli":
   with col3:
     st.metric(label="🌐 Sunucu Gecikmesi", value="12 ms", delta="Mükemmel")
     st.progress(0.12)
-  st.success("JARVIS & TITAN v11.1 canlı web ağıyla tam kapasite çalışıyor.")
+  st.success(
+      "JARVIS & TITAN v11.2 saf yerleşik web motoruyla tam kapasite çalışıyor."
+  )
 
 # --- 7. MOD: GÖREVLER ---
 else:

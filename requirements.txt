@@ -3,3 +3,4 @@ openai
 supabase
 requests
 pandas
+duckduckgo_search

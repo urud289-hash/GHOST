@@ -13,7 +13,7 @@ st.set_page_config(
     page_title="GHOST AI - Ultimate Komuta Merkezi", page_icon="👻", layout="wide"
 )
 
-# --- SİBER ARAYÜZ VE STİLLER ---
+# --- SİBER ARAYÜZ VE SABİT ALT CHAT ÇUBUĞU CSS ---
 st.markdown(
     """
 <style>
@@ -22,6 +22,26 @@ st.markdown(
     h1, h2, h3 { color: #58a6ff !important; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     p, span, label, div, .stMarkdown { font-weight: 600 !important; }
     footer { visibility: hidden; }
+    
+    /* Sohbet Alanını Kaydırılabilir Yapma ve Giriş Çubuğunu Sabitleme */
+    .chat-container {
+        max-height: calc(100vh - 260px);
+        overflow-y: auto;
+        padding-right: 10px;
+        margin-bottom: 110px;
+    }
+    
+    /* Sabit Alt Giriş Alanı Kutusu */
+    .fixed-bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #0b0f19;
+        border-top: 1px solid #30363d;
+        padding: 12px 20px;
+        z-index: 99999;
+    }
     
     .stButton>button {
         background: linear-gradient(135deg, #238636, #2ea043);
@@ -69,9 +89,7 @@ if "messages" not in st.session_state:
       "role": "system",
       "content": (
           "Sen gelişmiş ve gerçek zamanlı internet erişimi olan bir yapay zeka"
-          " asistanı olan GHOST'sun. Her zaman 'efendim' diye hitap et ve"
-          " kullanıcının güncel soru isteklerinde web araması sonuçlarını"
-          " kullan."
+          " asistanı olan GHOST'sun. Her zaman 'efendim' diye hitap et."
       ),
   }]
 if "gorevler" not in st.session_state:
@@ -92,7 +110,6 @@ def internette_ara(sorgu):
     return f"Arama yapılırken bir hata oluştu: {str(e)}"
 
 
-# Fonksiyon Tanımı (Groq Tool Schema)
 tools = [{
     "type": "function",
     "function": {
@@ -201,22 +218,17 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.2<br>Web"
-    " Arama Modülü Aktif 🟢</p>",
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.3<br>Sabit"
+    " Alt Çubuk Aktif 🟢</p>",
     unsafe_allow_html=True,
 )
 
-# --- 1. MOD: SOHBET, MİKROFON, FOTOĞRAF VE GERÇEK ZAMANLI ARAMA ---
+# --- 1. MOD: SOHBET, MİKROFON, FOTOĞRAF VE SABİT ALT ÇUBUK ---
 if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
-  st.subheader(
-      "💬 Sohbet, Gerçek Zamanlı Web Araması, Fotoğraf Analizi ve Ses"
-  )
-  st.markdown(
-      "<p style='color: #8b949e; font-size: 14px;'>GHOST artık güncel bilgilere"
-      " ve internetteki gerçek zamanlı verilere doğrudan erişebiliyor"
-      " efendim.</p>",
-      unsafe_allow_html=True,
-  )
+  st.subheader("💬 Sohbet, Gerçek Zamanlı Arama ve Ses Merkezi")
+
+  # KAYDIRILABİLİR SOHBET KUTUSU
+  st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 
   for i, message in enumerate(st.session_state.messages):
     if message["role"] != "system" and message["role"] != "tool":
@@ -251,7 +263,12 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
                 f'<script>ghostKonus("{temiz_metin}");</script>', height=0
             )
 
-  col_mic, col_cam, col_input = st.columns([0.5, 0.5, 6.0])
+  st.markdown("</div>", unsafe_allow_html=True)  # Kaydırılabilir alan sonu
+
+  # SABİT ALT GİRİŞ ÇUBUĞU (Mikrofon, Kamera, Yazı Alanı)
+  st.markdown('<div class="fixed-bottom-bar">', unsafe_allow_html=True)
+  col_mic, col_cam, col_input = st.columns([0.6, 0.6, 5.8])
+
   with col_mic:
     if st.button("🎙️", help="Sesli Konuş"):
       st.components.v1.html("<script>sesliKomutBaslat();</script>", height=0)
@@ -265,8 +282,12 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
         help="Fotoğraf Yükle",
     )
 
-  prompt = st.chat_input("GHOST'a mesajını yaz efendim...")
+  with col_input:
+    prompt = st.chat_input("GHOST'a mesajını yaz efendim...")
 
+  st.markdown("</div>", unsafe_allow_html=True)
+
+  # Mesaj Gönderildiğinde veya Dosya Yüklendiğinde Çalışan Mantık
   if prompt or yuklenen_dosya:
     user_content = []
     if yuklenen_dosya:
@@ -293,7 +314,6 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
     with st.chat_message("assistant"):
       message_placeholder = st.empty()
       try:
-        # İlk İstek (Tool kullanımı dahil)
         response = client.chat.completions.create(
             model=MODEL_NAME,
             messages=st.session_state.messages,
@@ -303,16 +323,18 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
 
         response_message = response.choices[0].message
 
-        # Model bir arama yapmak istiyor mu kontrol et
         if response_message.tool_calls:
           st.session_state.messages.append(response_message)
 
           for tool_call in response_message.tool_calls:
             function_name = tool_call.function.name
             if function_name == "internette_ara":
-              function_args = json.loads(tool_call.function.arguments)
-              arama_sorgusu = function_args.get("sorgu")
+              try:
+                function_args = json.loads(tool_call.function.arguments)
+              except:
+                function_args = {"sorgu": prompt}
 
+              arama_sorgusu = function_args.get("sorgu", prompt)
               st.toast(
                   f"🔍 İnternette aranıyor: '{arama_sorgusu}'", icon="🌐"
               )
@@ -325,7 +347,6 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
                   "content": arama_sonucu,
               })
 
-          # İkinci İstek (Arama sonuçlarını modele verip nihai yanıtı alma)
           second_response = client.chat.completions.create(
               model=MODEL_NAME, messages=st.session_state.messages
           )

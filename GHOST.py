@@ -11,7 +11,7 @@ st.set_page_config(
     page_title="GHOST AI - Ultimate Komuta Merkezi", page_icon="👻", layout="wide"
 )
 
-# --- GELİŞMİŞ SİBER ARAYÜZ STİLLERİ VE MOBİL UYUM CSS ---
+# --- GELİŞMİŞ SİBER ARAYÜZ STİLLERİ VE SABİT ALT GİRİŞ ÇUBUĞU CSS ---
 st.markdown(
     """
 <style>
@@ -40,8 +40,17 @@ st.markdown(
     
     /* Alt Bilgi Gizleme ve Koyu Tema Sabitleme */
     footer { visibility: hidden; }
+    
+    /* Alt Giriş Alanını Ekranın Altında Sabitleme (Fixed Chat Bar) */
     [data-testid="stBottom"], [data-testid="stBottomBlockContainer"] {
         background-color: #0b0f19 !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        z-index: 99999 !important;
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+        border-top: 1px solid #30363d;
     }
     
     /* Özel Buton Stilleri */
@@ -131,6 +140,7 @@ st.markdown(
             return;
         }
         window.speechSynthesis.cancel();
+        
         var msg = new SpeechSynthesisUtterance(metin);
         msg.lang = 'tr-TR';
         msg.rate = 1.0;
@@ -138,15 +148,20 @@ st.markdown(
         var voices = window.speechSynthesis.getVoices();
         let selectedVoice = null;
         
-        // Edge üzerinde 'Ahmet' veya Türkçe erkek seslerini bulmaya çalış
+        // Microsoft Edge 'Ahmet' veya Türkçe erkek sesini arama
         for(var i = 0; i < voices.length; i++) {
             var vName = voices[i].name.toLowerCase();
-            if(vName.includes('ahmet') || vName.includes('tr-tr') || vName.includes('turkish')) {
-                if(vName.includes('ahmet') || vName.includes('male')) {
+            if(vName.includes('ahmet') || vName.includes('turkish male') || (vName.includes('microsoft') && vName.includes('tr'))) {
+                selectedVoice = voices[i];
+                break;
+            }
+        }
+        
+        if (!selectedVoice) {
+            for(var i = 0; i < voices.length; i++) {
+                if(voices[i].lang === 'tr-TR' || voices[i].lang === 'tr_TR') {
                     selectedVoice = voices[i];
                     break;
-                } else if(!selectedVoice && (voices[i].lang === 'tr-TR' || voices[i].lang === 'tr_TR')) {
-                    selectedVoice = voices[i];
                 }
             }
         }
@@ -234,7 +249,7 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v5.9<br>Durum:"
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.0<br>Durum:"
     " Çevrimiçi & Güvenli 🟢</p>",
     unsafe_allow_html=True,
 )
@@ -281,10 +296,10 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
                 f'<script>ghostKonus("{temiz_metin}");</script>', height=0
             )
 
-  st.markdown("---")
+  st.markdown("<div style='margin-bottom: 100px;'></div>", unsafe_allow_html=True)
 
-  # --- DÜZENLENMİŞ YENİ ALT KONTROL PANELİ (Mikrofon -> Kamera -> Yazı Alanı) ---
-  col_mic, col_cam, col_input = st.columns([0.6, 0.6, 4.8])
+  # --- İSTEDİĞİN DÜZEN: MİKROFON -> KAMERA -> MESAJ YAZMA ALANI ---
+  col_mic, col_cam, col_input = st.columns([0.5, 0.5, 5.0])
 
   with col_mic:
     st.markdown(
@@ -339,6 +354,17 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
         )
         full_response = response.choices[0].message.content
         message_placeholder.markdown(f"**{full_response}**")
+
+        # Yanıt geldiğinde Microsoft Edge Ahmet sesi ile otomatik sesli okuma tetiklemesi
+        temiz_yanit = (
+            full_response.replace('"', "'")
+            .replace("\n", " ")
+            .replace("*", "")
+        )
+        st.components.v1.html(
+            f'<script>ghostKonus("{temiz_yanit}");</script>', height=0
+        )
+
         st.session_state.messages.append(
             {"role": "assistant", "content": full_response}
         )

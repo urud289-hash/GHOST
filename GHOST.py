@@ -31,7 +31,7 @@ st.markdown(
         margin-bottom: 110px;
     }
     
-    /* Sabit Alt Siyah Komuta Kutusu (Her şey bunun içinde kusursuz duracak) */
+    /* Sabit Alt Siyah Komuta Kutusu */
     .fixed-bottom-bar {
         position: fixed;
         bottom: 0;
@@ -39,9 +39,12 @@ st.markdown(
         width: 100%;
         background-color: #161b22;
         border-top: 2px solid #30363d;
-        padding: 12px 20px;
+        padding: 15px 25px;
         z-index: 99999;
-        box-shadow: 0 -4px 15px rgba(0,0,0,0.6);
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        gap: 15px;
     }
     
     .stButton>button {
@@ -55,10 +58,6 @@ st.markdown(
         box-shadow: 0 6px 8px rgba(35,134,54,0.4); border-color: #56d364;
     }
     [data-testid="stDataFrame"] { border: 1px solid #30363d; border-radius: 8px; background-color: #161b22; }
-    .stTextInput input {
-        background-color: #0b0f19 !important; color: #ffffff !important;
-        border: 1px solid #30363d !important; border-radius: 6px !important; font-weight: 700 !important;
-    }
 </style>
 """,
     unsafe_allow_html=True,
@@ -156,15 +155,11 @@ st.markdown(
             recognition.interimResults = false;
             recognition.onresult = function(event) {
                 var sesMetni = event.results[0][0].transcript;
-                const inputs = window.parent.document.querySelectorAll('input[type="text"], input');
-                let targetInput = inputs[inputs.length - 1];
-                if (targetInput) {
+                const txtInput = window.parent.document.querySelector('input[data-baseweb="input"]');
+                if (txtInput) {
                     let setter = Object.getOwnPropertyDescriptor(window.parent.HTMLInputElement.prototype, "value").set;
-                    setter.call(targetInput, sesMetni);
-                    targetInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    setTimeout(() => {
-                        targetInput.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', code: 'Enter', keyCode: 13, bubbles: true}));
-                    }, 300);
+                    setter.call(txtInput, sesMetni);
+                    txtInput.dispatchEvent(new Event('input', { bubbles: true }));
                 }
             };
             recognition.start();
@@ -198,8 +193,8 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.5<br>Sabit"
-    " Alt Siyah Kutu ve Güvenli Arama Aktif 🟢</p>",
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.6<br>Kutunun"
+    " İçine Gömülü Sabit Çubuk 🟢</p>",
     unsafe_allow_html=True,
 )
 
@@ -245,7 +240,7 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
 
   st.markdown("</div>", unsafe_allow_html=True)
 
-  # SABİT ALT SİYAH KUTU (Tüm elemanlar bu dikdörtgenin içine tamamen entegre edildi)
+  # SABİT ALT SİYAH KUTU VE İÇİNDEKİ KUSURSUZ ELEMANLAR
   st.markdown('<div class="fixed-bottom-bar">', unsafe_allow_html=True)
   col_mic, col_cam, col_input = st.columns([0.4, 0.4, 6.2])
 
@@ -263,7 +258,11 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
     )
 
   with col_input:
-    prompt = st.chat_input("GHOST'a mesajını yaz efendim...")
+    prompt = st.text_input(
+        "Mesaj",
+        placeholder="GHOST'a mesajını yaz efendim...",
+        label_visibility="collapsed",
+    )
 
   st.markdown("</div>", unsafe_allow_html=True)
 
@@ -294,14 +293,12 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
     with st.chat_message("assistant"):
       message_placeholder = st.empty()
       try:
-        # Hata vermeyen, tamamen kararlı ve hatasız API çağrısı
         response = client.chat.completions.create(
             model=MODEL_NAME, messages=st.session_state.messages
         )
 
         full_response = response.choices[0].message.content
 
-        # Eğer kullanıcı hava durumu veya güncel bilgi istediyse otomatik internetten destek al
         if prompt and any(
             kelime in prompt.lower()
             for kelime in [
@@ -316,7 +313,6 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
         ):
           st.toast("🔍 İnternetten güncel veriler taranıyor...", icon="🌐")
           ek_bilgi = internette_ara(prompt)
-          # Modeli güncel bilgiyle tekrar besle
           zenginlestirilmis_mesajlar = st.session_state.messages + [
               {
                   "role": "system",

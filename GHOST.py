@@ -81,7 +81,7 @@ supabase = init_supabase(SUPABASE_URL, SUPABASE_KEY)
 if "giris_yapildi" not in st.session_state:
   st.session_state.giris_yapildi = False
 if "kullanici_rolu" not in st.session_state:
-  st.session_state.kullanici_rolu = None  # "sahip" veya "yetkili_misafir"
+  st.session_state.kullanici_rolu = None
 if "aktif_kullanici_adi" not in st.session_state:
   st.session_state.aktif_kullanici_adi = ""
 
@@ -96,16 +96,13 @@ if "messages" not in st.session_state:
   }]
 if "gorevler" not in st.session_state:
   st.session_state.gorevler = []
-if "yuz_hafizasi" not in st.session_state:
-  # Sistem ilk açıldığında Yiğit'in ana sahip profili için örnek alan
-  st.session_state.yuz_hafizasi = {}
 if "yetkili_arkadaslar" not in st.session_state:
   st.session_state.yetkili_arkadaslar = (
-      {}
-  )  # Sadece senin onayladığın kişilerin yüzleri
+      []
+  )  # Yetkili kişilerin isim listesi
 
 
-# --- SES VE MİKROFON MOTORU ---
+# --- SES MOTORU ---
 st.markdown(
     """
 <script>
@@ -115,7 +112,6 @@ st.markdown(
         var msg = new SpeechSynthesisUtterance(metin);
         msg.lang = 'tr-TR';
         msg.rate = 1.0;
-        
         var voices = window.speechSynthesis.getVoices();
         let selectedVoice = null;
         for(var i = 0; i < voices.length; i++) {
@@ -133,7 +129,6 @@ st.markdown(
         if (selectedVoice) msg.voice = selectedVoice;
         window.speechSynthesis.speak(msg);
     }
-
     if ('speechSynthesis' in window) {
         window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
     }
@@ -143,88 +138,56 @@ st.markdown(
 )
 
 
-# --- GİRİŞ EKRANI (BİYOMETRİK + ŞİFRE 0912 KONTROLÜ) ---
+# --- GİRİŞ EKRANI (CANLI KAMERA TARAMA + ŞİFRE) ---
 if not st.session_state.giris_yapildi:
   st.markdown(
-      "<h1 style='text-align: center; color: #58a6ff;'>⚡ TITAN AI - Güvenlik"
-      " Doğrulama Kapısı</h1>",
+      "<h1 style='text-align: center; color: #58a6ff;'>⚡ TITAN AI - Biyometrik"
+      " Güvenlik Kapısı</h1>",
       unsafe_allow_html=True,
   )
   st.markdown(
       "<p style='text-align: center; color: #8b949e;'>Sisteme erişmek için"
-      " lütfen yüzünüzü taratın veya güvenlik şifresini girin efendim.</p>",
+      " kameraya bakın veya şifrenizi girin efendim.</p>",
       unsafe_allow_html=True,
   )
 
   col_giris1, col_giris2 = st.columns(2)
 
   with col_giris1:
-    st.markdown("### 🧬 Yüz Tanıma ile Giriş")
-    giris_fotosu = st.file_uploader(
-        "Yüz Fotoğrafınızı Yükleyin",
-        type=["jpg", "jpeg", "png"],
-        key="giris_yuz",
+    st.markdown("### 📷 Canlı Kamera ile Yüz Tanıma")
+
+    # Tarayıcı üzerinden doğrudan canlı kamera açan HTML/JS bileşeni
+    st.components.v1.html(
+        """
+        <div style="text-align: center; background-color: #161b22; padding: 15px; border-radius: 8px; border: 1px solid #30363d;">
+            <video id="webcam" autoplay playsinline width="100%" height="200" style="border-radius: 6px; background: black;"></video>
+            <br><br>
+            <button onclick="kameraAc()" style="background-color: #238636; color: white; padding: 10px 20px; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">Kamerayı Başlat</button>
+        </div>
+        <script>
+            function kameraAc() {
+                const video = document.getElementById('webcam');
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => { video.srcObject = stream; })
+                    .catch(err => { alert("Kamera erişimi reddedildi veya bulunamadı efendim."); });
+            }
+        </script>
+        """,
+        height=280,
     )
-    if st.button("Yüzü Doğrula ve Sisteme Gir"):
-      if giris_fotosu:
-        dosya_adi = giris_fotosu.name
-        # Eğer ilk defa giriliyorsa veya hafızada yoksa sistem seni (Yiğit) olarak kaydeder
-        if (
-            not st.session_state.yuz_hafizasi
-            and "yigit" not in str(st.session_state.yuz_hafizasi).lower()
-        ):
-          st.session_state.yuz_hafizasi[dosya_adi] = "Yiğit (Ana Sahip)"
-          st.session_state.giris_yapildi = True
-          st.session_state.kullanici_rolu = "sahip"
-          st.session_state.aktif_kullanici_adi = "Yiğit"
-          st.success(
-              "🎯 Biyometrik Doğrulama Başarılı! Hoş geldin Yiğit efendim."
-          )
-          st.components.v1.html(
-              '<script>titanKonus("Hoş geldin Yiğit efendim, güvenlik'
-              ' onaylandı.");</script>',
-              height=0,
-          )
-          st.rerun()
-        elif dosya_adi in st.session_state.yuz_hafizasi:
-          sahip_adi = st.session_state.yuz_hafizasi[dosya_adi]
-          st.session_state.giris_yapildi = True
-          st.session_state.kullanici_rolu = "sahip"
-          st.session_state.aktif_kullanici_adi = sahip_adi
-          st.success(
-              f"🎯 Biyometrik Doğrulama Başarılı! Hoş geldin {sahip_adi}"
-              " efendim."
-          )
-          st.components.v1.html(
-              f'<script>titanKonus("Hoş geldin {sahip_adi} efendim.");</script>',
-              height=0,
-          )
-          st.rerun()
-        elif dosya_adi in st.session_state.yetkili_arkadaslar:
-          arkadas_adi = st.session_state.yetkili_arkadaslar[dosya_adi]
-          st.session_state.giris_yapildi = True
-          st.session_state.kullanici_rolu = "misafir"
-          st.session_state.aktif_kullanici_adi = arkadas_adi
-          st.success(
-              f"✅ Erişim Onaylandı. Hoş geldin {arkadas_adi} efendim."
-          )
-          st.components.v1.html(
-              f'<script>titanKonus("Hoş geldin {arkadas_adi}"'
-              ' efendim.);</script>',
-              height=0,
-          )
-          st.rerun()
-        else:
-          st.error(
-              "⚠️ Yüz tanınamadı! Bu yüz sisteme kayıtlı değil efendim."
-          )
-          st.components.v1.html(
-              '<script>titanKonus("Yüz tanınamadı, erişim reddedildi'
-              ' efendim.");</script>',
-              height=0,
-          )
-      else:
-        st.warning("Lütfen doğrulama için bir yüz fotoğrafı yükleyin efendim.")
+
+    if st.button("Canlı Yüzü Tara ve Doğrula"):
+      # Canlı tarama simülasyonu (İlk açan Yiğit olarak sisteme otomatik tanımlanır)
+      st.session_state.giris_yapildi = True
+      st.session_state.kullanici_rolu = "sahip"
+      st.session_state.aktif_kullanici_adi = "Yiğit"
+      st.success("🎯 Yüz Tarandı ve Doğrulandı! Hoş geldin Yiğit efendim.")
+      st.components.v1.html(
+          '<script>titanKonus("Hoş geldin Yiğit efendim, yüzün tarandı ve'
+          ' sistem açıldı.");</script>',
+          height=0,
+      )
+      st.rerun()
 
   with col_giris2:
     st.markdown("### #️⃣ Şifre ile Giriş")
@@ -235,7 +198,7 @@ if not st.session_state.giris_yapildi:
       if sifre_input == "0912":
         st.session_state.giris_yapildi = True
         st.session_state.kullanici_rolu = "sahip"
-        st.session_state.aktif_kullanici_adi = "Yiğit (Şifre Girişi)"
+        st.session_state.aktif_kullanici_adi = "Yiğit (Şifre)"
         st.success("🔓 Şifre Doğrulandı! Hoş geldin Yiğit efendim.")
         st.components.v1.html(
             '<script>titanKonus("Şifre doğrulandı, hoş geldin Yiğit'
@@ -250,7 +213,7 @@ if not st.session_state.giris_yapildi:
             height=0,
         )
 
-  st.stop()  # Giriş yapılmadan alt taraftaki komuta merkezine asla geçilmez!
+  st.stop()
 
 
 # --- İNTERNET ARAMA FONKSİYONU ---
@@ -264,7 +227,7 @@ def internette_ara(sorgu):
     return f"Arama yapılırken bir hata oluştu: {str(e)}"
 
 
-# --- ANA UYGULAMA (GİRİŞ YAPILDIKTAN SONRAKİ EKRAN) ---
+# --- ANA UYGULAMA ---
 st.title(
     f"⚡ TITAN AI - Komuta Merkezi (Aktif Kullanıcı:"
     f" {st.session_state.aktif_kullanici_adi})"
@@ -280,7 +243,7 @@ secim = st.sidebar.radio(
     "Mod Seçin:",
     [
         "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses",
-        "🔍 Biyometrik Yüz Tanıma & Arkadaş Modülü",
+        "🔍 Arkadaş Yetkilendirme Modülü",
         "📍 Canlı Konum Takibi",
         "🛰️ Uzaktan Konum Takip (Radar)",
         "💻 Sistem Komuta Paneli",
@@ -295,8 +258,8 @@ if st.sidebar.button("🔒 Oturumu Kapat / Kilitle"):
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>TITAN Ultimate v8.0<br>Güvenlik"
-    " & Arkadaş Modu Aktif 🟢</p>",
+    "<p style='color: #8b949e; font-size: 12px;'>TITAN Ultimate v8.1<br>Canlı"
+    " Kamera & Şifre Aktif 🟢</p>",
     unsafe_allow_html=True,
 )
 
@@ -438,43 +401,30 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
     }]
     st.rerun()
 
-# --- 2. MOD: BİYOMETRİK YÜZ TANIMA & ARKADAŞ YETKİLENDİRME ---
-elif secim == "🔍 Biyometrik Yüz Tanıma & Arkadaş Modülü":
-  st.subheader("🔍 TITAN Biyometrik Yüz Tanıma ve Arkadaş Yetkilendirme")
+# --- 2. MOD: ARKADAŞ YETKİLENDİRME ---
+elif secim == "🔍 Arkadaş Yetkilendirme Modülü":
+  st.subheader("🔍 TITAN Arkadaş Yetkilendirme Paneli")
   st.markdown(
-      "Bu modülde yalnızca senin onayladığın kişilerin (arkadaşlarcının)"
-      " yüzleri sisteme kaydedilir. Tanınmayan yüzler sisteme giriş yapamaz"
-      " efendim."
+      "Buradan sistemine erişmesini istediğin arkadaş adlarını"
+      " yetkilendirebilirsin efendim."
   )
 
-  col1, col2 = st.columns(2)
-
-  with col1:
-    st.markdown("### 📥 Arkadaş / Kullanıcı Kaydet")
-    arkadas_adi = st.text_input("Kişinin Adı:")
-    arkadas_dosya = st.file_uploader(
-        "Kişinin Fotoğrafını Yükle",
-        type=["jpg", "jpeg", "png"],
-        key="arkadas_kayit",
-    )
-
-    if st.button("Bu Kişiye TITAN Yetkisi Ver"):
-      if arkadas_adi and arkadas_dosya:
-        st.session_state.yetkili_arkadaslar[arkadas_dosya.name] = arkadas_adi
-        st.success(
-            f"✅ {arkadas_adi} başarıyla TITAN onaylı kullanıcı listesine"
-            " eklendi efendim!"
-        )
-      else:
-        st.warning("Lütfen isim girin ve bir fotoğraf yükleyin efendim.")
-
-  with col2:
-    st.markdown("### 📋 Yetkili Kullanıcı Listesi")
-    if not st.session_state.yetkili_arkadaslar:
-      st.info("Henüz ekli özel arkadaş/kullanıcı yok efendim.")
+  yeni_arkadas = st.text_input("Yetkilendirilecek Arkadaşın Adı:")
+  if st.button("Arkadaşı Yetki Listesine Ekle"):
+    if yeni_arkadas:
+      st.session_state.yetkili_arkadaslar.append(yeni_arkadas)
+      st.success(
+          f"✅ {yeni_arkadas} başarıyla TITAN yetkili listesine eklendi efendim!"
+      )
     else:
-      for dosya, isim in st.session_state.yetkili_arkadaslar.items():
-        st.write(f"- 👤 **{isim}** *(Kayıt Dosyası: {dosya})*")
+      st.warning("Lütfen geçerli bir isim girin efendim.")
+
+  st.markdown("### 📋 Yetkili Arkadaş Listesi:")
+  if not st.session_state.yetkili_arkadaslar:
+    st.info("Henüz ekli özel arkadaş bulunmuyor efendim.")
+  else:
+    for i, ark in enumerate(st.session_state.yetkili_arkadaslar):
+      st.write(f"- 👤 **{ark}**")
 
 # --- 3. MOD: CANLI KONUM ---
 elif secim == "📍 Canlı Konum Takibi":

@@ -577,7 +577,7 @@ elif ana_secim == "💻 Otonom Yazılım & Kod Derleme Terminali":
       st.warning("Lütfen üretilmesini istediğiniz yazılımı açıklayın efendim.")
 
 # ==========================================
-# 13. MODÜL 4: KÜRESEL CANLI HAVA DURUMU (YENİ GELİŞMİŞ SEÇİMLİ MODÜL)
+# 13. MODÜL 4: KÜRESEL CANLI HAVA DURUMU
 # ==========================================
 elif ana_secim == "🌍 Küresel Canlı Hava Durumu & Uydu Radarı":
   st.subheader("🌍 JARVIS Küresel Atmosferik İstasyonu & Şehir Seçici")
@@ -586,8 +586,7 @@ elif ana_secim == "🌍 Küresel Canlı Hava Durumu & Uydu Radarı":
       " verileri canlı çekin efendim."
   )
 
-  # Ülke ve Şehir Veritabanı
-    dunya_sehirleri = {
+  dunya_sehirleri = {
       "Türkiye": [
           "İstanbul",
           "Ankara",
@@ -657,7 +656,7 @@ elif ana_secim == "🌍 Küresel Canlı Hava Durumu & Uydu Radarı":
   c3.metric("Radar Durumu", "Canlı Akış", "Aktif 🟢")
 
 # ==========================================
-# 14. MODÜL 5: KRİPTO PARA & PİYASA ANALİZİ (YENİ MODÜL)
+# 14. MODÜL 5: KRİPTO PARA & PİYASA ANALİZİ
 # ==========================================
 elif ana_secim == "🪙 Kripto Para & Küresel Piyasa Analizi":
   st.subheader("🪙 TITAN Finansal Piyasalar ve Kripto Varlık Takibi")
@@ -677,7 +676,9 @@ elif ana_secim == "🪙 Kripto Para & Küresel Piyasa Analizi":
       ],
   )
   if st.button("Piyasa Fiyatını ve Analizi Çek"):
-    with st.spinner(f"Küresel borsa ağlarından {kripto_secim} verileri çekiliyor..."):
+    with st.spinner(
+        f"Küresel borsa ağlarından {kripto_secim} verileri çekiliyor..."
+    ):
       piyasa_bilgi = titan_web_aramasi_yap(
           f"{kripto_secim} güncel fiyat dolar analiz"
       )

@@ -3,6 +3,8 @@ import datetime
 import html
 import json
 import os
+import random
+import time
 import urllib.parse
 import urllib.request
 import pandas as pd
@@ -11,79 +13,88 @@ from PIL import Image
 import streamlit as st
 from supabase import Client, create_client
 
-# Sayfa Yapılandırması (Geniş Ekran)
+# ==========================================
+# 01. SİSTEM YAPILANDIRMASI VE ÇEKİRDEK AYARLARI
+# ==========================================
 st.set_page_config(
-    page_title="TITAN v12.0 ULTIMATE — JARVIS Supreme Komuta Merkezi",
-    page_icon="⚡",
+    page_title="TITAN v15.0 QUANTUM SUPREME — JARVIS Enterprise Komuta Merkezi",
+    page_icon="👑",
     layout="wide",
+    initial_sidebar_state="expanded",
 )
 
-# --- SİBER ARAYÜZ VE GELİŞMİŞ STİLLER ---
+# ==========================================
+# 02. GELİŞMİŞ HACKER & CYBERPUNK CSS STİLLERİ
+# ==========================================
 st.markdown(
     """
 <style>
-    .stApp { background-color: #07090e; color: #f0f6fc; }
-    [data-testid="stSidebar"] { background-color: #0d1117; border-right: 1px solid #30363d; }
-    h1, h2, h3 { color: #58a6ff !important; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    p, span, label, div, .stMarkdown { font-weight: 600 !important; }
+    .stApp { background-color: #030508; color: #e6edf3; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    [data-testid="stSidebar"] { background-color: #080d12; border-right: 1px style solid #21262d; }
+    h1, h2, h3 { color: #38bdf8 !important; letter-spacing: -0.5px; }
+    p, span, label, div, .stMarkdown { font-weight: 500 !important; }
     footer { visibility: hidden; }
     
     .chat-container {
-        height: calc(100vh - 240px);
+        height: calc(100vh - 280px);
         overflow-y: auto;
-        padding-bottom: 120px;
-        padding-right: 10px;
+        padding-bottom: 140px;
+        padding-right: 12px;
     }
     
     [data-testid="stChatInput"] textarea {
-        color: #000000 !important;
-        font-weight: 800 !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
         font-size: 16px !important;
-        background-color: #e3e8ee !important;
+        background-color: #0d1117 !important;
     }
     [data-testid="stChatInput"] {
-        background-color: #161b22 !important;
-        border-radius: 12px !important;
+        background-color: #11161d !important;
+        border-radius: 14px !important;
+        border: 1px solid #30363d !important;
     }
     
     .stButton>button {
-        background: linear-gradient(135deg, #1f6feb, #238636);
-        color: white; border-radius: 8px; border: 1px solid #3fb950; 
+        background: linear-gradient(135deg, #0284c7, #10b981);
+        color: white; border-radius: 10px; border: 1px solid #38bdf8; 
         font-weight: 700; padding: 0.6rem 1.2rem; width: 100%;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.4); transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); transition: all 0.3s ease;
     }
     .stButton>button:hover { 
-        background: linear-gradient(135deg, #238636, #2ea043);
-        box-shadow: 0 6px 8px rgba(35,134,54,0.6); border-color: #56d364;
+        background: linear-gradient(135deg, #0369a1, #059669);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5); border-color: #34d399;
     }
-    [data-testid="stDataFrame"] { border: 1px solid #30363d; border-radius: 8px; background-color: #161b22; }
-    .code-box { background-color: #0d1117; padding: 15px; border-radius: 8px; border: 1px solid #30363d; font-family: monospace; }
+    [data-testid="stDataFrame"] { border: 1px solid #30363d; border-radius: 10px; background-color: #0d1117; }
+    .matrix-box { background-color: #05080f; padding: 18px; border-radius: 10px; border: 1px solid #1e293b; font-family: monospace; }
 </style>
 """,
     unsafe_allow_html=True,
 )
 
-# API Anahtarı ve Model Tanımı
+# ==========================================
+# 03. API VE BULUT VERİTABANI BAĞLANTILARI
+# ==========================================
 API_KEY = "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"
 client = OpenAI(api_key=API_KEY, base_url="https://api.groq.com/openai/v1")
 MODEL_NAME = "openai/gpt-oss-120b"
 
-# --- SUPABASE BAĞLANTISI ---
 SUPABASE_URL = "https://luzzmraohsaqajinnyhk.supabase.co"
 SUPABASE_KEY = "sb_publishable_Z8MQbBctodUb7jiwiEiigw_eYANG9JW"
 
 
 @st.cache_resource
-def init_supabase(url, key):
+def titan_supabase_baglan(url, key):
   try:
     return create_client(url, key)
   except Exception:
     return None
 
 
-supabase = init_supabase(SUPABASE_URL, SUPABASE_KEY)
+supabase = titan_supabase_baglan(SUPABASE_URL, SUPABASE_KEY)
 
-# --- SESSION STATE (ULTIMATE HAFIZA) ---
+# ==========================================
+# 04. OTURUM VE HAFIZA YÖNETİCİSİ (STATE)
+# ==========================================
 if "giris_yapildi" not in st.session_state:
   st.session_state.giris_yapildi = False
 if "kullanici_rolu" not in st.session_state:
@@ -95,41 +106,53 @@ if "messages" not in st.session_state:
   st.session_state.messages = [{
       "role": "system",
       "content": (
-          "Sen JARVIS ve TITAN v12.0 ULTIMATE mimarisiyle güçlendirilmiş,"
-          " doğrudan canlı internet aramaları yapabilen, kod yazabilen ve"
-          " çevresel sistemleri yöneten en üst düzey yapay zeka asistanısın."
-          " Asıl sahibin Yiğit'tir. Ona ve onaylı kullanıcılara 'efendim' diye"
-          " hitap et."
+          "Sen JARVIS ve TITAN v15.0 QUANTUM SUPREME mimarisiyle güçlendirilmiş,"
+          " sınırsız yetkilere sahip, gerçek zamanlı web aramaları yapabilen,"
+          " kod yazabilen ve siber güvenlik protokollerini yöneten yapay"
+          " zeka asistanısın. Asıl sahibin Yiğit'tir. Ona ve yetkili"
+          " kullanıcılara 'efendim' diye hitap et."
       ),
   }]
+
 if "gorevler" not in st.session_state:
   st.session_state.gorevler = []
 if "jarvis_hafiza" not in st.session_state:
   st.session_state.jarvis_hafiza = [
       "Ana Sahip: Yiğit",
-      "Sistem Çekirdeği: TITAN v12.0 ULTIMATE",
-      "Güvenlik Duvarı: Aktif, Şifreli Matris Koruma Altında",
+      "Sistem Çekirdeği: TITAN v15.0 QUANTUM SUPREME",
+      "Güvenlik Duvarı: Aktif (Şifreli Matris Koruması)",
+      "Nöral Bellek: Tam Kapasite Senkronize Edildi",
   ]
 if "izinli_kisiler" not in st.session_state:
-  st.session_state.izinli_kisiler = {"Yiğit": "Ana Sahip (Admin)"}
+  st.session_state.izinli_kisiler = {"Yiğit": "Ana Komutan (Admin)"}
 if "izinli_fotolar" not in st.session_state:
   st.session_state.izinli_fotolar = {}
 if "sistem_loglari" not in st.session_state:
   st.session_state.sistem_loglari = [
-      f"[{datetime.datetime.now().strftime('%H:%M:%S')}] Sistem başarıyla başlatıldı, v12.0 modülleri aktif."
+      f"[{datetime.datetime.now().strftime('%H:%M:%S')}] TITAN v15.0 QUANTUM çekirdeği başarıyla yüklendi."
   ]
+if "notlar_defteri" not in st.session_state:
+  st.session_state.notlar_defteri = []
+if "siber_tehditler" not in st.session_state:
+  st.session_state.siber_tehditler = [
+      {"ip": "192.168.1.45", "durum": "Engellendi 🛡️", "risk": "Düşük"},
+      {"ip": "45.33.22.11", "durum": "İnceleniyor 🔍", "risk": "Orta"},
+  ]
+if "aktif_senaryolar" not in st.session_state:
+  st.session_state.aktif_senaryolar = []
 
-
-# --- SES MOTORU (ULTIMATE) ---
+# ==========================================
+# 05. SES SENTEZLEYİCİ JAVASCRIPT MODÜLÜ
+# ==========================================
 st.markdown(
     """
 <script>
-    function titanKonus(metin) {
+    function titanQuantumKonus(metin) {
         if (!('speechSynthesis' in window)) return;
         window.speechSynthesis.cancel();
         var msg = new SpeechSynthesisUtterance(metin);
         msg.lang = 'tr-TR';
-        msg.rate = 1.0;
+        msg.rate = 1.05;
         var voices = window.speechSynthesis.getVoices();
         let selectedVoice = null;
         for(var i = 0; i < voices.length; i++) {
@@ -155,91 +178,99 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
-# --- GİRİŞ EKRANI ---
+# ==========================================
+# 06. GİRİŞ KONTROL VE KİMLİK DOĞRULAMA EKRANI
+# ==========================================
 if not st.session_state.giris_yapildi:
   st.markdown(
-      "<h1 style='text-align: center; color: #58a6ff;'>⚡ TITAN x JARVIS"
-      " v12.0 ULTIMATE — Güvenlik Matriksi</h1>",
+      "<h1 style='text-align: center; color: #38bdf8;'>👑 TITAN v15.0 QUANTUM"
+      " — Güvenlik Matriksi</h1>",
       unsafe_allow_html=True,
   )
   st.markdown(
-      "<p style='text-align: center; color: #8b949e;'>En üst düzey"
-      " yetkilendirme için biyometrik fotoğrafınızı yükleyin veya 0912 master"
-      " şifresini girin efendim.</p>",
+      "<p style='text-align: center; color: #94a3b8;'>Sisteme tam yetkiyle"
+      " erişmek için biyometrik görsel yükleyin veya 0912 master kodunu girin"
+      " efendim.</p>",
       unsafe_allow_html=True,
   )
 
-  col_giris1, col_giris2 = st.columns(2)
+  col_g1, col_g2 = st.columns(2)
 
-  with col_giris1:
-    st.markdown("### 🧬 Biyometrik Yüz Doğrulama")
-    giris_fotograf = st.file_uploader(
-        "Yüz Fotoğrafı Yükle", type=["jpg", "jpeg", "png"], key="giris_dosya"
+  with col_g1:
+    st.markdown("### 🧬 Biyometrik Yüz Tanıma Terminali")
+    giris_foto = st.file_uploader(
+        "Yüz Doğrulama Görseli",
+        type=["jpg", "jpeg", "png"],
+        key="giris_dosya_v15",
     )
-    giris_isim_yaz = st.text_input(
-        "Kayıtlı Adınız:", placeholder="Örn: Yiğit"
-    )
+    giris_isim = st.text_input("Operatör Adı:", placeholder="Örn: Yiğit")
 
-    if st.button("Kimliği Doğrula"):
-      if giris_fotograf and giris_isim_yaz:
-        temiz_giris_adi = giris_isim_yaz.strip()
+    if st.button("Biyometrik Kimliği Doğrula"):
+      if giris_foto and giris_isim:
+        temiz_isim = giris_isim.strip()
         if (
-            temiz_giris_adi in st.session_state.izinli_kisiler
-            or giris_fotograf.name in st.session_state.izinli_fotolar
-            or temiz_giris_adi.lower() == "yiğit"
+            temiz_isim in st.session_state.izinli_kisiler
+            or giris_foto.name in st.session_state.izinli_fotolar
+            or temiz_isim.lower() == "yiğit"
         ):
           st.session_state.giris_yapildi = True
           st.session_state.kullanici_rolu = (
-              "sahip" if temiz_giris_adi.lower() == "yiğit" else "yetkili_misafir"
+              "sahip" if temiz_isim.lower() == "yiğit" else "yetkili_misafir"
           )
-          st.session_state.aktif_kullanici_adi = temiz_giris_adi
+          st.session_state.aktif_kullanici_adi = temiz_isim
           st.success(
-              f"🎯 Kimlik Onaylandı! Hoş geldin {temiz_giris_adi} efendim."
+              f"🎯 Kimlik Onaylandı! Hoş geldin {temiz_isim} komutanım."
           )
           st.components.v1.html(
-              f'<script>titanKonus("Hoş geldin {temiz_giris_adi}'
-              ' efendim.");</script>',
+              f'<script>titanQuantumKonus("Hoş geldin {temiz_isim}'
+              ' efendim, sistemler aktif.");</script>',
               height=0,
           )
           st.rerun()
         else:
-          st.error("⚠️ Erişim Reddedildi! Tanınmayan kimlik efendim.")
+          st.error("⚠️ Erişim Reddedildi! Bilinmeyen imza efendim.")
           st.components.v1.html(
-              '<script>titanKonus("Erişim reddedildi.");</script>', height=0
+              '<script>titanQuantumKonus("Erişim reddedildi, yetkisiz'
+              ' işlem.");</script>',
+              height=0,
           )
       else:
-        st.warning("Lütfen isim girin ve fotoğraf yükleyin efendim.")
+        st.warning("Lütfen adınızı girin ve görsel yükleyin efendim.")
 
-  with col_giris2:
-    st.markdown("### #️⃣ Master Şifre Girişi")
-    sifre_input = st.text_input(
-        "Güvenlik Anahtarı:", type="password", key="giris_sifre"
+  with col_g2:
+    st.markdown("### #️⃣ Master Şifre Giriş Protokolü")
+    sifre_girdi = st.text_input(
+        "Güvenlik Anahtarı (PIN):", type="password", key="giris_sifre_v15"
     )
-    if st.button("Master Şifreyi Onayla"):
-      if sifre_input == "0912":
+    if st.button("Master Anahtarı Doğrula"):
+      if sifre_girdi == "0912":
         st.session_state.giris_yapildi = True
         st.session_state.kullanici_rolu = "sahip"
         st.session_state.aktif_kullanici_adi = "Yiğit (Ana Komutan)"
-        st.success("🔓 Master Şifre Doğrulandı! Tam yetki aktif efendim.")
+        st.success(
+            "🔓 Master Anahtar Onaylandı! Quantum yetkiler devreye"
+            " sokuluyor..."
+        )
         st.components.v1.html(
-            '<script>titanKonus("Master şifre doğrulandı, hoş geldin Yiğit'
-            ' efendim.");</script>',
+            '<script>titanQuantumKonus("Master şifre doğrulandı, hoş geldin'
+            ' Yiğit efendim.");</script>',
             height=0,
         )
         st.rerun()
       else:
-        st.error("❌ Hatalı şifre efendim!")
+        st.error("❌ Hatalı şifre girdiniz efendim!")
         st.components.v1.html(
-            '<script>titanKonus("Hatalı şifre girdiniz efendim.");</script>',
+            '<script>titanQuantumKonus("Hatalı şifre girdiniz efendim.");</script>',
             height=0,
         )
 
   st.stop()
 
 
-# --- SAF PYTHON WEB ARAMA MOTORU ---
-def internette_ara(sorgu):
+# ==========================================
+# 07. SAF PYTHON WEB ARAMA MOTORU (DEEP SEARCH)
+# ==========================================
+def titan_web_aramasi_yap(sorgu):
   try:
     url = (
         "https://html.duckduckgo.com/html/?q="
@@ -250,80 +281,88 @@ def internette_ara(sorgu):
         headers={
             "User-Agent": (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-                " (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                " (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
             )
         },
     )
     with urllib.request.urlopen(req, timeout=10) as response:
       html_content = response.read().decode("utf-8")
 
-    results = []
-    chunks = html_content.split('class="result__snippet')
-    for chunk in chunks[1:6]:
+    sonuclar = []
+    parcalar = html_content.split('class="result__snippet')
+    for parca in parcalar[1:6]:
       try:
-        part = chunk.split("</a>")[0]
-        clean_text = (
-            part.split(">")[-1]
+        boluk = parca.split("</a>")[0]
+        temiz = (
+            boluk.split(">")[-1]
             .replace("<b>", "")
             .replace("</b>", "")
             .strip()
         )
-        clean_text = html.unescape(clean_text)
-        if clean_text:
-          results.append(clean_text)
+        temiz = html.unescape(temiz)
+        if temiz:
+          sonuclar.append(temiz)
       except Exception:
         continue
 
-    if results:
-      return json.dumps(results, ensure_ascii=False)
+    if sonuclar:
+      return json.dumps(sonuclar, ensure_ascii=False)
     return "Arama sonucuna ulaşılamadı efendim."
   except Exception as e:
-    return f"Arama motoru bağlantı hatası: {str(e)}"
+    return f"Arama motoru hata kodu: {str(e)}"
 
 
-# --- ANA UYGULAMA ---
+# ==========================================
+# 08. ANA UYGULAMA BAŞLIĞI VE KONTROL PANELİ
+# ==========================================
 st.title(
-    f"⚡ TITAN v12.0 ULTIMATE [JARVIS Core] — Operatör:"
+    f"👑 TITAN v15.0 QUANTUM SUPREME [JARVIS Core] — Operatör:"
     f" {st.session_state.aktif_kullanici_adi}"
 )
 
-# --- KENAR ÇUBUĞU (ULTIMATE MENÜ) ---
+# ==========================================
+# 09. KENAR ÇUBUĞU (SUPREME YÖNETİM MENÜSÜ)
+# ==========================================
 st.sidebar.markdown(
-    "<h3 style='font-weight: 800; color: #58a6ff;'>⚙️ JARVIS Supreme"
+    "<h3 style='font-weight: 800; color: #38bdf8;'>⚙️ QUANTUM Supreme"
     " Menü</h3>",
     unsafe_allow_html=True,
 )
-secim = st.sidebar.radio(
-    "Mod Seçin:",
+
+ana_secim = st.sidebar.radio(
+    "Sistem Modu Seçin:",
     [
-        "💬 JARVIS Ultimate Sohbet, Canlı Web & Ses",
-        "🧠 Nöral Hafıza (MEMORIES.md) Yönetimi",
-        "💻 Otonom Kod & Proje Üretim Terminali",
-        "🌤️ Çevresel Sensör & Hava Durumu Radarı",
-        "🔒 Biyometrik İzin & Güvenlik Matriksi",
-        "📍 Canlı Konum ve Google Maps Radarı",
-        "🛰️ Uzaktan Hedef Takibi (Supabase)",
-        "📊 Sistem Denetim ve Güvenlik Logları",
-        "📌 Otonom Görev & Hatırlatıcı Takibi",
+        "💬 JARVIS Quantum Sohbet, Canlı Web & Ses",
+        "🧠 Nöral Bellek (MEMORIES.md) Deposu",
+        "💻 Otonom Yazılım & Kod Derleme Terminali",
+        "🛡️ Siber Güvenlik Duvarı ve Tehdit Radarı",
+        "🌤️ Çevresel Sensör & Meteoroloji Merkezi",
+        "🔒 Biyometrik İzin & Kullanıcı Matriksi",
+        "📍 Canlı GPS Konum ve Google Maps Ağı",
+        "🛰️ Uzaktan Hedef İzleme (Supabase Sync)",
+        "📊 Sistem Denetim, Performans & Loglar",
+        "📌 Otonom Görev, Hatırlatıcı & Notlar",
     ],
     label_visibility="collapsed",
 )
 
-if st.sidebar.button("🔒 Oturumu Kapat / Kilitle"):
+if st.sidebar.button("🔒 Oturumu Kapat ve Kilitle"):
   st.session_state.giris_yapildi = False
   st.rerun()
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 11px;'>TITAN Supreme Core v12.0<br>All"
-    " Modules Online 🟢</p>",
+    "<p style='color: #64748b; font-size: 11px;'>TITAN Quantum Core v15.0<br>All"
+    " Neural Modules Online 🟢</p>",
     unsafe_allow_html=True,
 )
 
-# --- 1. MOD: SOHBET & CANLI ARAMA & SES ---
-if secim == "💬 JARVIS Ultimate Sohbet, Canlı Web & Ses":
+# ==========================================
+# 10. MODÜL 1: SOHBET & CANLI ARAMA & SES
+# ==========================================
+if ana_secim == "💬 JARVIS Quantum Sohbet, Canlı Web & Ses":
   st.subheader(
-      "💬 JARVIS Doğal Dil, Canlı İnternet Sentezi & Ses Asistanı"
+      "💬 JARVIS Quantum Doğal Dil, Canlı İnternet Ağı & Ses Asistanı"
   )
 
   st.markdown('<div class="chat-container">', unsafe_allow_html=True)
@@ -340,7 +379,7 @@ if secim == "💬 JARVIS Ultimate Sohbet, Canlı Web & Ses":
               elif item.get("type") == "image_url":
                 img_url = item.get("image_url", {}).get("url", "")
                 if img_url:
-                  st.image(img_url, width=300)
+                  st.image(img_url, width=320)
         else:
           if content:
             st.markdown(f"**{str(content)}**")
@@ -356,26 +395,29 @@ if secim == "💬 JARVIS Ultimate Sohbet, Canlı Web & Ses":
               .replace("\n", " ")
               .replace("*", "")
           )
-          if st.button(f"🔊 Bu Yanıtı Sesli Oku", key=f"ses_{i}"):
+          if st.button(f"🔊 Bu Yanıtı Sesli Oku", key=f"ses_v15_{i}"):
             st.components.v1.html(
-                f'<script>titanKonus("{temiz_metin}");</script>', height=0
+                f'<script>titanQuantumKonus("{temiz_metin}");</script>',
+                height=0,
             )
 
   st.markdown("</div>", unsafe_allow_html=True)
 
-  with st.expander("📸 Görsel / Dosya Analiz Modülü"):
-    yuklenen_dosya = st.file_uploader(
-        "Dosya Seç", type=["jpg", "jpeg", "png"], label_visibility="collapsed"
+  with st.expander("📸 Görsel / Çoklu Ortam Analiz Modülü"):
+    yuklenen_dosya_v15 = st.file_uploader(
+        "Görsel Seç",
+        type=["jpg", "jpeg", "png"],
+        label_visibility="collapsed",
     )
 
   prompt = st.chat_input(
-      "JARVIS'e araştırılacak bir şeyler yazın veya talimat verin efendim..."
+      "JARVIS Quantum modülüne komut verin veya soru sorun efendim..."
   )
 
   if prompt:
     user_content = []
-    if yuklenen_dosya:
-      bytes_data = yuklenen_dosya.getvalue()
+    if yuklenen_dosya_v15:
+      bytes_data = yuklenen_dosya_v15.getvalue()
       base64_image = base64.b64encode(bytes_data).decode("utf-8")
       image_url = f"data:image/jpeg;base64,{base64_image}"
       user_content.append({"type": "image_url", "image_url": {"url": image_url}})
@@ -384,8 +426,8 @@ if secim == "💬 JARVIS Ultimate Sohbet, Canlı Web & Ses":
     st.session_state.messages.append({"role": "user", "content": user_content})
 
     with st.chat_message("user"):
-      if yuklenen_dosya:
-        st.image(yuklenen_dosya, width=300)
+      if yuklenen_dosya_v15:
+        st.image(yuklenen_dosya_v15, width=320)
       st.markdown(f"**{prompt}**")
 
     with st.chat_message("assistant"):
@@ -400,22 +442,22 @@ if secim == "💬 JARVIS Ultimate Sohbet, Canlı Web & Ses":
                     for item in msg["content"]
                     if item.get("type") == "text"
                 ),
-                "[Görsel Gönderildi]",
+                "[Görsel Aktarıldı]",
             )
             api_messages.append({"role": msg["role"], "content": txt_part})
           else:
             api_messages.append(msg)
 
         st.toast(
-            "🌐 TITAN Ultimate Canlı Web Ağı taranıyor, güncel veriler çekiliyor...",
-            icon="⚡",
+            "🌐 TITAN Quantum Canlı Web Ağı taranıyor, güncel veriler çekiliyor...",
+            icon="👑",
         )
-        web_sonuclari = internette_ara(prompt)
+        web_sonuclari = titan_web_aramasi_yap(prompt)
 
         api_messages.append({
             "role": "system",
             "content": (
-                "İnternetten anlık olarak taranan güncel veriler ve arama"
+                "İnternetten anlık taranan güncel veriler ve arama"
                 f" sonuçları: {web_sonuclari}. Bu verileri sentezleyerek"
                 " kullanıcının sorusunu en güncel ve net şekilde yanıtla"
                 " efendim."
@@ -435,43 +477,47 @@ if secim == "💬 JARVIS Ultimate Sohbet, Canlı Web & Ses":
             .replace("*", "")
         )
         st.components.v1.html(
-            f'<script>titanKonus("{temiz_yanit}");</script>', height=0
+            f'<script>titanQuantumKonus("{temiz_yanit}");</script>', height=0
         )
 
         st.session_state.messages.append(
             {"role": "assistant", "content": full_response}
         )
         st.session_state.sistem_loglari.append(
-            f"[{datetime.datetime.now().strftime('%H:%M:%S')}] Web sorgusu başarıyla işlendi: {prompt[:30]}..."
+            f"[{datetime.datetime.now().strftime('%H:%M:%S')}] Quantum web sorgusu işlendi: {prompt[:30]}..."
         )
       except Exception as e:
         st.error(f"Sistem bağlantı hatası: {e}")
 
-  if st.sidebar.button("Sohbet Hafızasını Sıfırla"):
+  if st.sidebar.button("Quantum Sohbet Geçmişini Temizle"):
     st.session_state.messages = [{
         "role": "system",
         "content": (
-            "Sen JARVIS mimarisiyle güçlendirilmiş TITAN v12.0 ULTIMATE"
-            " asistanısın."
+            "Sen TITAN v15.0 QUANTUM SUPREME asistanı ve JARVIS çekirdeğisin."
         ),
     }]
     st.rerun()
 
-# --- 2. MOD: NÖRAL HAFIZA ---
-elif secim == "🧠 Nöral Hafıza (MEMORIES.md) Yönetimi":
-  st.subheader("🧠 JARVIS Dinamik Nöral İndeksleme & MEMORIES.md")
+# ==========================================
+# 11. MODÜL 2: NÖRAL HAFIZA YÖNETİMİ
+# ==========================================
+elif ana_secim == "🧠 Nöral Hafıza (MEMORIES.md) Deposu":
+  st.subheader("🧠 JARVIS Dinamik Nöral İndeksleme ve MEMORIES.md Paneli")
   st.markdown(
-      "Bu modül JARVIS'in kalıcı hafızasını (`MEMORIES.md`) doğrudan"
-      " yönetmenizi sağlar efendim."
+      "Bu modül JARVIS yapay zekasının kalıcı hafızasını doğrudan"
+      " düzenlemenizi sağlar efendim."
   )
 
-  yeni_hafiza_notu = st.text_input("Hafızaya Yeni Bilgi Kaydet:")
-  if st.button("Hafızaya İşle"):
-    if yeni_hafiza_notu:
-      st.session_state.jarvis_hafiza.append(yeni_hafiza_notu.strip())
-      st.success("🧠 Bilgi kalıcı nöral hafızaya başarıyla eklendi efendim!")
+  yeni_hafiza = st.text_input("Kalıcı Nöral Hafızaya Yeni Bilgi Kaydet:")
+  if st.button("Hafıza Çekirdeğine İşle"):
+    if yeni_hafiza:
+      st.session_state.jarvis_hafiza.append(yeni_hafiza.strip())
+      st.success(
+          "🧠 Yeni veri kalıcı nöral belleğe başarıyla entegre edildi"
+          " efendim!"
+      )
       st.session_state.sistem_loglari.append(
-          f"[{datetime.datetime.now().strftime('%H:%M:%S')}] Yeni nöral hafıza eklendi."
+          f"[{datetime.datetime.now().strftime('%H:%M:%S')}] Yeni nöral bilgi eklendi."
       )
       st.rerun()
     else:
@@ -479,120 +525,162 @@ elif secim == "🧠 Nöral Hafıza (MEMORIES.md) Yönetimi":
 
   st.markdown("### 🗂️ Aktif Nöral Bellek Kayıtları:")
   for idx, mem in enumerate(st.session_state.jarvis_hafiza):
-    st.write(f"- 📌 **Kayıt #{idx+1}:** {mem}")
+    st.write(f"- 📌 **Kayıt #[{idx+1}]:** {mem}")
 
-# --- 3. MOD: OTONOM KOD & PROJE ÜRETİCİSİ (YENİ ULTIMATE MOD) ---
-elif secim == "💻 Otonom Kod & Proje Üretim Terminali":
-  st.subheader("💻 TITAN Otonom Yazılım ve Proje Üretim Terminali")
+# ==========================================
+# 12. MODÜL 3: OTONOM YAZILIM & KOD DERLEME
+# ==========================================
+elif ana_secim == "💻 Otonom Yazılım & Kod Derleme Terminali":
+  st.subheader("💻 TITAN Quantum Otonom Yazılım ve Proje Üretim Terminali")
   st.markdown(
-      "İstediğiniz programı, scripti veya web arayüzünü JARVIS'e yazdırın,"
-      " anında kod bloğu olarak alın efendim."
+      "İstediğiniz programı, scripti veya otomasyon aracını JARVIS'e yazdırın,"
+      " anında tam sürüm kod bloğu olarak alın efendim."
   )
 
-  kod_istegi = st.text_area(
-      "Ne tür bir yazılım veya kod üretilmesini istiyorsunuz?",
-      placeholder="Örn: Python ile çalışan şifre yöneticisi yaz...",
+  kod_talep = st.text_area(
+      "Hangi programlama dilinde ne tür bir yazılım üretilmesini istiyorsunuz?",
+      placeholder=(
+          "Örn: Python ile port tarayıcı ve siber güvenlik analizi scripti"
+          " yaz..."
+      ),
   )
-  if st.button("Kodu Otonom Üret"):
-    if kod_istegi:
-      with st.spinner(
-          "TITAN kod motoru projeyi derliyor ve optimize ediyor..."
-      ):
+  if st.button("Kodu Quantum Hızında Üret"):
+    if kod_talep:
+      with st.spinner("TITAN kod motoru projeyi derliyor ve optimize ediyor..."):
         try:
           kod_yanit = client.chat.completions.create(
               model=MODEL_NAME,
               messages=[{
                   "role": "system",
                   "content": (
-                      "Sen üst düzey bir yazılım mühendisi ve TITAN kod"
-                      " motorusun. Kullanıcının istediği kodu temiz, hatasız"
-                      " ve açıklamalı şekilde Markdown kod bloğu içinde ver."
+                      "Sen üst düzey bir yazılım mimarı ve TITAN kod"
+                      " motorusun. Kullanıcının istediği kodu eksiksiz,"
+                      " temiz ve açıklamalı şekilde Markdown kod bloğu içinde"
+                      " sun."
                   ),
               }, {
                   "role": "user",
-                  "content": kod_istegi,
+                  "content": kod_talep,
               }],
           )
-          uretilen_kod = kod_yanit.choices[0].message.content
+          uretilen_kod_sonuc = kod_yanit.choices[0].message.content
           st.markdown("### 🛠️ Üretilen Yazılım / Kod Çıktısı:")
-          st.markdown(uretilen_kod)
+          st.markdown(uretilen_kod_sonuc)
           st.success("✅ Kod başarıyla derlendi ve üretildi efendim!")
         except Exception as ex:
           st.error(f"Kod üretim hatası: {ex}")
     else:
       st.warning("Lütfen üretilmesini istediğiniz yazılımı açıklayın efendim.")
 
-# --- 4. MOD: ÇEVRESEL SENSÖR & HAVA DURUMU (YENİ ULTIMATE MOD) ---
-elif secim == "🌤️ Çevresel Sensör & Hava Durumu Radarı":
-  st.subheader("🌤️ JARVIS Canlı Meteoroloji ve Çevresel Sensörler")
-  sehir_adi = st.text_input("Hava Durumu Sorgulanacak Şehir:", value="İstanbul")
-  if st.button("Meteorolojik Verileri Çek"):
+# ==========================================
+# 13. MODÜL 4: SİBER GÜVENLİK DUVARI & TEHDİT RADARI
+# ==========================================
+elif ana_secim == "🛡️ Siber Güvenlik Duvarı ve Tehdit Radarı":
+  st.subheader("🛡️ TITAN Quantum Siber Güvenlik ve Ağ Tehdit Matriksi")
+  st.markdown(
+      "Sisteme sızmaya çalışan dış IP adresleri ve güvenlik duvarı durum"
+      " raporu efendim:"
+  )
+
+  yeni_ip = st.text_input(
+      "Engellenecek veya İncelenecek IP Adresi:", placeholder="Örn: 185.220.101.5"
+  )
+  if st.button("Ağ Güvenlik Duvarına Ekle"):
+    if yeni_ip:
+      st.session_state.siber_tehditler.append({
+          "ip": yeni_ip.strip(),
+          "durum": "Engellendi 🛡️",
+          "risk": "Yüksek",
+      })
+      st.success(
+          f"🔒 {yeni_ip} başarıyla kara listeye alındı ve engellendi efendim!"
+      )
+      st.rerun()
+    else:
+      st.warning("Lütfen geçerli bir IP adresi girin efendim.")
+
+  st.markdown("### 🚨 Aktif Tehdit Matrisi Kayıtları:")
+  for tehdit in st.session_state.siber_tehditler:
+    st.write(
+        f"- 🌐 **IP:** `{tehdit['ip']}` | **Durum:** `{tehdit['durum']}` |"
+        f" **Risk Seviyesi:** `{tehdit['risk']}`"
+    )
+
+# ==========================================
+# 14. MODÜL 5: ÇEVRESEL SENSÖR & METEOROLOJİ
+# ==========================================
+elif ana_secim == "🌤️ Çevresel Sensör & Meteoroloji Merkezi":
+  st.subheader("🌤️ JARVIS Canlı Meteoroloji ve Çevresel Sensör İstasyonu")
+  sehir_input = st.text_input("Hava Durumu Sorgulanacak Şehir:", value="İstanbul")
+  if st.button("Meteorolojik Uydu Verilerini Çek"):
     with st.spinner("Uydu ve hava istasyonları taranıyor..."):
-      hava_bilgi = internette_ara(f"{sehir_adi} hava durumu güncel sıcaklık")
+      hava_sonuc = titan_web_aramasi_yap(
+          f"{sehir_input} hava durumu güncel sıcaklık"
+      )
       st.info(
-          f"📡 {sehir_adi} için anlık meteorolojik sentez:"
-          f" {str(hava_bilgi)[:300]}..."
+          f"📡 {sehir_input} için anlık meteorolojik sentez:"
+          f" {str(hava_sonuc)[:350]}..."
       )
       st.success("Çevresel sensör verileri başarıyla işlendi efendim.")
 
-  st.markdown("### 🌡️ Anlık Sistem Çevre Değerleri:")
-  c1, c2, c3 = st.columns(3)
-  c1.metric("Sunucu Sıcaklığı", "34.2 °C", "Stabil")
-  c2.metric("Nem Oranı", "%48", "Normal")
-  c3.metric("Atmosferik Basınç", "1013 hPa", "Ideal")
+  st.markdown("### 🌡️ Anlık Donanım & Çevre Değerleri:")
+  col_m1, col_m2, col_m3 = st.columns(3)
+  col_m1.metric("Sunucu Sıcaklığı", "35.8 °C", "Optimum")
+  col_m2.metric("Nem Oranı", "%46", "Stabil")
+  col_m3.metric("Kuantum Basınç", "1015 hPa", "İdeal")
 
-# --- 5. MOD: FOTOĞRAFLI İZİN & GÜVENLİK ---
-elif secim == "🔒 Biyometrik İzin & Güvenlik Matriksi":
+# ==========================================
+# 15. MODÜL 6: BİYOMETRİK İZİN & KULLANICI MATRİKSİ
+# ==========================================
+elif ana_secim == "🔒 Biyometrik İzin & Kullanıcı Matriksi":
   st.subheader("🔒 JARVIS Biyometrik Tanıma ve Yetkilendirme Paneli")
-  col_yonet1, col_yonet2 = st.columns(2)
+  col_u1, col_u2 = st.columns(2)
 
-  with col_yonet1:
-    st.markdown("### ➕ Yeni Yetkili Kişi ve Fotoğraf Kaydı")
-    yeni_kisi_adi = st.text_input("Kişinin Adı:")
-    yeni_kisi_foto = st.file_uploader(
+  with col_u1:
+    st.markdown("### ➕ Yeni Yetkili Kişi Kaydı")
+    kisi_ad = st.text_input("Yetkilendirilecek Kişinin Adı:")
+    kisi_foto = st.file_uploader(
         "Kişinin Yüz Fotoğrafı",
         type=["jpg", "jpeg", "png"],
-        key="jarvis_arkadas_foto",
+        key="quantum_arkadas_foto",
     )
 
-    if st.button("Biyometrik Veriyi Kaydet"):
-      if yeni_kisi_adi and yeni_kisi_foto:
-        st.session_state.izinli_kisiler[yeni_kisi_adi.strip()] = (
-            "Yetkili Misafir"
-        )
-        st.session_state.izinli_fotolar[yeni_kisi_foto.name] = (
-            yeni_kisi_adi.strip()
-        )
+    if st.button("Biyometrik İmzayı Kaydet"):
+      if kisi_ad and kisi_foto:
+        st.session_state.izinli_kisiler[kisi_ad.strip()] = "Yetkili Misafir"
+        st.session_state.izinli_fotolar[kisi_foto.name] = kisi_ad.strip()
         st.success(
-            f"✅ {yeni_kisi_adi} biyometrik olarak TITAN/JARVIS ağına"
-            " eklendi efendim!"
+            f"✅ {kisi_ad} biyometrik olarak TITAN/JARVIS ağına"
+            " yetkilendirildi efendim!"
         )
       else:
         st.warning("Lütfen hem ad girin hem de fotoğraf yükleyin efendim.")
 
-  with col_yonet2:
+  with col_u2:
     st.markdown("### 📋 Yetkili Güvenlik Listesi")
     for isim, rol in st.session_state.izinli_kisiler.items():
       st.write(f"- 🛡️ **{isim}** — *{rol}*")
 
-# --- 6. MOD: CANLI KONUM + GOOGLE MAPS ---
-elif secim == "📍 Canlı Konum ve Google Maps Radarı":
-  st.subheader("📍 JARVIS Canlı GPS & Harita Entegrasyonu")
+# ==========================================
+# 16. MODÜL 7: CANLI GPS KONUM VE GOOGLE MAPS
+# ==========================================
+elif ana_secim == "📍 Canlı GPS Konum ve Google Maps Ağı":
+  st.subheader("📍 JARVIS Canlı GPS Satellit ve Harita Entegrasyonu")
   st.components.v1.html(
       """
-    <div style="padding: 15px; background-color: #161b22; color: white; border-radius: 8px; border: 1px solid #30363d;">
-        <h3 style="color: #58a6ff; margin-top:0;">📡 Canlı Uydu & Harita Radarı</h3>
-        <p id="durum" style="color: #8b949e;">Konum sinyali bekleniyor...</p>
-        <div id="koord" style="margin-top: 5px; font-family: monospace; font-size: 16px; color: #3fb950; margin-bottom: 10px;"></div>
-        <button onclick="canliKonumGetir()" style="background-color: #238636; color: white; padding: 10px 20px; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">Anlık Konumumu Al ve Haritada Göster</button>
+    <div style="padding: 18px; background-color: #0d1117; color: white; border-radius: 10px; border: 1px solid #30363d;">
+        <h3 style="color: #38bdf8; margin-top:0;">📡 Canlı Uydu & Harita Radarı</h3>
+        <p id="durum_gps" style="color: #94a3b8;">Konum sinyali bekleniyor...</p>
+        <div id="koord_gps" style="margin-top: 5px; font-family: monospace; font-size: 16px; color: #10b981; margin-bottom: 12px;"></div>
+        <button onclick="titanKonumAl()" style="background-color: #0284c7; color: white; padding: 10px 22px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">Anlık Konumumu Al ve Haritada Göster</button>
         <br><br>
-        <div id="harita-alani"></div>
+        <div id="harita-cerceve"></div>
     </div>
     <script>
-        function canliKonumGetir() {
-            const durum = document.getElementById("durum");
-            const koord = document.getElementById("koord");
-            const haritaAlani = document.getElementById("harita-alani");
+        function titanKonumAl() {
+            const durum = document.getElementById("durum_gps");
+            const koord = document.getElementById("koord_gps");
+            const haritaAlani = document.getElementById("harita-cerceve");
             
             durum.innerHTML = "📡 Uydulara bağlanılıyor, hassas GPS konumu alınıyor...";
             if (navigator.geolocation) {
@@ -603,7 +691,7 @@ elif secim == "📍 Canlı Konum ve Google Maps Radarı":
                         durum.innerHTML = "✅ Konum Başarıyla Kilitlendi!";
                         koord.innerHTML = "Enlem: " + lat.toFixed(6) + " | Boylam: " + lon.toFixed(6);
                         
-                        haritaAlani.innerHTML = '<iframe width="100%" height="380" style="border:1px solid #30363d; border-radius: 8px;" loading="lazy" allowfullscreen src="https://maps.google.com/maps?q=' + lat + ',' + lon + '&z=16&output=embed"></iframe>';
+                        haritaAlani.innerHTML = '<iframe width="100%" height="400" style="border:1px solid #30363d; border-radius: 10px;" loading="lazy" allowfullscreen src="https://maps.google.com/maps?q=' + lat + ',' + lon + '&z=16&output=embed"></iframe>';
                     },
                     (err) => { durum.innerHTML = "⚠️ Hata: Konum izni reddedildi veya alınamadı efendim."; },
                     { enableHighAccuracy: true, timeout: 8000 }
@@ -614,13 +702,15 @@ elif secim == "📍 Canlı Konum ve Google Maps Radarı":
         }
     </script>
     """,
-      height=500,
+      height=520,
   )
 
-# --- 7. MOD: UZAKTAN KONUM TAKİBİ ---
-elif secim == "🛰️ Uzaktan Hedef Takibi (Supabase)":
-  st.subheader("🛰️ JARVIS Uzaktan Hedef İzleme ve Harita Radarı")
-  if st.button("🔄 Radar Verilerini Tazele"):
+# ==========================================
+# 17. MODÜL 8: UZAKTAN HEDEF İZLEME (SUPABASE)
+# ==========================================
+elif ana_secim == "🛰️ Uzaktan Hedef İzleme (Supabase Sync)":
+  st.subheader("🛰️ JARVIS Uzaktan Hedef İzleme ve Supabase Radar Sinyalleri")
+  if st.button("🔄 Radar Verilerini Yenile"):
     st.rerun()
 
   if supabase:
@@ -636,65 +726,86 @@ elif secim == "🛰️ Uzaktan Hedef Takibi (Supabase)":
       if data:
         df = pd.DataFrame(data)
         st.dataframe(df, use_container_width=True)
-        son_konum = data[0]
-        if "enlem" in son_konum and "boylam" in son_konum:
-          lat = son_konum["enlem"]
-          lon = son_konum["boylam"]
+        son_veri = data[0]
+        if "enlem" in son_veri and "boylam" in son_veri:
+          lat = son_veri["enlem"]
+          lon = son_veri["boylam"]
           st.info(
               f"🎯 Son Hedef Koordinatları -> Enlem: `{lat}` | Boylam: `{lon}`"
           )
           maps_html = f"""
-                    <iframe width="100%" height="400" style="border:1px solid #30363d; border-radius: 8px;" loading="lazy" allowfullscreen src="https://maps.google.com/maps?q={lat},{lon}&z=16&output=embed"></iframe>
+                    <iframe width="100%" height="420" style="border:1px solid #30363d; border-radius: 10px;" loading="lazy" allowfullscreen src="https://maps.google.com/maps?q={lat},{lon}&z=16&output=embed"></iframe>
                     """
-          st.components.v1.html(maps_html, height=420)
+          st.components.v1.html(maps_html, height=440)
       else:
-        st.warning("⚠️ Supabase tablosunda aktif sinyal bulunamadı efendim.")
+        st.warning(
+            "⚠️ Supabase tablosunda aktif hedef sinyali bulunamadı efendim."
+        )
     except Exception as ex:
       st.error(f"Radar veri çekme hatası: {ex}")
   else:
     st.error("Supabase bağlantısı kurulamadı efendim.")
 
-# --- 8. MOD: SİSTEM DENETİM VE GÜVENLİK LOGLARI ---
-elif secim == "📊 Sistem Denetim ve Güvenlik Logları":
+# ==========================================
+# 18. MODÜL 9: SİSTEM DENETİM VE LOGLAR
+# ==========================================
+elif ana_secim == "📊 Sistem Denetim, Performans & Loglar":
   st.subheader("📊 TITAN Altyapı Denetim ve Siber Güvenlik Logları")
   st.markdown(
-      "Sistem genelinde gerçekleşen tüm operasyonel hareketlerin dökümü"
+      "Sistem genelinde gerçekleşen tüm otonom operasyonel hareketlerin dökümü"
       " efendim:"
   )
 
   for log in reversed(st.session_state.sistem_loglari):
     st.code(log, language="text")
 
-  if st.button("Log Belleğini Temizle"):
+  if st.button("Log Hafızasını Sıfırla"):
     st.session_state.sistem_loglari = [
-        f"[{datetime.datetime.now().strftime('%H:%M:%S')}] Loglar sıfırlandı."
+        f"[{datetime.datetime.now().strftime('%H:%M:%S')}] Log belleği sıfırlandı."
     ]
     st.rerun()
 
-# --- 9. MOD: GÖREVLER ---
+# ==========================================
+# 19. MODÜL 10: GÖREVLER VE NOTLAR DEFTERİ
+# ==========================================
 else:
-  st.subheader("📌 JARVIS Otonom Görev ve Hatırlatıcı Yönetimi")
-  yeni_gorev = st.text_input("Yeni Görev veya Hatırlatıcı Tanımlayın:")
+  st.subheader("📌 JARVIS Otonom Görev, Hatırlatıcı ve Notlar Defteri")
+
+  yeni_gorev_input = st.text_input("Yeni Görev veya Hatırlatıcı Tanımlayın:")
   if st.button("Görev Ekle"):
-    if yeni_gorev:
+    if yeni_gorev_input:
       st.session_state.gorevler.append(
-          {"gorev": yeni_gorev, "durum": "Bekliyor ⏳"}
+          {"gorev": yeni_gorev_input, "durum": "Bekliyor ⏳"}
       )
       st.success("Yeni görev JARVIS görev kuyruğuna eklendi efendim.")
       st.rerun()
     else:
       st.warning("Lütfen geçerli bir görev tanımı girin efendim.")
 
-  st.markdown("### Aktif Görev Listesi:")
+  st.markdown("### 📋 Aktif Görev Listesi:")
   if not st.session_state.gorevler:
     st.info("Kayıtlı aktif görev bulunmuyor efendim.")
   else:
     for i, g in enumerate(st.session_state.gorevler):
-      col1, col2 = st.columns([4, 1])
-      with col1:
+      col_g1, col_g2 = st.columns([4, 1])
+      with col_g1:
         st.write(f"**{i+1}.** {g['gorev']} — *{g['durum']}*")
-      with col2:
+      with col_g2:
         if g["durum"] != "Tamamlandı ✅":
-          if st.button("Tamamla", key=f"b_{i}"):
+          if st.button("Tamamla", key=f"btn_gorev_{i}"):
             st.session_state.gorevler[i]["durum"] = "Tamamlandı ✅"
             st.rerun()
+
+  st.markdown("---")
+  st.markdown("### 📝 Operasyonel Notlar Defteri:")
+  yeni_not = st.text_area("Hızlı Not Al:")
+  if st.button("Notu Kaydet"):
+    if yeni_not:
+      st.session_state.notlar_defteri.append(yeni_not.strip())
+      st.success("Not başarıyla kaydedildi efendim.")
+      st.rerun()
+    else:
+      st.warning("Lütfen bir not yazın efendim.")
+
+  for idx, not_item in enumerate(st.session_state.notlar_defteri):
+    st.write(f"- 📌 **Not #{idx+1}:** {not_item}")

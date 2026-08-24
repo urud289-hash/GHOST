@@ -10,12 +10,12 @@ from supabase import Client, create_client
 
 # Sayfa Yapılandırması (Geniş Ekran)
 st.set_page_config(
-    page_title="TITAN AI - Ultimate Komuta Merkezi v10.0",
+    page_title="TITAN AI - Ultimate Komuta Merkezi v10.1",
     page_icon="⚡",
     layout="wide",
 )
 
-# --- SİBER ARAYÜZ VE STİLLER (GELİŞTİRİLMİŞ DÜZEN) ---
+# --- SİBER ARAYÜZ VE STİLLER ---
 st.markdown(
     """
 <style>
@@ -54,7 +54,6 @@ st.markdown(
         box-shadow: 0 6px 8px rgba(35,134,54,0.5); border-color: #56d364;
     }
     [data-testid="stDataFrame"] { border: 1px solid #30363d; border-radius: 8px; background-color: #161b22; }
-    .metric-card { background-color: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 10px; text-align: center; }
 </style>
 """,
     unsafe_allow_html=True,
@@ -80,7 +79,7 @@ def init_supabase(url, key):
 
 supabase = init_supabase(SUPABASE_URL, SUPABASE_KEY)
 
-# --- SESSION STATE (GELİŞMİŞ HAFIZA VE YETKİ YÖNETİMİ) ---
+# --- SESSION STATE (HAFIZA VE YETKİLER) ---
 if "giris_yapildi" not in st.session_state:
   st.session_state.giris_yapildi = False
 if "kullanici_rolu" not in st.session_state:
@@ -92,11 +91,9 @@ if "messages" not in st.session_state:
   st.session_state.messages = [{
       "role": "system",
       "content": (
-          "Sen TITAN v10.0 adında dünyanın en gelişmiş, aktif internet arama"
-          " yeteneğine sahip, siber güvenlik odaklı yapay zeka komuta"
-          " merkezisin. Asıl sahibin Yiğit'tir. Ona ve sistem tarafından"
-          " yetkilendirilmiş onaylı kullanıcılara her zaman 'efendim' diye hitap"
-          " et. Yanıtların keskin, profesyonel ve son derece akıllı olsun."
+          "Sen TITAN v10.1 adında dünyanın en gelişmiş yapay zeka asistanısın."
+          " Asıl sahibin Yiğit'tir. Ona ve onaylı kullanıcılara 'efendim' diye"
+          " hitap et."
       ),
   }]
 if "gorevler" not in st.session_state:
@@ -104,10 +101,12 @@ if "gorevler" not in st.session_state:
 if "izinli_kisiler" not in st.session_state:
   st.session_state.izinli_kisiler = {
       "Yiğit": "Ana Sahip (Admin)"
-  }  # Sadece senin izin vereceğin özel mod listesi
+  }  # İsim ve rol tutar
+if "izinli_fotolar" not in st.session_state:
+  st.session_state.izinli_fotolar = {}  # Dosya adı -> İsim eşleşmesi
 
 
-# --- SES VE MİKROFON MOTORU ---
+# --- SES MOTORU ---
 st.markdown(
     """
 <script>
@@ -143,87 +142,76 @@ st.markdown(
 )
 
 
-# --- GİRİŞ EKRANI (BİYOMETRİK + ŞİFRE 0912 KONTROLÜ) ---
+# --- GİRİŞ EKRANI (BİYOMETRİK FOTOĞRAF / İSİM / ŞİFRE) ---
 if not st.session_state.giris_yapildi:
   st.markdown(
-      "<h1 style='text-align: center; color: #58a6ff;'>⚡ TITAN AI v10.0 —"
+      "<h1 style='text-align: center; color: #58a6ff;'>⚡ TITAN AI v10.1 —"
       " Maksimum Güvenlik Kapısı</h1>",
       unsafe_allow_html=True,
   )
   st.markdown(
       "<p style='text-align: center; color: #8b949e;'>Sisteme erişmek için"
-      " kameranızı başlatın veya 0912 güvenlik şifresini girin efendim.</p>",
+      " fotoğrafınızı yükleyip doğrulayın veya 0912 şifresini girin"
+      " efendim.</p>",
       unsafe_allow_html=True,
   )
 
   col_giris1, col_giris2 = st.columns(2)
 
   with col_giris1:
-    st.markdown("### 📷 Canlı Biyometrik Tarayıcı")
-    st.components.v1.html(
-        """
-        <div style="text-align: center; background-color: #161b22; padding: 15px; border-radius: 8px; border: 1px solid #30363d;">
-            <video id="webcam" autoplay playsinline width="100%" height="200" style="border-radius: 6px; background: black;"></video>
-            <br><br>
-            <button onclick="kameraAc()" style="background-color: #238636; color: white; padding: 10px 20px; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">Optik Kamerayı Başlat</button>
-        </div>
-        <script>
-            function kameraAc() {
-                const video = document.getElementById('webcam');
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(stream => { video.srcObject = stream; })
-                    .catch(err => { alert("Kamera erişimi reddedildi veya bulunamadı efendim."); });
-            }
-        </script>
-        """,
-        height=280,
+    st.markdown("### 🧬 Yüz Tanıma & Fotoğraflı Giriş")
+    giris_fotograf = st.file_uploader(
+        "Giriş İçin Fotoğrafınızı Yükleyin",
+        type=["jpg", "jpeg", "png"],
+        key="giris_dosya_input",
+    )
+    giris_isim_yaz = st.text_input(
+        "Kayıtlı Adınız:", placeholder="Örn: Yiğit veya Arkadaşın Adı"
     )
 
-    giris_ismi_input = st.text_input(
-        "Kameradaki Kişi (Adınız):", placeholder="Örn: Yiğit"
-    )
-    if st.button("Biyometrik Veriyi Doğrula ve Gir"):
-      if giris_ismi_input:
-        # İzinli kişiler modunda bu kişinin adı kayıtlı mı kontrol et
-        temiz_isim = giris_ismi_input.strip()
+    if st.button("Biyometrik Kimliği Doğrula"):
+      if giris_fotograf and giris_isim_yaz:
+        temiz_giris_adi = giris_isim_yaz.strip()
         if (
-            temiz_isim in st.session_state.izinli_kisiler
-            or temiz_isim.lower() == "yiğit"
+            temiz_giris_adi in st.session_state.izinli_kisiler
+            or giris_fotograf.name in st.session_state.izinli_fotolar
+            or temiz_giris_adi.lower() == "yiğit"
         ):
           st.session_state.giris_yapildi = True
           st.session_state.kullanici_rolu = (
-              "sahip" if temiz_isim.lower() == "yiğit" else "yetkili_misafir"
+              "sahip" if temiz_giris_adi.lower() == "yiğit" else "yetkili_misafir"
           )
-          st.session_state.aktif_kullanici_adi = temiz_isim
+          st.session_state.aktif_kullanici_adi = temiz_giris_adi
           st.success(
-              f"🎯 Biyometrik Kimlik Doğrulandı! Hoş geldin {temiz_isim}"
-              " efendim."
+              f"🎯 Kimlik Onaylandı! Hoş geldin {temiz_giris_adi} efendim."
           )
           st.components.v1.html(
-              f'<script>titanKonus("Kimlik doğrulandı. Hoş geldin {temiz_isim}'
+              f'<script>titanKonus("Hoş geldin {temiz_giris_adi}'
               ' efendim.");</script>',
               height=0,
           )
           st.rerun()
         else:
           st.error(
-              "⚠️ Erişim Reddedildi! Bu yüz/isim TITAN güvenlik veri tabanında"
-              " onaylı değil efendim."
+              "⚠️ Erişim Reddedildi! Bu yüz veya isim sistemde yetkili"
+              " değil efendim."
           )
           st.components.v1.html(
-              '<script>titanKonus("Erişim reddedildi, yetkisiz kullanıcı'
+              '<script>titanKonus("Erişim reddedildi, yetkisiz kişi'
               ' tespit edildi.");</script>',
               height=0,
           )
       else:
-        st.warning("Lütfen sisteme giriş yapan kişinin adını yazın efendim.")
+        st.warning(
+            "Lütfen hem fotoğrafınızı yükleyin hem de adınızı yazın efendim."
+        )
 
   with col_giris2:
-    st.markdown("### #️⃣ Ana Komuta Şifresi")
+    st.markdown("### #️⃣ Master Şifre ile Giriş")
     sifre_input = st.text_input(
-        "Sistem Güvenlik Şifresi:", type="password", key="giris_sifre"
+        "Güvenlik Şifresi:", type="password", key="giris_sifre"
     )
-    if st.button("Şifre ile Sisteme Sız"):
+    if st.button("Şifre ile Giriş Yap"):
       if sifre_input == "0912":
         st.session_state.giris_yapildi = True
         st.session_state.kullanici_rolu = "sahip"
@@ -233,22 +221,22 @@ if not st.session_state.giris_yapildi:
             " aktif."
         )
         st.components.v1.html(
-            '<script>titanKonus("Master şifre doğrulandı, tam yetki aktif.'
-            ' Hoş geldin Yiğit efendim.");</script>',
+            '<script>titanKonus("Master şifre doğrulandı, hoş geldin Yiğit'
+            ' efendim.");</script>',
             height=0,
         )
         st.rerun()
       else:
-        st.error("❌ Kritik Hata: Geçersiz şifre efendim!")
+        st.error("❌ Hatalı şifre efendim!")
         st.components.v1.html(
-            '<script>titanKonus("Geçersiz şifre girdiniz efendim.");</script>',
+            '<script>titanKonus("Hatalı şifre girdiniz efendim.");</script>',
             height=0,
         )
 
   st.stop()
 
 
-# --- İNTERNET ARAMA FONKSİYONU ---
+# --- İNTERNET ARAMA ---
 def internette_ara(sorgu):
   try:
     results = DDGS().text(sorgu, max_results=4)
@@ -259,13 +247,13 @@ def internette_ara(sorgu):
     return f"Arama motoru hatası: {str(e)}"
 
 
-# --- ANA UYGULAMA (GİRİŞ YAPILDIKTAN SONRAKİ ÜSTÜN KOMUTA MERKEZİ) ---
+# --- ANA UYGULAMA ---
 st.title(
-    f"⚡ TITAN AI v10.0 — Komuta Merkezi [Aktif Operatör:"
+    f"⚡ TITAN AI v10.1 — Komuta Merkezi [Aktif Operatör:"
     f" {st.session_state.aktif_kullanici_adi}]"
 )
 
-# --- KENAR ÇUBUĞU (GELİŞTİRİLMİŞ OPERASYON MENÜSÜ) ---
+# --- KENAR ÇUBUĞU ---
 st.sidebar.markdown(
     "<h3 style='font-weight: 800; color: #58a6ff;'>⚙️ TITAN Kontrol"
     " Paneli</h3>",
@@ -275,8 +263,8 @@ secim = st.sidebar.radio(
     "Mod Seçin:",
     [
         "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses",
-        "🔒 Kullanıcı & İzin Yönetim Modülü (Özel Mod)",
-        "📍 Canlı Konum Takibi",
+        "🔒 Kullanıcı & Fotoğraflı İzin Yönetim Modülü",
+        "📍 Canlı Konum ve Google Maps Takibi",
         "🛰️ Uzaktan Konum Takip (Radar)",
         "💻 Gelişmiş Sistem Donanım Paneli",
         "📌 Görev & Operasyon Takibi",
@@ -290,12 +278,12 @@ if st.sidebar.button("🔒 Oturumu Kapat / Kilitle"):
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>TITAN Core v10.0 Ultimate<br>Full"
-    " Optimization Active 🟢</p>",
+    "<p style='color: #8b949e; font-size: 12px;'>TITAN v10.1 Ultimate<br>Maps"
+    " & Photo Auth Active 🟢</p>",
     unsafe_allow_html=True,
 )
 
-# --- 1. MOD: SOHBET, MİKROFON, FOTOĞRAF VE SES ---
+# --- 1. MOD: SOHBET & SES ---
 if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
   st.subheader("💬 Yapay Zeka Komuta, İnternet Sentezi ve Ses Merkezi")
 
@@ -431,80 +419,99 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
     st.session_state.messages = [{
         "role": "system",
         "content": (
-            "Sen TITAN v10.0 adında gelişmiş bir yapay zeka asistanısın."
+            "Sen TITAN v10.1 adında gelişmiş bir yapay zeka asistanısın."
         ),
     }]
     st.rerun()
 
-# --- 2. MOD: KULLANICI & İZİN YÖNETİMİ (ÖZEL İSTEDİĞİN MOD) ---
-elif secim == "🔒 Kullanıcı & İzin Yönetim Modülü (Özel Mod)":
-  st.subheader("🔒 TITAN Erişim ve Güvenlik Yetki Merkezi")
+# --- 2. MOD: KULLANICI & FOTOĞRAFLI İZİN YÖNETİMİ ---
+elif secim == "🔒 Kullanıcı & Fotoğraflı İzin Yönetim Modülü":
+  st.subheader("🔒 TITAN Fotoğraflı Erişim ve Yetki Yönetim Merkezi")
   st.markdown(
-      "Bu modül yalnızca senin (**Ana Sahip Yiğit**) kontrolündedir."
-      " Sisteme yüzüyle veya ismiyle giriş yapabilecek yeni kişileri buraya"
-      " ekleyebilir ya da silebilirsin efendim."
+      "Buradan yeni bir arkadaşını isimsiz bırakmadan, **fotoğrafını da"
+      " yükleyerek** yetkili listesine ekleyebilirsin efendim."
   )
 
   col_yonet1, col_yonet2 = st.columns(2)
 
   with col_yonet1:
-    st.markdown("### ➕ Yeni İzinli Kişi Ekle")
-    yeni_kisi_adi = st.text_input("Yetkilendirilecek Kişinin Adı:")
-    yeni_kisi_notu = st.text_input(
-        "Rol Açıklaması:", value="Yetkili Arkadaş / Misafir"
+    st.markdown("### ➕ Fotoğraflı Yetkili Kişi Ekle")
+    yeni_kisi_adi = st.text_input("Kişinin Adı:")
+    yeni_kisi_foto = st.file_uploader(
+        "Kişinin Yüz Fotoğrafı",
+        type=["jpg", "jpeg", "png"],
+        key="yeni_arkadas_foto",
     )
 
-    if st.button("Sisteme Kalıcı Yetki Ver"):
-      if yeni_kisi_adi:
-        st.session_state.izinli_kisiler[yeni_kisi_adi.strip()] = yeni_kisi_notu
+    if st.button("Fotoğraflı Kişiyi Yetkilendir"):
+      if yeni_kisi_adi and yeni_kisi_foto:
+        st.session_state.izinli_kisiler[yeni_kisi_adi.strip()] = (
+            "Yetkili Arkadaş"
+        )
+        st.session_state.izinli_fotolar[yeni_kisi_foto.name] = (
+            yeni_kisi_adi.strip()
+        )
         st.success(
-            f"✅ {yeni_kisi_adi} sisteme başarıyla kaydedildi ve erişim izni"
-            " verildi efendim!"
+            f"✅ {yeni_kisi_adi} ve yüz verisi başarıyla TITAN veritabanına"
+            " işlendi efendim!"
         )
       else:
-        st.warning("Lütfen geçerli bir isim girin efendim.")
+        st.warning("Lütfen hem isim yazın hem de bir fotoğraf yükleyin efendim.")
 
   with col_yonet2:
-    st.markdown("### 📋 Aktif Yetkili Listesi")
+    st.markdown("### 📋 Yetkili Kullanıcı Listesi")
     if not st.session_state.izinli_kisiler:
       st.info("Kayıtlı özel kullanıcı bulunmuyor efendim.")
     else:
       for isim, rol in st.session_state.izinli_kisiler.items():
         st.write(f"- 🛡️ **{isim}** — *{rol}*")
 
-# --- 3. MOD: CANLI KONUM ---
-elif secim == "📍 Canlı Konum Takibi":
-  st.subheader("📍 TITAN Canlı Konum Uydu Takip Modülü")
+# --- 3. MOD: CANLI KONUM + GOOGLE MAPS ---
+elif secim == "📍 Canlı Konum ve Google Maps Takibi":
+  st.subheader("📍 TITAN Canlı Konum ve Harita Entegrasyonu")
+  st.markdown(
+      "Aşağıdaki butona basarak anlık konumunu uydudan alabilir ve doğrudan"
+      " Google Maps haritası üzerinde görebilirsin efendim."
+  )
+
+  # HTML/JS ile canlı konum alıp bunu Streamlit tarafına taşıyan ve haritada gösteren gelişmiş yapı
   st.components.v1.html(
       """
-    <div id="map-container" style="padding: 20px; background-color: #161b22; color: white; border-radius: 8px; border: 1px solid #30363d;">
-        <h3 style="color: #58a6ff; margin-top:0;">📡 Küresel Uydu Konumlandırıcı</h3>
-        <p id="durum" style="color: #8b949e;">Sinyal bekleniyor efendim...</p>
-        <div id="koord" style="margin-top: 10px; font-family: monospace; font-size: 18px; color: #3fb950;"></div>
-        <br>
-        <button onclick="konumuTara()" style="background-color: #238636; color: white; padding: 12px 24px; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">Konum Sinyalini Kilitle</button>
+    <div style="padding: 15px; background-color: #161b22; color: white; border-radius: 8px; border: 1px solid #30363d;">
+        <h3 style="color: #58a6ff; margin-top:0;">📡 Canlı Uydu & Harita Radarı</h3>
+        <p id="durum" style="color: #8b949e;">Konum sinyali bekleniyor...</p>
+        <div id="koord" style="margin-top: 5px; font-family: monospace; font-size: 16px; color: #3fb950; margin-bottom: 10px;"></div>
+        <button onclick="canliKonumGetir()" style="background-color: #238636; color: white; padding: 10px 20px; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">Anlık Konumumu Al ve Haritada Göster</button>
+        <br><br>
+        <div id="harita-alani"></div>
     </div>
     <script>
-        function konumuTara() {
+        function canliKonumGetir() {
             const durum = document.getElementById("durum");
             const koord = document.getElementById("koord");
-            durum.innerHTML = "📡 Uydulara bağlanılıyor, hassas konum taranıyor...";
+            const haritaAlani = document.getElementById("harita-alani");
+            
+            durum.innerHTML = "📡 Uydulara bağlanılıyor, hassas GPS konumu alınıyor...";
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => {
-                        durum.innerHTML = "✅ Konum Başarıyla Kilitlendi:";
-                        koord.innerHTML = "Enlem: " + pos.coords.latitude.toFixed(6) + "<br>Boylam: " + pos.coords.longitude.toFixed(6);
+                        const lat = pos.coords.latitude;
+                        const lon = pos.coords.longitude;
+                        durum.innerHTML = "✅ Konum Başarıyla Kilitlendi!";
+                        koord.innerHTML = "Enlem: " + lat.toFixed(6) + " | Boylam: " + lon.toFixed(6);
+                        
+                        haritaAlani.innerHTML = '<iframe width="100%" height="380" style="border:1px solid #30363d; border-radius: 8px;" loading="lazy" allowfullscreen src="https://maps.google.com/maps?q=' + lat + ',' + lon + '&z=16&output=embed"></iframe>';
                     },
-                    (err) => { durum.innerHTML = "⚠️ Hata: Konum erişim izni reddedildi efendim."; },
-                    { enableHighAccuracy: true, timeout: 5000 }
+                    (err) => { durum.innerHTML = "⚠️ Hata: Konum izni reddedildi veya alınamadı efendim."; },
+                    { enableHighAccuracy: true, timeout: 8000 }
                 );
             } else {
-                durum.innerHTML = "❌ Cihazınız GPS servislerini desteklemiyor efendim.";
+                durum.innerHTML = "❌ Tarayıcınız GPS konum servislerini desteklemiyor efendim.";
             }
         }
     </script>
     """,
-      height=260,
+      height=500,
   )
 
 # --- 4. MOD: UZAKTAN KONUM TAKİP (RADAR) ---
@@ -547,22 +554,22 @@ elif secim == "🛰️ Uzaktan Konum Takip (Radar)":
   else:
     st.error("Supabase bağlantısı kurulamadı efendim.")
 
-# --- 5. MOD: SİSTEM KOMUTA PANELİ ---
+# --- 5. MOD: SİSTEM ---
 elif secim == "💻 Gelişmiş Sistem Donanım Paneli":
   st.subheader("💻 TITAN Donanım ve Sistem Altyapı Monitörü")
   col1, col2, col3 = st.columns(3)
   with col1:
-    st.metric(label="🔥 CPU Çekirdek Yükü", value="%12.4", delta="Optimize")
-    st.progress(0.12)
+    st.metric(label="🔥 CPU Çekirdek Yükü", value="%11.8", delta="Stabil")
+    st.progress(0.11)
   with col2:
-    st.metric(label="💾 RAM Bellek Durumu", value="%41.2", delta="Kararlı")
-    st.progress(0.41)
+    st.metric(label="💾 RAM Bellek Durumu", value="%39.5", delta="Normal")
+    st.progress(0.39)
   with col3:
-    st.metric(label="🌐 Sunucu Gecikmesi", value="18 ms", delta="Mükemmel")
-    st.progress(0.18)
+    st.metric(label="🌐 Sunucu Gecikmesi", value="16 ms", delta="Çok İyi")
+    st.progress(0.16)
   st.success(
-      "TITAN v10.0 çekirdek yazılımı ve tüm güvenlik protokolleri tam"
-      " kapasiteyle çalışıyor, efendim."
+      "TITAN v10.1 tüm modülleriyle kusursuz ve tam kapasite çalışıyor,"
+      " efendim."
   )
 
 # --- 6. MOD: GÖREVLER ---

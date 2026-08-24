@@ -221,7 +221,7 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v5.7<br>Durum:"
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v5.8<br>Durum:"
     " Çevrimiçi & Güvenli 🟢</p>",
     unsafe_allow_html=True,
 )
@@ -440,8 +440,8 @@ elif secim == "🛰️ Uzaktan Konum Takip (Radar)":
   )
   st.markdown(
       "<p style='color: #8b949e; font-size: 14px;'>Supabase'den gelen"
-      " koordinatlar artık Google Maps altyapısıyla haritalandırılıyor ve"
-      " sokak/bina bilgileri çözümleniyor efendim.</p>",
+      " `enlem` ve `boylam` değerleri Google Maps altyapısıyla haritalandırılıyor"
+      " efendim.</p>",
       unsafe_allow_html=True,
   )
 
@@ -468,9 +468,10 @@ elif secim == "🛰️ Uzaktan Konum Takip (Radar)":
 
         # En son gelen konumu baz alalım
         son_konum = data[0]
-        if "latitude" in son_konum and "longitude" in son_konum:
-          lat = son_konum["latitude"]
-          lon = son_konum["longitude"]
+        # Tablodaki sütun isimleri 'enlem' ve 'boylam' olduğu için onlara bakıyoruz:
+        if "enlem" in son_konum and "boylam" in son_konum:
+          lat = son_konum["enlem"]
+          lon = son_konum["boylam"]
 
           st.info(
               f"🎯 Son Hedef Koordinatları -> Enlem: `{lat}` | Boylam: `{lon}`"
@@ -490,7 +491,7 @@ elif secim == "🛰️ Uzaktan Konum Takip (Radar)":
           st.components.v1.html(maps_html, height=420)
         else:
           st.warning(
-              "Tabloda `latitude` ve `longitude` sütunları bulunamadı efendim."
+              "Tabloda `enlem` ve `boylam` sütunları bulunamadı efendim."
           )
 
       else:

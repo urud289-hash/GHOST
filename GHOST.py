@@ -1,111 +1,54 @@
 import base64
+import json
 import os
+from duckduckgo_search import DDGS
 import pandas as pd
 from openai import OpenAI
 from PIL import Image
 import streamlit as st
 from supabase import Client, create_client
 
-# Sayfa Yapılandırması (Mobil ve Geniş Ekran Optimizasyonlu)
+# Sayfa Yapılandırması (Geniş Ekran)
 st.set_page_config(
     page_title="GHOST AI - Ultimate Komuta Merkezi", page_icon="👻", layout="wide"
 )
 
-# --- GELİŞMİŞ SİBER ARAYÜZ STİLLERİ VE SABİT ALT GİRİŞ ÇUBUĞU CSS ---
+# --- SİBER ARAYÜZ VE STİLLER ---
 st.markdown(
     """
 <style>
-    /* Genel Arka Plan ve Metin Renkleri */
-    .stApp { 
-        background-color: #0b0f19; 
-        color: #f0f6fc; 
-    }
-    
-    /* Kenar Çubuğu (Sidebar) Tasarımı */
-    [data-testid="stSidebar"] { 
-        background-color: #0d1117; 
-        border-right: 1px solid #30363d; 
-    }
-    
-    /* Başlıklar */
-    h1, h2, h3 { 
-        color: #58a6ff !important; 
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-    }
-    
-    /* Tipografi Optimizasyonu (Kalın ve Okunaklı) */
-    p, span, label, div, .stMarkdown { 
-        font-weight: 600 !important; 
-    }
-    
-    /* Alt Bilgi Gizleme */
+    .stApp { background-color: #0b0f19; color: #f0f6fc; }
+    [data-testid="stSidebar"] { background-color: #0d1117; border-right: 1px solid #30363d; }
+    h1, h2, h3 { color: #58a6ff !important; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    p, span, label, div, .stMarkdown { font-weight: 600 !important; }
     footer { visibility: hidden; }
     
-    /* Sohbet Akış Alanı ve Sabit Alt Panel Düzenlemesi */
-    [data-testid="stChatMessageContainer"] {
-        padding-bottom: 120px !important;
-    }
-    
-    /* st.chat_input ve alt paneli ekranın altına sabitleme */
-    [data-testid="stBottom"], [data-testid="stBottomBlockContainer"] {
-        background-color: #0b0f19 !important;
-        position: fixed !important;
-        bottom: 0 !important;
-        width: 100% !important;
-        z-index: 99999 !important;
-        border-top: 1px solid #30363d;
-        padding-top: 10px !important;
-        padding-bottom: 15px !important;
-    }
-    
-    /* Özel Buton Stilleri */
     .stButton>button {
         background: linear-gradient(135deg, #238636, #2ea043);
-        color: white; 
-        border-radius: 8px; 
-        border: 1px solid #3fb950; 
-        font-weight: 700; 
-        padding: 0.5rem 1rem;
-        width: 100%;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        transition: all 0.3s ease;
+        color: white; border-radius: 8px; border: 1px solid #3fb950; 
+        font-weight: 700; padding: 0.5rem 1rem; width: 100%;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: all 0.3s ease;
     }
     .stButton>button:hover { 
         background: linear-gradient(135deg, #2ea043, #3fb950);
-        box-shadow: 0 6px 8px rgba(35,134,54,0.4);
-        border-color: #56d364;
+        box-shadow: 0 6px 8px rgba(35,134,54,0.4); border-color: #56d364;
     }
-    
-    /* Veri Çerçevesi (DataFrame) ve Tablo Çerçeveleri */
-    [data-testid="stDataFrame"] {
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        background-color: #161b22;
-    }
-    
-    /* Metin Giriş Kutuları */
-    .stTextInput input, .stChatInput input {
-        background-color: #161b22 !important;
-        color: #ffffff !important;
-        border: 1px solid #30363d !important;
-        border-radius: 6px !important;
-        font-weight: 700 !important;
-    }
-    .stTextInput input:focus, .stChatInput input:focus {
-        border-color: #58a6ff !important;
-        box-shadow: 0 0 5px rgba(88,166,255,0.4);
+    [data-testid="stDataFrame"] { border: 1px solid #30363d; border-radius: 8px; background-color: #161b22; }
+    .stTextInput input {
+        background-color: #161b22 !important; color: #ffffff !important;
+        border: 1px solid #30363d !important; border-radius: 6px !important; font-weight: 700 !important;
     }
 </style>
 """,
     unsafe_allow_html=True,
 )
 
-# API Anahtarı ve Güncel Model Tanımı
+# API Anahtarı ve Model Tanımı
 API_KEY = "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"
 client = OpenAI(api_key=API_KEY, base_url="https://api.groq.com/openai/v1")
 MODEL_NAME = "openai/gpt-oss-120b"
 
-# --- SUPABASE BAĞLANTI MERKEZİ ---
+# --- SUPABASE BAĞLANTISI ---
 SUPABASE_URL = "https://luzzmraohsaqajinnyhk.supabase.co"
 SUPABASE_KEY = "sb_publishable_Z8MQbBctodUb7jiwiEiigw_eYANG9JW"
 
@@ -120,14 +63,15 @@ def init_supabase(url, key):
 
 supabase = init_supabase(SUPABASE_URL, SUPABASE_KEY)
 
-# Hafıza ve Durum Yönetimi
+# Hafıza Yönetimi
 if "messages" not in st.session_state:
   st.session_state.messages = [{
       "role": "system",
       "content": (
-          "Sen gelişmiş bir yapay zeka asistanı olan GHOST'sun. Matematik"
-          " ödevlerini adım adım çözer, bilgisayar hatalarını ve içerikleri"
-          " analiz edip yardımcı olursun. Her zaman 'efendim' diye hitap et."
+          "Sen gelişmiş ve gerçek zamanlı internet erişimi olan bir yapay zeka"
+          " asistanı olan GHOST'sun. Her zaman 'efendim' diye hitap et ve"
+          " kullanıcının güncel soru isteklerinde web araması sonuçlarını"
+          " kullan."
       ),
   }]
 if "gorevler" not in st.session_state:
@@ -135,24 +79,54 @@ if "gorevler" not in st.session_state:
 if "yuz_hafizasi" not in st.session_state:
   st.session_state.yuz_hafizasi = {}
 
-# --- GELİŞTİRİLMİŞ SES VE MİKROFON MOTORU (Microsoft Edge - Ahmet Ses Desteği) ---
+
+# --- GERÇEK ZAMANLI İNTERNET ARAMA MOTORU (TOOL) ---
+def internette_ara(sorgu):
+  """İnternette güncel bilgi veya haber aramak için kullanılır."""
+  try:
+    results = DDGS().text(sorgu, max_results=3)
+    if results:
+      return json.dumps(results, ensure_ascii=False)
+    return "Arama sonucu bulunamadı efendim."
+  except Exception as e:
+    return f"Arama yapılırken bir hata oluştu: {str(e)}"
+
+
+# Fonksiyon Tanımı (Groq Tool Schema)
+tools = [{
+    "type": "function",
+    "function": {
+        "name": "internette_ara",
+        "description": (
+            "İnternette güncel haberleri, bilgileri veya gerçek zamanlı"
+            " verileri arar."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "sorgu": {
+                    "type": "string",
+                    "description": "Aranacak anahtar kelimeler veya soru.",
+                }
+            },
+            "required": ["sorgu"],
+        },
+    },
+}]
+
+# --- SES VE MİKROFON MOTORU ---
 st.markdown(
     """
 <script>
     function ghostKonus(metin) {
-        if (!('speechSynthesis' in window)) {
-            alert("Tarayıcınız ses sentezleme özelliğini desteklemiyor efendim.");
-            return;
-        }
+        if (!('speechSynthesis' in window)) return;
         window.speechSynthesis.cancel();
-        
         var msg = new SpeechSynthesisUtterance(metin);
         msg.lang = 'tr-TR';
         msg.rate = 1.0;
         
         var voices = window.speechSynthesis.getVoices();
         let selectedVoice = null;
-        
         for(var i = 0; i < voices.length; i++) {
             var vName = voices[i].name.toLowerCase();
             if(vName.includes('ahmet') || vName.includes('turkish male') || (vName.includes('microsoft') && vName.includes('tr'))) {
@@ -160,70 +134,44 @@ st.markdown(
                 break;
             }
         }
-        
         if (!selectedVoice) {
             for(var i = 0; i < voices.length; i++) {
-                if(voices[i].lang === 'tr-TR' || voices[i].lang === 'tr_TR') {
-                    selectedVoice = voices[i];
-                    break;
-                }
+                if(voices[i].lang.startsWith('tr')) { selectedVoice = voices[i]; break; }
             }
         }
-        
-        if (selectedVoice) {
-            msg.voice = selectedVoice;
-        }
-        
+        if (selectedVoice) msg.voice = selectedVoice;
         window.speechSynthesis.speak(msg);
     }
 
     if ('speechSynthesis' in window) {
-        window.speechSynthesis.onvoiceschanged = function() {
-            window.speechSynthesis.getVoices();
-        };
+        window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
     }
 
     function sesliKomutBaslat() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-            alert("Tarayıcınız sesli komut özelliğini desteklemiyor efendim.");
+            alert("Tarayıcınız sesli komutu desteklemiyor efendim.");
             return;
         }
-
         try {
             var recognition = new SpeechRecognition();
             recognition.lang = 'tr-TR';
             recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-            
             recognition.onresult = function(event) {
                 var sesMetni = event.results[0][0].transcript;
                 const inputs = window.parent.document.querySelectorAll('input[type="text"], input');
-                let targetInput = null;
-                for (let input of inputs) {
-                    if (input.placeholder && input.placeholder.includes("GHOST")) {
-                        targetInput = input;
-                        break;
-                    }
-                }
-                if (!targetInput && inputs.length > 0) {
-                    targetInput = inputs[inputs.length - 1];
-                }
-
+                let targetInput = inputs[inputs.length - 1];
                 if (targetInput) {
                     let setter = Object.getOwnPropertyDescriptor(window.parent.HTMLInputElement.prototype, "value").set;
                     setter.call(targetInput, sesMetni);
                     targetInput.dispatchEvent(new Event('input', { bubbles: true }));
                     setTimeout(() => {
                         targetInput.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', code: 'Enter', keyCode: 13, bubbles: true}));
-                    }, 400);
+                    }, 300);
                 }
             };
-
             recognition.start();
-        } catch(e) {
-            alert("Mikrofon başlatılamadı: " + e.message);
-        }
+        } catch(e) { alert("Mikrofon hatası: " + e.message); }
     }
 </script>
 """,
@@ -232,7 +180,7 @@ st.markdown(
 
 st.title("👻 GHOST AI - Ultimate Komuta ve Takip Merkezi")
 
-# --- KENAR ÇUBUĞU MENÜSÜ ---
+# --- KENAR ÇUBUĞU ---
 st.sidebar.markdown(
     "<h3 style='font-weight: 800; color: #58a6ff;'>⚙️ GHOST Operasyon"
     " Menüsü</h3>",
@@ -253,23 +201,25 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.1<br>Durum:"
-    " Çevrimiçi & Güvenli 🟢</p>",
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.2<br>Web"
+    " Arama Modülü Aktif 🟢</p>",
     unsafe_allow_html=True,
 )
 
-# --- 1. MOD: SOHBET, MİKROFON, FOTOĞRAF ANALİZİ VE SES ---
+# --- 1. MOD: SOHBET, MİKROFON, FOTOĞRAF VE GERÇEK ZAMANLI ARAMA ---
 if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
-  st.subheader("💬 Sohbet, Fotoğraf Analizi ve Sesli Yanıt Merkezi")
+  st.subheader(
+      "💬 Sohbet, Gerçek Zamanlı Web Araması, Fotoğraf Analizi ve Ses"
+  )
   st.markdown(
-      "<p style='color: #8b949e; font-size: 14px;'>Matematik ödevi, ekran"
-      " hatası veya herhangi bir görsel yükleyip GHOST'a analitik çözümler"
-      " yaptırabilirsin efendim.</p>",
+      "<p style='color: #8b949e; font-size: 14px;'>GHOST artık güncel bilgilere"
+      " ve internetteki gerçek zamanlı verilere doğrudan erişebiliyor"
+      " efendim.</p>",
       unsafe_allow_html=True,
   )
 
   for i, message in enumerate(st.session_state.messages):
-    if message["role"] != "system":
+    if message["role"] != "system" and message["role"] != "tool":
       with st.chat_message(message["role"]):
         content = message["content"]
         if isinstance(content, list):
@@ -282,7 +232,8 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
                 if img_url:
                   st.image(img_url, width=300)
         else:
-          st.markdown(f"**{str(content)}**")
+          if content:
+            st.markdown(f"**{str(content)}**")
 
         if message["role"] == "assistant":
           metin_icerik = (
@@ -300,20 +251,10 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
                 f'<script>ghostKonus("{temiz_metin}");</script>', height=0
             )
 
-  # Alt boşluk (mesajların sabit panel altında kalmaması için)
-  st.markdown("<div style='margin-bottom: 80px;'></div>", unsafe_allow_html=True)
-
-  # --- SABİT ALT KONTROL PANELİ (Mikrofon -> Kamera -> Yazı Alanı) ---
-  col_mic, col_cam, col_input = st.columns([0.5, 0.5, 5.0])
-
+  col_mic, col_cam, col_input = st.columns([0.5, 0.5, 6.0])
   with col_mic:
-    st.markdown(
-        "<div style='margin-top: 28px;'></div>", unsafe_allow_html=True
-    )
     if st.button("🎙️", help="Sesli Konuş"):
-      st.components.v1.html(
-          "<script>sesliKomutBaslat();</script>", height=0
-      )
+      st.components.v1.html("<script>sesliKomutBaslat();</script>", height=0)
       st.toast("Dinliyorum efendim...", icon="🎙️")
 
   with col_cam:
@@ -324,12 +265,10 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
         help="Fotoğraf Yükle",
     )
 
-  with col_input:
-    prompt = st.chat_input("GHOST'a mesajını yaz efendim...")
+  prompt = st.chat_input("GHOST'a mesajını yaz efendim...")
 
   if prompt or yuklenen_dosya:
     user_content = []
-
     if yuklenen_dosya:
       bytes_data = yuklenen_dosya.getvalue()
       base64_image = base64.b64encode(bytes_data).decode("utf-8")
@@ -354,13 +293,48 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
     with st.chat_message("assistant"):
       message_placeholder = st.empty()
       try:
+        # İlk İstek (Tool kullanımı dahil)
         response = client.chat.completions.create(
-            model=MODEL_NAME, messages=st.session_state.messages
+            model=MODEL_NAME,
+            messages=st.session_state.messages,
+            tools=tools,
+            tool_choice="auto",
         )
-        full_response = response.choices[0].message.content
+
+        response_message = response.choices[0].message
+
+        # Model bir arama yapmak istiyor mu kontrol et
+        if response_message.tool_calls:
+          st.session_state.messages.append(response_message)
+
+          for tool_call in response_message.tool_calls:
+            function_name = tool_call.function.name
+            if function_name == "internette_ara":
+              function_args = json.loads(tool_call.function.arguments)
+              arama_sorgusu = function_args.get("sorgu")
+
+              st.toast(
+                  f"🔍 İnternette aranıyor: '{arama_sorgusu}'", icon="🌐"
+              )
+              arama_sonucu = internette_ara(arama_sorgusu)
+
+              st.session_state.messages.append({
+                  "tool_call_id": tool_call.id,
+                  "role": "tool",
+                  "name": function_name,
+                  "content": arama_sonucu,
+              })
+
+          # İkinci İstek (Arama sonuçlarını modele verip nihai yanıtı alma)
+          second_response = client.chat.completions.create(
+              model=MODEL_NAME, messages=st.session_state.messages
+          )
+          full_response = second_response.choices[0].message.content
+        else:
+          full_response = response_message.content
+
         message_placeholder.markdown(f"**{full_response}**")
 
-        # Microsoft Edge Ahmet Sesiyle otomatik okuma
         temiz_yanit = (
             full_response.replace('"', "'")
             .replace("\n", " ")
@@ -375,12 +349,15 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
         )
         st.rerun()
       except Exception as e:
-        st.error(f"Bağlantı hatası: {e}")
+        st.error(f"Bağlantı veya Arama hatası: {e}")
 
   if st.sidebar.button("Sohbet Hafızasını Sıfırla"):
     st.session_state.messages = [{
         "role": "system",
-        "content": "Sen gelişmiş bir yapay zeka asistanı olan GHOST'sun.",
+        "content": (
+            "Sen gelişmiş ve gerçek zamanlı internet erişimi olan bir yapay"
+            " zeka asistanı olan GHOST'sun."
+        ),
     }]
     st.rerun()
 
@@ -453,22 +430,18 @@ elif secim == "📍 Canlı Konum Takibi":
         <br>
         <button onclick="konumuTara()" style="background-color: #238636; color: white; padding: 12px 24px; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">Sinyal Al ve Konumla</button>
     </div>
-    
     <script>
         function konumuTara() {
             const durum = document.getElementById("durum");
             const koord = document.getElementById("koord");
             durum.innerHTML = "📡 Uydulara bağlanılıyor, lütfen bekleyin efendim...";
-            
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => {
                         durum.innerHTML = "✅ Bağlantı Başarılı. Koordinatlar alındı:";
                         koord.innerHTML = "Lat: " + pos.coords.latitude.toFixed(6) + "<br>Lon: " + pos.coords.longitude.toFixed(6);
                     },
-                    (err) => {
-                        durum.innerHTML = "⚠️ Hata: Konum izni reddedildi efendim.";
-                    },
+                    (err) => { durum.innerHTML = "⚠️ Hata: Konum izni reddedildi efendim."; },
                     { enableHighAccuracy: true, timeout: 5000 }
                 );
             } else {
@@ -480,18 +453,9 @@ elif secim == "📍 Canlı Konum Takibi":
       height=250,
   )
 
-# --- 4. MOD: UZAKTAN KONUM TAKİP (RADAR, SUPABASE & GOOGLE MAPS) ---
+# --- 4. MOD: UZAKTAN KONUM TAKİP (RADAR) ---
 elif secim == "🛰️ Uzaktan Konum Takip (Radar)":
-  st.subheader(
-      "🛰️ GHOST Uzaktan Hedef Konum, Sokak & Google Maps Radar Modülü"
-  )
-  st.markdown(
-      "<p style='color: #8b949e; font-size: 14px;'>Supabase'den gelen"
-      " `enlem` ve `boylam` değerleri Google Maps altyapısıyla haritalandırılıyor"
-      " efendim.</p>",
-      unsafe_allow_html=True,
-  )
-
+  st.subheader("🛰️ GHOST Uzaktan Hedef Konum & Google Maps Radar Modülü")
   if st.button("🔄 Radar Verilerini Yenile"):
     st.rerun()
 
@@ -508,47 +472,23 @@ elif secim == "🛰️ Uzaktan Konum Takip (Radar)":
       if data:
         df = pd.DataFrame(data)
         st.dataframe(df, use_container_width=True)
-
-        st.markdown(
-            "### 🗺️ Google Maps Entegreli Canlı Hedef Nokta Gösterimi:"
-        )
-
         son_konum = data[0]
         if "enlem" in son_konum and "boylam" in son_konum:
           lat = son_konum["enlem"]
           lon = son_konum["boylam"]
-
           st.info(
               f"🎯 Son Hedef Koordinatları -> Enlem: `{lat}` | Boylam: `{lon}`"
           )
-
           maps_html = f"""
-                    <iframe
-                        width="100%"
-                        height="400"
-                        style="border:1px solid #30363d; border-radius: 8px;"
-                        loading="lazy"
-                        allowfullscreen
-                        src="https://maps.google.com/maps?q={lat},{lon}&z=16&output=embed">
-                    </iframe>
+                    <iframe width="100%" height="400" style="border:1px solid #30363d; border-radius: 8px;" loading="lazy" allowfullscreen src="https://maps.google.com/maps?q={lat},{lon}&z=16&output=embed"></iframe>
                     """
           st.components.v1.html(maps_html, height=420)
-        else:
-          st.warning(
-              "Tabloda `enlem` ve `boylam` sütunları bulunamadı efendim."
-          )
-
       else:
-        st.warning(
-            "⚠️ Henüz `konum_takip` tablosuna düşmüş bir sinyal bulunmuyor"
-            " efendim."
-        )
+        st.warning("⚠️ Henüz `konum_takip` tablosunda sinyal yok efendim.")
     except Exception as ex:
-      st.error(f"Radar / Harita bağlantı hatası: {ex}")
+      st.error(f"Radar / Harita hatası: {ex}")
   else:
-    st.error(
-        "Supabase bağlantısı kurulamadı efendim. API anahtarlarını kontrol edin."
-    )
+    st.error("Supabase bağlantısı kurulamadı efendim.")
 
 # --- 5. MOD: SİSTEM ---
 elif secim == "💻 Sistem Komuta Paneli":
@@ -563,9 +503,7 @@ elif secim == "💻 Sistem Komuta Paneli":
   with col3:
     st.metric(label="🌐 Ağ Gecikmesi", value="24 ms", delta="Çok İyi")
     st.progress(0.24)
-  st.success(
-      "Sistem altyapısı ve tüm alt rutinler kusursuz çalışıyor, efendim."
-  )
+  st.success("Sistem altyapısı ve tüm alt rutinler kusursuz çalışıyor, efendim.")
 
 # --- 6. MOD: GÖREVLER ---
 else:

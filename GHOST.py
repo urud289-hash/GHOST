@@ -38,19 +38,24 @@ st.markdown(
         font-weight: 600 !important; 
     }
     
-    /* Alt Bilgi Gizleme ve Koyu Tema Sabitleme */
+    /* Alt Bilgi Gizleme */
     footer { visibility: hidden; }
     
-    /* Alt Giriş Alanını Ekranın Altında Sabitleme (Fixed Chat Bar) */
+    /* Sohbet Akış Alanı ve Sabit Alt Panel Düzenlemesi */
+    [data-testid="stChatMessageContainer"] {
+        padding-bottom: 120px !important;
+    }
+    
+    /* st.chat_input ve alt paneli ekranın altına sabitleme */
     [data-testid="stBottom"], [data-testid="stBottomBlockContainer"] {
         background-color: #0b0f19 !important;
         position: fixed !important;
         bottom: 0 !important;
         width: 100% !important;
         z-index: 99999 !important;
-        padding-top: 10px !important;
-        padding-bottom: 10px !important;
         border-top: 1px solid #30363d;
+        padding-top: 10px !important;
+        padding-bottom: 15px !important;
     }
     
     /* Özel Buton Stilleri */
@@ -148,7 +153,6 @@ st.markdown(
         var voices = window.speechSynthesis.getVoices();
         let selectedVoice = null;
         
-        // Microsoft Edge 'Ahmet' veya Türkçe erkek sesini arama
         for(var i = 0; i < voices.length; i++) {
             var vName = voices[i].name.toLowerCase();
             if(vName.includes('ahmet') || vName.includes('turkish male') || (vName.includes('microsoft') && vName.includes('tr'))) {
@@ -249,7 +253,7 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.0<br>Durum:"
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.1<br>Durum:"
     " Çevrimiçi & Güvenli 🟢</p>",
     unsafe_allow_html=True,
 )
@@ -296,9 +300,10 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
                 f'<script>ghostKonus("{temiz_metin}");</script>', height=0
             )
 
-  st.markdown("<div style='margin-bottom: 100px;'></div>", unsafe_allow_html=True)
+  # Alt boşluk (mesajların sabit panel altında kalmaması için)
+  st.markdown("<div style='margin-bottom: 80px;'></div>", unsafe_allow_html=True)
 
-  # --- İSTEDİĞİN DÜZEN: MİKROFON -> KAMERA -> MESAJ YAZMA ALANI ---
+  # --- SABİT ALT KONTROL PANELİ (Mikrofon -> Kamera -> Yazı Alanı) ---
   col_mic, col_cam, col_input = st.columns([0.5, 0.5, 5.0])
 
   with col_mic:
@@ -355,7 +360,7 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
         full_response = response.choices[0].message.content
         message_placeholder.markdown(f"**{full_response}**")
 
-        # Yanıt geldiğinde Microsoft Edge Ahmet sesi ile otomatik sesli okuma tetiklemesi
+        # Microsoft Edge Ahmet Sesiyle otomatik okuma
         temiz_yanit = (
             full_response.replace('"', "'")
             .replace("\n", " ")

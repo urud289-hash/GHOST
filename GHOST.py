@@ -13,7 +13,7 @@ st.set_page_config(
     page_title="GHOST AI - Ultimate Komuta Merkezi", page_icon="👻", layout="wide"
 )
 
-# --- SİBER ARAYÜZ VE SABİT ALT CHAT ÇUBUĞU STİLLERİ ---
+# --- SİBER ARAYÜZ VE GEMİNİ TARZI AÇIK RENK GİRİŞ ÇUBUĞU STİLLERİ ---
 st.markdown(
     """
 <style>
@@ -28,10 +28,10 @@ st.markdown(
         max-height: calc(100vh - 240px);
         overflow-y: auto;
         padding-right: 10px;
-        margin-bottom: 110px;
+        margin-bottom: 120px;
     }
     
-    /* Sabit Alt Siyah Komuta Kutusu */
+    /* Sabit Alt Kutu (Gemini Tarzı Şık Gri/Açık Alan) */
     .fixed-bottom-bar {
         position: fixed;
         bottom: 0;
@@ -41,10 +41,25 @@ st.markdown(
         border-top: 2px solid #30363d;
         padding: 15px 25px;
         z-index: 99999;
-        box-shadow: 0 -4px 15px rgba(0,0,0,0.7);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.8);
         display: flex;
         align-items: center;
-        gap: 15px;
+        justify-content: center;
+    }
+    
+    /* Streamlit Input Alanını Gemini Tarzı Açık Gri Yapma ve Harfleri Siyah/Kalın Yapma */
+    .stTextInput input {
+        background-color: #e3e8ee !important; 
+        color: #000000 !important; 
+        border: 1px solid #cbd5e1 !important; 
+        border-radius: 24px !important; 
+        font-weight: 800 !important; 
+        font-size: 16px !important;
+        padding: 12px 20px !important;
+    }
+    .stTextInput input::placeholder {
+        color: #475569 !important;
+        font-weight: 700 !important;
     }
     
     .stButton>button {
@@ -193,8 +208,8 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.6<br>Kutunun"
-    " İçine Gömülü Sabit Çubuk 🟢</p>",
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.7<br>Gemini"
+    " Tarzı Siyah Kalın Yazı Aktif 🟢</p>",
     unsafe_allow_html=True,
 )
 
@@ -240,9 +255,17 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
 
   st.markdown("</div>", unsafe_allow_html=True)
 
-  # SABİT ALT SİYAH KUTU VE İÇİNDEKİ KUSURSUZ ELEMANLAR
+  # SABİT ALT SİYAH KUTU VE GEMİNİ TARZI İÇ ELEMANLAR (+ Simgesi, Açık Gri Kutu, Siyah Kalın Yazı, Mikrofon)
   st.markdown('<div class="fixed-bottom-bar">', unsafe_allow_html=True)
-  col_mic, col_cam, col_input = st.columns([0.4, 0.4, 6.2])
+  col_plus, col_mic, col_cam, col_input = st.columns([0.3, 0.3, 0.3, 6.3])
+
+  with col_plus:
+    st.markdown(
+        "<h2"
+        " style='color:#94a3b8; margin:0; text-align:center; cursor:pointer;'"
+        " title='Dosya Ekle'>➕</h2>",
+        unsafe_allow_html=True,
+    )
 
   with col_mic:
     if st.button("🎙️", help="Sesli Konuş"):

@@ -13,7 +13,7 @@ st.set_page_config(
     page_title="GHOST AI - Ultimate Komuta Merkezi", page_icon="👻", layout="wide"
 )
 
-# --- SİBER ARAYÜZ VE KESİN SABİT ALT ÇUBUK STİLLERİ ---
+# --- SİBER ARAYÜZ VE STİLLER ---
 st.markdown(
     """
 <style>
@@ -23,15 +23,15 @@ st.markdown(
     p, span, label, div, .stMarkdown { font-weight: 600 !important; }
     footer { visibility: hidden; }
     
-    /* Kaydırılabilir Sohbet Alanı (Alt çubuğun altında kalmaması için alt boşluk bırakıldı) */
+    /* Kaydırılabilir Sohbet Alanı */
     .chat-container {
-        height: calc(100vh - 220px);
+        height: calc(100vh - 200px);
         overflow-y: auto;
         padding-bottom: 100px;
         padding-right: 10px;
     }
     
-    /* Ekranın En Altına Mükemmel Şekilde Sabitlenen Komuta Kutusu */
+    /* Sabit Alt Kutu */
     .fixed-bottom-bar {
         position: fixed;
         bottom: 0;
@@ -112,7 +112,6 @@ if "yuz_hafizasi" not in st.session_state:
 
 # --- İNTERNET ARAMA FONKSİYONU ---
 def internette_ara(sorgu):
-  """İnternette güncel bilgi veya haber aramak için kullanılır."""
   try:
     results = DDGS().text(sorgu, max_results=3)
     if results:
@@ -205,8 +204,8 @@ secim = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.8<br>Sabit"
-    " Çubuk ve Güvenli Gönderim Aktif 🟢</p>",
+    "<p style='color: #8b949e; font-size: 12px;'>GHOST Ultimate v6.9<br>Kararlı"
+    " Sohbet Akışı Aktif 🟢</p>",
     unsafe_allow_html=True,
 )
 
@@ -252,127 +251,83 @@ if secim == "💬 Yazılı, Mikrofon, Fotoğraf Analizi & Ses":
 
   st.markdown("</div>", unsafe_allow_html=True)
 
-  # SABİT ALT SİYAH KUTU (Ekranın en altında sabit durur, sohbeti bozmaz)
-  st.markdown('<div class="fixed-bottom-bar">', unsafe_allow_html=True)
-  col_plus, col_mic, col_cam, col_input = st.columns([0.3, 0.3, 0.3, 6.3])
+  # STANDART STREAMLIT CHAT GİRDİ ALANI (Döngü ve çakışma sorununu tamamen çözer)
+  prompt = st.chat_input("GHOST'a mesajını yaz efendim...")
 
-  with col_plus:
-    st.markdown(
-        "<h2"
-        " style='color:#94a3b8; margin:0; text-align:center; cursor:pointer;'"
-        " title='Dosya Ekle'>➕</h2>",
-        unsafe_allow_html=True,
-    )
-
-  with col_mic:
-    if st.button("🎙️", help="Sesli Konuş"):
-      st.components.v1.html("<script>sesliKomutBaslat();</script>", height=0)
-      st.toast("Dinliyorum efendim...", icon="🎙️")
-
-  with col_cam:
+  # DOSYA YÜKLEME İÇİN KÜÇÜK BİR ALAN
+  with st.expander("📸 Fotoğraf veya Dosya Ekle (İsteğe Bağlı)"):
     yuklenen_dosya = st.file_uploader(
-        "📸",
-        type=["jpg", "jpeg", "png"],
-        label_visibility="collapsed",
-        help="Fotoğraf Yükle",
+        "Dosya Seç", type=["jpg", "jpeg", "png"], label_visibility="collapsed"
     )
 
-  with col_input:
-    prompt = st.text_input(
-        "Mesaj",
-        placeholder="GHOST'a mesajını yaz efendim...",
-        label_visibility="collapsed",
-        key="user_input_field",
-    )
-
-  st.markdown("</div>", unsafe_allow_html=True)
-
-  # MESAJ GÖNDERME VEYA DOSYA YÜKLEME İŞLEMLERİ (Döngü hatası önlendi)
   if prompt:
-    # Son mesaj kullanıcıdan gelenle aynı değilse işleme al (tekrarlı gönderimi önler)
-    son_mesaj_icerik = (
-        st.session_state.messages[-1]["content"]
-        if len(st.session_state.messages) > 1
-        else ""
-    )
-    if (
-        isinstance(son_mesaj_icerik, list)
-        and any(item.get("text") == prompt for item in son_mesaj_icerik)
-    ) or (son_mesaj_icerik == prompt):
-      pass
-    else:
-      user_content = []
+    user_content = []
+    if yuklenen_dosya:
+      bytes_data = yuklenen_dosya.getvalue()
+      base64_image = base64.b64encode(bytes_data).decode("utf-8")
+      image_url = f"data:image/jpeg;base64,{base64_image}"
+      user_content.append({"type": "image_url", "image_url": {"url": image_url}})
+
+    user_content.append({"type": "text", "text": prompt})
+    st.session_state.messages.append({"role": "user", "content": user_content})
+
+    with st.chat_message("user"):
       if yuklenen_dosya:
-        bytes_data = yuklenen_dosya.getvalue()
-        base64_image = base64.b64encode(bytes_data).decode("utf-8")
-        image_url = f"data:image/jpeg;base64,{base64_image}"
-        user_content.append(
-            {"type": "image_url", "image_url": {"url": image_url}}
+        st.image(yuklenen_dosya, width=300)
+      st.markdown(f"**{prompt}**")
+
+    with st.chat_message("assistant"):
+      message_placeholder = st.empty()
+      try:
+        response = client.chat.completions.create(
+            model=MODEL_NAME, messages=st.session_state.messages
+        )
+        full_response = response.choices[0].message.content
+
+        if any(
+            kelime in prompt.lower()
+            for kelime in [
+                "hava",
+                "kaç derece",
+                "bugün",
+                "haber",
+                "kimdir",
+                "nedir",
+                "fiyatı",
+            ]
+        ):
+          st.toast("🔍 İnternetten güncel veriler taranıyor...", icon="🌐")
+          ek_bilgi = internette_ara(prompt)
+          zenginlestirilmis_mesajlar = st.session_state.messages + [
+              {
+                  "role": "system",
+                  "content": (
+                      "İnternetten elde edilen güncel veriler şunlardır:"
+                      f" {ek_bilgi}. Bu bilgilere dayanarak yanıt ver."
+                  ),
+              }
+          ]
+          response_2 = client.chat.completions.create(
+              model=MODEL_NAME, messages=zenginlestirilmis_mesajlar
+          )
+          full_response = response_2.choices[0].message.content
+
+        message_placeholder.markdown(f"**{full_response}**")
+
+        temiz_yanit = (
+            full_response.replace('"', "'")
+            .replace("\n", " ")
+            .replace("*", "")
+        )
+        st.components.v1.html(
+            f'<script>ghostKonus("{temiz_yanit}");</script>', height=0
         )
 
-      user_content.append({"type": "text", "text": prompt})
-      st.session_state.messages.append(
-          {"role": "user", "content": user_content}
-      )
-
-      with st.chat_message("user"):
-        if yuklenen_dosya:
-          st.image(yuklenen_dosya, width=300)
-        st.markdown(f"**{prompt}**")
-
-      with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        try:
-          response = client.chat.completions.create(
-              model=MODEL_NAME, messages=st.session_state.messages
-          )
-          full_response = response.choices[0].message.content
-
-          if any(
-              kelime in prompt.lower()
-              for kelime in [
-                  "hava",
-                  "kaç derece",
-                  "bugün",
-                  "haber",
-                  "kimdir",
-                  "nedir",
-                  "fiyatı",
-              ]
-          ):
-            st.toast("🔍 İnternetten güncel veriler taranıyor...", icon="🌐")
-            ek_bilgi = internette_ara(prompt)
-            zenginlestirilmis_mesajlar = st.session_state.messages + [
-                {
-                    "role": "system",
-                    "content": (
-                        "İnternetten elde edilen güncel veriler şunlardır:"
-                        f" {ek_bilgi}. Bu bilgilere dayanarak yanıt ver."
-                    ),
-                }
-            ]
-            response_2 = client.chat.completions.create(
-                model=MODEL_NAME, messages=zenginlestirilmis_mesajlar
-            )
-            full_response = response_2.choices[0].message.content
-
-          message_placeholder.markdown(f"**{full_response}**")
-
-          temiz_yanit = (
-              full_response.replace('"', "'")
-              .replace("\n", " ")
-              .replace("*", "")
-          )
-          st.components.v1.html(
-              f'<script>ghostKonus("{temiz_yanit}");</script>', height=0
-          )
-
-          st.session_state.messages.append(
-              {"role": "assistant", "content": full_response}
-          )
-          st.rerun()
-        except Exception as e:
-          st.error(f"Bağlantı hatası: {e}")
+        st.session_state.messages.append(
+            {"role": "assistant", "content": full_response}
+        )
+      except Exception as e:
+        st.error(f"Bağlantı hatası: {e}")
 
   if st.sidebar.button("Sohbet Hafızasını Sıfırla"):
     st.session_state.messages = [{

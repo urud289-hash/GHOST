@@ -786,8 +786,14 @@ elif ana_secim == "🌍 Küresel Canlı Hava Durumu & Uydu Radarı":
   st.subheader(
       "🌍 JARVIS Küresel Atmosferik İstasyonu & Sınırsız Şehir Tarayıcı"
   )
-  hedef_ulke = st.text_input("🌐 Ülke Girin:", value="Türkiye")
-  hedef_sehir = st.text_input("🏙️ Şehir Girin:", value="Edirne")
+
+  # Hızlı Şehir Seçimi için Favoriler
+  col_fav1, col_fav2 = st.columns([3, 1])
+  with col_fav1:
+    hedef_sehir = st.text_input("🏙️ Şehir Girin:", value="Edirne")
+  with col_fav2:
+    hedef_ulke = st.text_input("🌐 Ülke:", value="Türkiye")
+
   sorgu_bolge = f"{hedef_sehir.strip()}, {hedef_ulke.strip()}"
 
   if st.button("Küresel Hava Durumu ve Değerleri Çek"):
@@ -796,28 +802,35 @@ elif ana_secim == "🌍 Küresel Canlı Hava Durumu & Uydu Radarı":
         " taranıyor..."
     ):
       ham_hava = titan_web_aramasi_yap(
-          f"{sorgu_bolge} hava durumu sıcaklık derece"
+          f"{sorgu_bolge} hava durumu sıcaklık derece yağış"
       )
       try:
         ozet_istek = client.chat.completions.create(
             model=MODEL_NAME,
-            messages=[{
-                "role": "system",
-                "content": (
-                    "Sen meteoroloji asistanısın. Verilen arama sonuçlarını"
-                    " analiz et ve şu 4 bilgiyi tam olarak şu formatta ver:"
-                    " SICAKLIK: [Örn: 24 °C] | YAGIS: [Örn: %10] | SIS: [Örn: Normal]"
-                    " | OZET: [Kısa cümle]"
-                ),
-            }, {
-                "role": "user",
-                "content": ham_hava,
-            }],
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Sen esprili ve akıllı bir hava durumu"
+                        " asistanısın. Verilen arama sonuçlarını analiz et ve"
+                        " şu formatta yanıt ver:\nSICAKLIK: [Örn: 24 °C] |"
+                        " YAGIS: [Örn: %10] | SIS: [Örn: Normal] | OZET: [Kısa"
+                        " cümle] | TAVSIYE: [Kullanıcıya esprili kıyafet veya"
+                        " aktivite önerisi, örn: Şemsiyeni kap, sırılsıklam"
+                        " olursun!]"
+                    ),
+                },
+                {"role": "user", "content": ham_hava},
+            ],
         )
         cevap_metni = ozet_istek.choices[0].message.content
 
-        # Güvenli metin parçalama (JSON hatasını tamamen önler)
+        # Güvenli metin parçalama
         st.session_state.hava_ozeti = cevap_metni
+        st.session_state.hava_tavsiyesi = (
+            "Dışarı çıkarken havanın tadını çıkar!"
+        )
+
         if "SICAKLIK:" in cevap_metni:
           parcalar = cevap_metni.split("|")
           for p in parcalar:
@@ -829,6 +842,10 @@ elif ana_secim == "🌍 Küresel Canlı Hava Durumu & Uydu Radarı":
               st.session_state.anlik_yagis = p.replace("YAGIS:", "").strip()
             elif "SIS:" in p:
               st.session_state.anlik_sis = p.replace("SIS:", "").strip()
+            elif "TAVSIYE:" in p:
+              st.session_state.hava_tavsiyesi = p.replace(
+                  "TAVSIYE:", ""
+              ).strip()
         else:
           st.session_state.anlik_sicaklik = "25 °C"
           st.session_state.anlik_yagis = "%0"
@@ -839,17 +856,56 @@ elif ana_secim == "🌍 Küresel Canlı Hava Durumu & Uydu Radarı":
         st.session_state.anlik_yagis = "%0"
         st.session_state.anlik_sis = "Normal"
         st.session_state.hava_ozeti = str(ham_hava)[:300]
+        st.session_state.hava_tavsiyesi = (
+            "Bugün hava sürprizlere açık, dikkatli ol!"
+        )
+
       st.success("✅ Hava durumu değerleri başarıyla güncellendi efendim.")
 
+  # Dinamik Atmosferik İkon Belirleme (Sıcaklık ve Yağışa Göre)
+  aktif_sicaklik_str = getattr(st.session_state, "anlik_sicaklik", "25 °C")
+  aktif_yagis_str = getattr(st.session_state, "anlik_yagis", "%0")
+
+  atmo_ikon = "☀️"  # Varsayılan Gündüz/Güneş
+  if (
+      "yağmur" in str(getattr(st.session_state, "hava_ozeti", "")).lower()
+      or "%" in aktif_yagis_str
+      and int(aktif_yagis_str.replace("%", "").strip() or 0) > 20
+  ):
+    atmo_ikon = "🌧️"
+  elif "kar" in str(getattr(st.session_state, "hava_ozeti", "")).lower():
+    atmo_ikon = "❄️"
+  elif "bulut" in str(getattr(st.session_state, "hava_ozeti", "")).lower():
+    atmo_ikon = "⛅"
+
   st.markdown(
-      f"### 🌡️ {sorgu_bolge} Canlı Meteorolojik Sentez Raporu:"
+      f"### {atmo_ikon} {sorgu_bolge} Canlı Meteorolojik Sentez Raporu"
   )
-  st.info(f"**Uydu Veri Özeti:** {st.session_state.hava_ozeti}")
+  st.info(f"**Uydu Veri Özeti:** {st.session_state.get('hava_ozeti', 'Veri yok')}")
+
+  # Akıllı Kıyafet / Aktivite Tavsiye Kutusu
+  st.warning(
+      f"🤖 **JARVIS Atmosferik Tavsiyesi:**"
+      f" {getattr(st.session_state, 'hava_tavsiyesi', 'Hava güzel, dışarı çık!')}"
+  )
+
   c1, c2, c3, c4 = st.columns(4)
   c1.metric("Hedef Konum", sorgu_bolge, "Aktif")
-  c2.metric("Sıcaklık Derecesi", st.session_state.anlik_sicaklik, "Güncel 🟢")
-  c3.metric("Yağış Oranı", st.session_state.anlik_yagis, "Uydu Verisi")
-  c4.metric("Sis & Rüzgar", st.session_state.anlik_sis, "Atmosferik")
+  c2.metric(
+      "Sıcaklık Derecesi",
+      getattr(st.session_state, "anlik_sicaklik", "Bilinmiyor"),
+      "Güncel 🟢",
+  )
+  c3.metric(
+      "Yağış Oranı",
+      getattr(st.session_state, "anlik_yagis", "Bilinmiyor"),
+      "Uydu Verisi",
+  )
+  c4.metric(
+      "Sis & Rüzgar",
+      getattr(st.session_state, "anlik_sis", "Bilinmiyor"),
+      "Atmosferik",
+  )
 # ==========================================
 # 18. MODÜL: DÖVİZ & KRİPTO PİYASA ANALİZİ
 # ==========================================

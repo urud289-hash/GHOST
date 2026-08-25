@@ -160,72 +160,7 @@ if "anlik_sis" not in st.session_state:
 if "hava_ozeti" not in st.session_state:
   st.session_state.hava_ozeti = "Henüz arama yapılmadı efendim."
 
-# ==========================================
-# 05. SES SENTEZLEYİCİ JAVASCRIPT MODÜLÜ
-# ==========================================
-st.markdown(
-        """
-        ### TITAN OMEGA Komuta Paneli
-        Sistemler aktif ve çalışır durumda.
-        """,
-        unsafe_allow_html=True,
-    )
 
-# Doğru kullanım şekli:
-
-        
-        window.speechSynthesis.speak(konusma);
-    } else {
-        console.log("Tarayıcınız ses sentezlemeyi desteklemiyor.");
-    }
-}
-
-// Ses motorunu önceden uyandırmak için boş bir tetikleyici
-if ('speechSynthesis' in window) {
-    window.speechSynthesis.getVoices();
-}
-
-function sesliDinlemeyiBaslat() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-        alert("Tarayıcınız ses tanıma özelliğini desteklemiyor efendim. Lütfen Google Chrome kullanın.");
-        return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'tr-TR';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    document.getElementById("algilananMetin").innerText = "Dinleniyor, lütfen konuşun...";
-
-    recognition.onresult = function(event) {
-        const spokenText = event.results[0][0].transcript;
-        document.getElementById("algilananMetin").innerText = spokenText;
-        document.getElementById("jarvisYaniti").innerText = "İşleniyor, yanıt hazırlanıyor efendim...";
-        
-        setTimeout(() => {
-            let yanit = "Emredersiniz efendim, komutunuz alınmıştır.";
-            if(spokenText.toLowerCase().includes("nasılsın")) {
-                yanit = "Sistemlerim kusursuz çalışıyor efendim, size nasıl yardımcı olabilirim?";
-            } else if(spokenText.toLowerCase().includes("merhaba")) {
-                yanit = "Merhaba efendim, TITAN OMEGA komuta merkezi emrinizdedir.";
-            } else {
-                yanit = "Komutunuz işlendi efendim: " + spokenText;
-            }
-            
-            document.getElementById("jarvisYaniti").innerText = yanit;
-            jarvisKonustur(yanit);
-        }, 500);
-    };
-
-    recognition.onerror = function(event) {
-        document.getElementById("algilananMetin").innerText = "Ses algılama hatası: " + event.error;
-    };
-
-    recognition.start();
-}
-</script>
 
 # ==========================================
 # 06. GİRİŞ KONTROL VE KİMLİK DOĞRULAMA EKRANI

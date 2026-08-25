@@ -124,7 +124,7 @@ if "jarvis_hafiza" not in st.session_state:
       "Sistem Çekirdeği: TITAN v20.0 OMEGA SUPREME",
       "Güvenlik Duvarı: Aktif (Kuantum Matris Koruması)",
       "Nöral Bellek: Tam Kapasite Senkronize Edildi",
-      "Yeni Eklenenler: Medya Kumandası, Oyun Kodları & AI Debugger",
+      "Yeni Eklenenler: Medya Kumandası, Oyun Kodları, AI Debugger & RAM Optimizatörü",
   ]
 if "izinli_kisiler" not in st.session_state:
   st.session_state.izinli_kisiler = {"Yiğit": "Ana Komutan (Admin)"}
@@ -132,7 +132,7 @@ if "izinli_fotolar" not in st.session_state:
   st.session_state.izinli_fotolar = {}
 if "sistem_loglari" not in st.session_state:
   st.session_state.sistem_loglari = [
-      f"[{datetime.datetime.now().strftime('%H:%M:%S')}] TITAN v20.0 OMEGA yeni modüllerle yüklendi."
+      f"[{datetime.datetime.now().strftime('%H:%M:%S')}] TITAN v20.0 OMEGA RAM Optimizatörü ile güncellendi."
   ]
 if "notlar_defteri" not in st.session_state:
   st.session_state.notlar_defteri = []
@@ -140,11 +140,6 @@ if "siber_tehditler" not in st.session_state:
   st.session_state.siber_tehditler = [
       {"ip": "192.168.1.100", "durum": "Güvenli 🟢", "risk": "Yok"},
       {"ip": "185.220.101.7", "durum": "Bloklandı 🛡️", "risk": "Kritik"},
-  ]
-if "kripto_portfoy" not in st.session_state:
-  st.session_state.kripto_portfoy = [
-      {"coin": "Amerikan Doları (USD/TRY)", "adet": "Döviz", "hedef": "Canlı Kur"},
-      {"coin": "Euro (EUR/TRY)", "adet": "Döviz", "hedef": "Canlı Kur"},
   ]
 
 if "anlik_sicaklik" not in st.session_state:
@@ -355,6 +350,7 @@ ana_secim = st.sidebar.radio(
         "🎵 YouTube & Spotify Akıllı Medya Kumandası",
         "🕹️ Anlık Hile & Konsol Komut Veritabanı",
         "🛠️ Kendi Kendini Onaran AI Debugger & Hata Çözücü",
+        "⚡ Sistem Performans Hızlandırıcı & RAM Optimizasyon",
         "📊 Sistem Denetim, Performans & Loglar",
         "📌 Otonom Görev, Hatırlatıcı & Notlar",
     ],
@@ -1025,7 +1021,7 @@ elif ana_secim == "🛰️ Uzaktan Hedef İzleme (Supabase Sync)":
     st.error("Supabase bağlantısı kurulamadı efendim.")
 
 # ==========================================
-# 24. MODÜL: YOUTUBE & SPOTIFY AKILLI MEDYA KUMANDASI (YENİ)
+# 24. MODÜL: YOUTUBE & SPOTIFY AKILLI MEDYA KUMANDASI
 # ==========================================
 elif ana_secim == "🎵 YouTube & Spotify Akıllı Medya Kumandası":
   st.subheader("🎵 JARVIS Akıllı Medya ve İçerik Tarama Kumandası")
@@ -1049,7 +1045,6 @@ elif ana_secim == "🎵 YouTube & Spotify Akıllı Medya Kumandası":
         st.markdown("### 🎬 Bulunan Medya ve Bağlantı Önerileri:")
         st.info(f"**Medya Ağı Yanıtı:** {bulunan_medya}")
 
-        # YouTube arama linki oluşturma
         encoded_q = urllib.parse.quote_plus(medya_sorgu)
         st.markdown(
             f"🔗 [YouTube'da '{medya_sorgu}' İçin Doğrudan Ara ve İzle](https://www.youtube.com/results?search_query={encoded_q})"
@@ -1059,7 +1054,7 @@ elif ana_secim == "🎵 YouTube & Spotify Akıllı Medya Kumandası":
       st.warning("Lütfen bir medya veya sanatçı adı girin efendim.")
 
 # ==========================================
-# 25. MODÜL: ANLIK HİLE & KONSOL KOMUT VERİTABANI (YENİ)
+# 25. MODÜL: ANLIK HİLE & KONSOL KOMUT VERİTABANI
 # ==========================================
 elif ana_secim == "🕹️ Anlık Hile & Konsol Komut Veritabanı":
   st.subheader("🕹️ JARVIS Oyun Hileleri ve Konsol Komut Veritabanı")
@@ -1102,7 +1097,7 @@ elif ana_secim == "🕹️ Anlık Hile & Konsol Komut Veritabanı":
       st.warning("Lütfen oyun adını girin efendim.")
 
 # ==========================================
-# 26. KENDİ KENDİNİ ONARAN AI DEBUGGER & HATA ÇÖZÜCÜ (YENİ)
+# 26. MODÜL: KENDİ KENDİNİ ONARAN AI DEBUGGER & HATA ÇÖZÜCÜ
 # ==========================================
 elif ana_secim == "🛠️ Kendi Kendini Onaran AI Debugger & Hata Çözücü":
   st.subheader("🛠️ TITAN Kendi Kendini Onaran AI Debugger (Hata Çözümcüsü)")
@@ -1148,7 +1143,51 @@ elif ana_secim == "🛠️ Kendi Kendini Onaran AI Debugger & Hata Çözücü":
       st.warning("Lütfen hatalı kodu veya mesajı girin efendim.")
 
 # ==========================================
-# 27. MODÜL: SİSTEM DENETİM VE LOGLAR
+# 27. MODÜL: SİSTEM PERFORMANS & RAM OPTİMİZASYON ASİSTANI (YENİ)
+# ==========================================
+elif ana_secim == "⚡ Sistem Performans Hızlandırıcı & RAM Optimizasyon":
+  st.subheader("⚡ TITAN Sistem Performans Hızlandırıcı ve RAM Optimizasyon Asistanı")
+  st.markdown("Bilgisayarını hızlandırmak, RAM ve işlemci yükünü azaltmak için akıllı optimizasyon ipuçları al efendim.")
+  
+  c1, c2, c3 = st.columns(3)
+  c1.metric("Önerilen RAM Tasarrufu", "%35", "Optimizasyon Hazır")
+  c2.metric("Sistem Durumu", "Normal", "Stabil")
+  c3.metric("Önbellek (Cache)", "Temizlenebilir", "Aktif")
+  
+  opt_secenek = st.selectbox(
+      "Hangi alanda performans optimizasyonu istiyorsun?",
+      [
+          "Düşük RAM'li Bilgisayarlar İçin Windows Hızlandırma Tüyoları",
+          "Tarayıcı (Chrome/Edge) Bellek Tüketimini Azaltma Yöntemleri",
+          "Oyun Performansını (FPS) Artırma ve Gereksiz Servisleri Kapatma",
+          "Özel Donanım Yapılandırma Tavsiyeleri"
+      ]
+  )
+  
+  if st.button("Performans Önerilerini ve Adımları Getir"):
+    with st.spinner("JARVIS sistem optimizasyon motoru çalışıyor..."):
+      try:
+        perf_res = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Sen kıdemli bir sistem ve donanım optimizasyon uzmanısın. Kullanıcının seçtiği performans konusunda net, pratik ve maddeler halinde hızlandırma rehberi hazırla."
+                },
+                {
+                    "role": "user",
+                    "content": f"Lütfen şu konuda performans ve RAM optimizasyon adımları sun: {opt_secenek}"
+                }
+            ]
+        )
+        st.markdown("### 🚀 Sistem Optimizasyon ve Hızlandırma Raporu:")
+        st.markdown(perf_res.choices[0].message.content)
+        st.success("Optimizasyon kılavuzu başarıyla oluşturuldu efendim!")
+      except Exception as ex:
+        st.error(f"Optimizasyon hatası: {ex}")
+
+# ==========================================
+# 28. MODÜL: SİSTEM DENETİM VE LOGLAR
 # ==========================================
 elif ana_secim == "📊 Sistem Denetim, Performans & Loglar":
   st.subheader("📊 TITAN Altyapı Denetim ve Siber Güvenlik Logları")
@@ -1161,7 +1200,7 @@ elif ana_secim == "📊 Sistem Denetim, Performans & Loglar":
     st.rerun()
 
 # ==========================================
-# 28. MODÜL: GÖREVLER VE NOTLAR DEFTERİ
+# 29. MODÜL: GÖREVLER VE NOTLAR DEFTERİ
 # ==========================================
 else:
   st.subheader("📌 JARVIS Otonom Görev, Hatırlatıcı ve Notlar Defteri")

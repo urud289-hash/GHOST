@@ -1908,17 +1908,26 @@ elif ana_secim == "🎯 Otonom Drone Filosu & Keşif Merkezi":
 ana_secim = st.sidebar.selectbox(
     "TITAN OMEGA MODÜLLERİ",
     [
-        "🎙️ Gerçek Zamanlı Sesli Asistan (Jarvis Sesli Mod)",  # Buraya ekliyoruz efendim
         "🏠 Ana Konsol / Durum Paneli",
         "🛡️ Nanoteknoloji ve Zırh Entegrasyonu",
-        # Diğer modüller...
+        "⚛️ Kuantum Süper Bilgisayar Bağlantısı",
+        "✨ Katı Işık Hologramı Projeksiyonu",
+        "🧠 Biyometrik Zihin-Makine Klon Bağlantısı",
+        "🤖 AGI Tabanlı Özerk Savunma Protokolü",
+        "🌌 Çok Boyutlu Uzay-Zaman Simülatörü",
+        "🧬 Biyoteknolojik Genom Analiz Laboratuvarı",
+        "⚡ Plazma Reaktör Çekirdeği & Güç Matriksi",
+        "🎯 Otonom Drone Filosu & Keşif Merkezi",
+        "📊 Sistem Denetim, Performans & Loglar",
+        "📌 Görevler ve Notlar Defteri",
+        "🎙️ Gerçek Zamanlı Sesli Asistan (Jarvis Sesli Mod)",  # En alta ekledik
     ],
 )
 
 # ==========================================
 # 43. MODÜL: GERÇEK ZAMANLI SESLİ ASİSTAN & SESLİ KOMUT MERKEZİ
 # ==========================================
-elif ana_secim == "🎙️ Gerçek Zamanlı Sesli Asistan (Jarvis Sesli Mod)":
+if ana_secim == "🎙️ Gerçek Zamanlı Sesli Asistan (Jarvis Sesli Mod)":
     st.subheader("🎙️ TITAN & JARVIS Sesli Etkileşim ve Sesli Komut Merkezi")
     st.markdown(
         "Mikrofonu aktif hale getirerek JARVIS ile sesli konuşabilir, komutlar verebilir ve sesli yanıtlar alabilirsin efendim."
@@ -1928,7 +1937,6 @@ elif ana_secim == "🎙️ Gerçek Zamanlı Sesli Asistan (Jarvis Sesli Mod)":
     s_c1.metric("Ses Algılama Modülü", "Aktif (Web Speech API)", "Hazır")
     s_c2.metric("Ses Sentezleyici", "Türkçe Doğal Ses", "Optimum")
 
-    # Tarayıcı tabanlı ses tanıma ve sesli yanıt (TTS) için özel HTML/JS bileşeni
     sesli_asistan_html = """
     <div style="background-color: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #333; text-align: center;">
         <h3 style="color: #00ffcc; margin-top: 0;">🎤 JARVIS Sesli Komut Konsolu</h3>
@@ -1952,7 +1960,7 @@ elif ana_secim == "🎙️ Gerçek Zamanlı Sesli Asistan (Jarvis Sesli Mod)":
     <script>
     function jarvisKonustur(metin) {
         if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel(); // Önceki sesleri durdur
+            window.speechSynthesis.cancel();
             var konusma = new SpeechSynthesisUtterance(metin);
             konusma.lang = 'tr-TR';
             konusma.rate = 1.0;
@@ -1978,13 +1986,10 @@ elif ana_secim == "🎙️ Gerçek Zamanlı Sesli Asistan (Jarvis Sesli Mod)":
         recognition.onresult = function(event) {
             const spokenText = event.results[0][0].transcript;
             document.getElementById("algilananMetin").innerText = spokenText;
-            
-            // Yapay zekaya yanıt üretmesi için metni simüle et veya Streamlit tarafına aktar
             document.getElementById("jarvisYaniti").innerText = "İşleniyor, yanıt hazırlanıyor efendim...";
             
-            // Örnek akıllı yanıt simülasyonu ve sesli çıktı
             setTimeout(() => {
-                let yanıt = "Emredersiniz efendim, '" + spokenText + "' komutunuz alınmıştır ve işleme konulmuştur.";
+                let yanıt = "Emredersiniz efendim, '" + spokenText + "' komutunuz alınmıştır.";
                 if(spokenText.toLowerCase().includes("nasılsın")) {
                     yanıt = "Sistemlerim kusursuz çalışıyor efendim, size nasıl yardımcı olabilirim?";
                 } else if(spokenText.toLowerCase().includes("merhaba")) {
@@ -2005,8 +2010,5 @@ elif ana_secim == "🎙️ Gerçek Zamanlı Sesli Asistan (Jarvis Sesli Mod)":
     """
 
     st.components.v1.html(sesli_asistan_html, height=360)
-
     st.markdown("---")
-    st.info(
-        "💡 **Not:** Sesli komut modülü doğrudan tarayıcının mikrofonunu kullanır. Tarayıcı mikrofon izni istediğinde 'İzin Ver' seçeneğine tıklayarak JARVIS ile karşılıklı sesli sohbet edebilirsin efendim!"
-    )
+    st.info("💡 **Not:** Mikrofon izni vererek JARVIS ile sesli sohbet edebilirsin efendim!")

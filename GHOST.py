@@ -1905,6 +1905,16 @@ elif ana_secim == "🎯 Otonom Drone Filosu & Keşif Merkezi":
         else:
             st.warning("Lütfen taranacak bölgeyi girin efendim.")
 
+ana_secim = st.sidebar.selectbox(
+    "TITAN OMEGA MODÜLLERİ",
+    [
+        "🎙️ Gerçek Zamanlı Sesli Asistan (Jarvis Sesli Mod)",  # Buraya ekliyoruz efendim
+        "🏠 Ana Konsol / Durum Paneli",
+        "🛡️ Nanoteknoloji ve Zırh Entegrasyonu",
+        # Diğer modüller...
+    ],
+)
+
 # ==========================================
 # 43. MODÜL: GERÇEK ZAMANLI SESLİ ASİSTAN & SESLİ KOMUT MERKEZİ
 # ==========================================

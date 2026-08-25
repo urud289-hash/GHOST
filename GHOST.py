@@ -304,7 +304,6 @@ st.sidebar.markdown(
     """,
     unsafe_allow_html=True
 )
-)
 
 ana_secim = st.sidebar.radio(
         "Sistem Modu Seçin:",

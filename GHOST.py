@@ -28,46 +28,52 @@ st.set_page_config(
 # ==========================================
 # 02. GELİŞMİŞ HACKER & CYBERPUNK CSS STİLLERİ
 # ==========================================
+# Dinamik tema state kontrolü
+if "tema_rengi" not in st.session_state:
+  st.session_state.tema_rengi = "#38bdf8"  # Varsayılan Mavi / Siyan
+if "arkaplan_rengi" not in st.session_state:
+  st.session_state.arkaplan_rengi = "#020408"
+
 st.markdown(
-    """
+    f"""
 <style>
-    .stApp { background-color: #020408; color: #f0f6fc; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-    [data-testid="stSidebar"] { background-color: #080c10; border-right: 1px solid #21262d; }
-    h1, h2, h3 { color: #38bdf8 !important; letter-spacing: -0.5px; }
-    p, span, label, div, .stMarkdown { font-weight: 500 !important; }
-    footer { visibility: hidden; }
+    .stApp {{ background-color: {st.session_state.arkaplan_rengi}; color: #f0f6fc; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }}
+    [data-testid="stSidebar"] {{ background-color: #080c10; border-right: 1px solid #21262d; }}
+    h1, h2, h3 {{ color: {st.session_state.tema_rengi} !important; letter-spacing: -0.5px; }}
+    p, span, label, div, .stMarkdown {{ font-weight: 500 !important; }}
+    footer {{ visibility: hidden; }}
     
-    .chat-container {
+    .chat-container {{
         height: calc(100vh - 280px);
         overflow-y: auto;
         padding-bottom: 140px;
         padding-right: 12px;
     }
     
-    [data-testid="stChatInput"] textarea {
+    [data-testid="stChatInput"] textarea {{
         color: #ffffff !important;
         font-weight: 700 !important;
         font-size: 16px !important;
         background-color: #0d1117 !important;
     }
-    [data-testid="stChatInput"] {
+    [data-testid="stChatInput"] {{
         background-color: #11161d !important;
         border-radius: 14px !important;
         border: 1px solid #30363d !important;
     }
     
-    .stButton>button {
-        background: linear-gradient(135deg, #0284c7, #059669);
-        color: white; border-radius: 10px; border: 1px solid #38bdf8; 
+    .stButton>button {{
+        background: linear-gradient(135deg, {st.session_state.tema_rengi}, #059669);
+        color: white; border-radius: 10px; border: 1px solid {st.session_state.tema_rengi}; 
         font-weight: 700; padding: 0.6rem 1.2rem; width: 100%;
         box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); transition: all 0.3s ease;
     }
-    .stButton>button:hover { 
+    .stButton>button:hover {{ 
         background: linear-gradient(135deg, #0369a1, #047857);
         box-shadow: 0 6px 16px rgba(5, 150, 105, 0.5); border-color: #34d399;
     }
-    [data-testid="stDataFrame"] { border: 1px solid #30363d; border-radius: 10px; background-color: #0d1117; }
-    .matrix-box { background-color: #05080f; padding: 18px; border-radius: 10px; border: 1px solid #1e293b; font-family: monospace; }
+    [data-testid="stDataFrame"] {{ border: 1px solid #30363d; border-radius: 10px; background-color: #0d1117; }}
+    .matrix-box {{ background-color: #05080f; padding: 18px; border-radius: 10px; border: 1px solid #1e293b; font-family: monospace; }}
 </style>
 """,
     unsafe_allow_html=True,
@@ -125,8 +131,8 @@ if "jarvis_hafiza" not in st.session_state:
       "Güvenlik Duvarı: Aktif (Kuantum Matris Koruması)",
       "Nöral Bellek: Tam Kapasite Senkronize Edildi",
       (
-          "Yeni Eklenenler: Medya Kumandası, Oyun Kodları, AI Debugger, RAM"
-          " Optimizatörü & Pomodoro Odak Modülü"
+          "Yeni Eklenen Sıradışı Modüller: Kuantum Holografik Tema, BCI Nöral"
+          " Beyin Dalgaları & ISS Uydu Radarı"
       ),
   ]
 if "izinli_kisiler" not in st.session_state:
@@ -135,7 +141,7 @@ if "izinli_fotolar" not in st.session_state:
   st.session_state.izinli_fotolar = {}
 if "sistem_loglari" not in st.session_state:
   st.session_state.sistem_loglari = [
-      f"[{datetime.datetime.now().strftime('%H:%M:%S')}] TITAN v20.0 OMEGA Pomodoro Odak Modülü ile güncellendi."
+      f"[{datetime.datetime.now().strftime('%H:%M:%S')}] TITAN v20.0 OMEGA Sıradışı Modüllerle Güncellendi."
   ]
 if "notlar_defteri" not in st.session_state:
   st.session_state.notlar_defteri = []
@@ -355,6 +361,9 @@ ana_secim = st.sidebar.radio(
         "🛠️ Kendi Kendini Onaran AI Debugger & Hata Çözücü",
         "⚡ Sistem Performans Hızlandırıcı & RAM Optimizasyon",
         "⏳ Akıllı Pomodoro Odak & Mola Zamanlayıcı",
+        "🚀 Kuantum Holografik Ekran & Tema Hackleyicisi (YENİ)",
+        "🧠 Nöral Beyin Dalgası & Odak Senkronizasyonu BCI (YENİ)",
+        "🛰️ Yörünge Uydu Canlı Takip ve ISS Radarı (YENİ)",
         "📊 Sistem Denetim, Performans & Loglar",
         "📌 Otonom Görev, Hatırlatıcı & Notlar",
     ],
@@ -1200,7 +1209,7 @@ elif ana_secim == "⚡ Sistem Performans Hızlandırıcı & RAM Optimizasyon":
         st.error(f"Optimizasyon hatası: {ex}")
 
 # ==========================================
-# 28. MODÜL: AKILLI POMODORO ODAK & MOLA ZAMANLAYICI (YENİ)
+# 28. MODÜL: AKILLI POMODORO ODAK & MOLA ZAMANLAYICI
 # ==========================================
 elif ana_secim == "⏳ Akıllı Pomodoro Odak & Mola Zamanlayıcı":
   st.subheader("⏳ JARVIS Akıllı Pomodoro Odak & Çalışma Zamanlayıcısı")
@@ -1231,7 +1240,7 @@ elif ana_secim == "⏳ Akıllı Pomodoro Odak & Mola Zamanlayıcı":
   if st.button("Pomodoro Oturumunu Başlat ve Sayaç Kur"):
     if pomo_hedef:
       st.success(
-          f"🎯 Odurum Başlatıldı: '{pomo_hedef}' için {pomo_modu} aktif edildi"
+          f"🎯 Oturum Başlatıldı: '{pomo_hedef}' için {pomo_modu} aktif edildi"
           " efendim!"
       )
       st.components.v1.html(
@@ -1249,7 +1258,96 @@ elif ana_secim == "⏳ Akıllı Pomodoro Odak & Mola Zamanlayıcı":
       )
 
 # ==========================================
-# 29. MODÜL: SİSTEM DENETİM VE LOGLAR
+# 29. MODÜL: KUANTUM HOLOGRAFİK EKRAN & TEMA HACKLEYİCİSİ (YENİ)
+# ==========================================
+elif ana_secim == "🚀 Kuantum Holografik Ekran & Tema Hackleyicisi (YENİ)":
+  st.subheader("🚀 TITAN Kuantum Holografik Ekran & Görsel Tema Hackleyicisi")
+  st.markdown(
+      "Komuta merkezinin estetiğini anlık olarak değiştir; siberpunk neon,"
+      " matrix yeşili veya terminator kırmızısına geçiş yap efendim."
+  )
+
+  secilen_tema = st.selectbox(
+      "Holografik Tema Seçin:",
+      [
+          "Matrix Yeşil (Terminal 01)",
+          "Cyberpunk Neon Pembe / Mor",
+          "Terminator Kırmızı / Kanıt",
+          "Deep Space Siyan / Mavi (Varsayılan)",
+      ],
+  )
+
+  if st.button("Holografik Temayı Uygula"):
+    if "Matrix" in secilen_tema:
+      st.session_state.tema_rengi = "#22c55e"
+      st.session_state.arkaplan_rengi = "#020f04"
+    elif "Cyberpunk" in secilen_tema:
+      st.session_state.tema_rengi = "#ec4899"
+      st.session_state.arkaplan_rengi = "#0f020a"
+    elif "Terminator" in secilen_tema:
+      st.session_state.tema_rengi = "#ef4444"
+      st.session_state.arkaplan_rengi = "#0f0202"
+    else:
+      st.session_state.tema_rengi = "#38bdf8"
+      st.session_state.arkaplan_rengi = "#020408"
+
+    st.success(
+        f"✅ Holografik tema başarıyla değiştirildi: {secilen_tema} efendim!"
+    )
+    st.rerun()
+
+# ==========================================
+# 30. MODÜL: NÖRAL BEYİN DALGASI & ODAK BCI (YENİ)
+# ==========================================
+elif ana_secim == "🧠 Nöral Beyin Dalgası & Odak Senkronizasyonu BCI (YENİ)":
+  st.subheader("🧠 JARVIS Simüle Edilmiş BCI & Nöral Odak Senkronizasyonu")
+  st.markdown(
+      "Zihinsel odaklanma dalgalarını (Alpha, Beta, Theta) simüle ederek"
+      " anlık beyin senkronizasyon oranını ölç ve JARVIS yapay zekasını zihinsel"
+      " frekansına bağla efendim."
+  )
+
+  c_b1, c_b2, c_b3 = st.columns(3)
+  c_b1.metric("Alpha Dalgaları (Rahatlama)", "11.4 Hz", "Dengeli 🟢")
+  c_b2.metric("Beta Dalgaları (Aktif Odak)", "22.8 Hz", "Yüksek ⚡")
+  c_b3.metric("Theta Dalgaları (Yaratıcılık)", "6.2 Hz", "Normal")
+
+  if st.button("Nöral BCI Senkronizasyonunu Başlat"):
+    rastgele_odak = random.randint(88, 99)
+    st.success(
+        f"🎯 BCI Nöral Senkronizasyon Başarılı! Zihinsel Odak Oranı: %"
+        f"{rastgele_odak} efendim."
+    )
+    st.components.v1.html(
+        f'<script>titanOmegaKonus("Nöral beyin dalgaları senkronize edildi,'
+        f" zihinsel odak oranınız yüzde {rastgele_odak}. sistem tam"
+        ' kapasite hazır.");</script>',
+        height=0,
+    )
+
+# ==========================================
+# 31. MODÜL: YÖRÜNGE UYDU CANLI TAKİP VE ISS RADARI (YENİ)
+# ==========================================
+elif ana_secim == "🛰️ Yörünge Uydu Canlı Takip ve ISS Radarı (YENİ)":
+  st.subheader("🛰️ JARVIS Uzay ve Yörünge ISS Canlı Takip Radarı")
+  st.markdown(
+      "Uluslararası Uzay İstasyonu'nun (ISS) dünya üzerindeki anlık konumunu"
+      " ve yörünge hareketlerini canlı izle efendim."
+  )
+
+  st.components.v1.html(
+      """
+    <div style="padding: 18px; background-color: #0d1117; color: white; border-radius: 10px; border: 1px solid #30363d;">
+        <h3 style="color: #38bdf8; margin-top:0;">🛰️ ISS (Uluslararası Uzay İstasyonu) Canlı Yörünge Takibi</h3>
+        <p style="color: #94a3b8;">Canlı uzay verileri uydulardan çekiliyor...</p>
+        <iframe width="100%" height="450" style="border:1px solid #30363d; border-radius: 10px;" src="https://www.astroviewer.net/iss/en/"></iframe>
+    </div>
+    """,
+      height=500,
+  )
+
+# ==========================================
+# 32. MODÜL: SİSTEM DENETİM VE LOGLAR
 # ==========================================
 elif ana_secim == "📊 Sistem Denetim, Performans & Loglar":
   st.subheader("📊 TITAN Altyapı Denetim ve Siber Güvenlik Logları")
@@ -1262,7 +1360,7 @@ elif ana_secim == "📊 Sistem Denetim, Performans & Loglar":
     st.rerun()
 
 # ==========================================
-# 30. MODÜL: GÖREVLER VE NOTLAR DEFTERİ
+# 33. MODÜL: GÖREVLER VE NOTLAR DEFTERİ
 # ==========================================
 else:
   st.subheader("📌 JARVIS Otonom Görev, Hatırlatıcı ve Notlar Defteri")

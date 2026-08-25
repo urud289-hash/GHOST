@@ -124,7 +124,10 @@ if "jarvis_hafiza" not in st.session_state:
       "Sistem Çekirdeği: TITAN v20.0 OMEGA SUPREME",
       "Güvenlik Duvarı: Aktif (Kuantum Matris Koruması)",
       "Nöral Bellek: Tam Kapasite Senkronize Edildi",
-      "Yeni Eklenenler: Medya Kumandası, Oyun Kodları, AI Debugger & RAM Optimizatörü",
+      (
+          "Yeni Eklenenler: Medya Kumandası, Oyun Kodları, AI Debugger, RAM"
+          " Optimizatörü & Pomodoro Odak Modülü"
+      ),
   ]
 if "izinli_kisiler" not in st.session_state:
   st.session_state.izinli_kisiler = {"Yiğit": "Ana Komutan (Admin)"}
@@ -132,7 +135,7 @@ if "izinli_fotolar" not in st.session_state:
   st.session_state.izinli_fotolar = {}
 if "sistem_loglari" not in st.session_state:
   st.session_state.sistem_loglari = [
-      f"[{datetime.datetime.now().strftime('%H:%M:%S')}] TITAN v20.0 OMEGA RAM Optimizatörü ile güncellendi."
+      f"[{datetime.datetime.now().strftime('%H:%M:%S')}] TITAN v20.0 OMEGA Pomodoro Odak Modülü ile güncellendi."
   ]
 if "notlar_defteri" not in st.session_state:
   st.session_state.notlar_defteri = []
@@ -351,6 +354,7 @@ ana_secim = st.sidebar.radio(
         "🕹️ Anlık Hile & Konsol Komut Veritabanı",
         "🛠️ Kendi Kendini Onaran AI Debugger & Hata Çözücü",
         "⚡ Sistem Performans Hızlandırıcı & RAM Optimizasyon",
+        "⏳ Akıllı Pomodoro Odak & Mola Zamanlayıcı",
         "📊 Sistem Denetim, Performans & Loglar",
         "📌 Otonom Görev, Hatırlatıcı & Notlar",
     ],
@@ -1143,42 +1147,51 @@ elif ana_secim == "🛠️ Kendi Kendini Onaran AI Debugger & Hata Çözücü":
       st.warning("Lütfen hatalı kodu veya mesajı girin efendim.")
 
 # ==========================================
-# 27. MODÜL: SİSTEM PERFORMANS & RAM OPTİMİZASYON ASİSTANI (YENİ)
+# 27. MODÜL: SİSTEM PERFORMANS & RAM OPTİMİZASYON ASİSTANI
 # ==========================================
 elif ana_secim == "⚡ Sistem Performans Hızlandırıcı & RAM Optimizasyon":
-  st.subheader("⚡ TITAN Sistem Performans Hızlandırıcı ve RAM Optimizasyon Asistanı")
-  st.markdown("Bilgisayarını hızlandırmak, RAM ve işlemci yükünü azaltmak için akıllı optimizasyon ipuçları al efendim.")
-  
+  st.subheader(
+      "⚡ TITAN Sistem Performans Hızlandırıcı ve RAM Optimizasyon Asistanı"
+  )
+  st.markdown(
+      "Bilgisayarını hızlandırmak, RAM ve işlemci yükünü azaltmak için akıllı"
+      " optimizasyon ipuçları al efendim."
+  )
+
   c1, c2, c3 = st.columns(3)
   c1.metric("Önerilen RAM Tasarrufu", "%35", "Optimizasyon Hazır")
   c2.metric("Sistem Durumu", "Normal", "Stabil")
   c3.metric("Önbellek (Cache)", "Temizlenebilir", "Aktif")
-  
+
   opt_secenek = st.selectbox(
       "Hangi alanda performans optimizasyonu istiyorsun?",
       [
           "Düşük RAM'li Bilgisayarlar İçin Windows Hızlandırma Tüyoları",
           "Tarayıcı (Chrome/Edge) Bellek Tüketimini Azaltma Yöntemleri",
           "Oyun Performansını (FPS) Artırma ve Gereksiz Servisleri Kapatma",
-          "Özel Donanım Yapılandırma Tavsiyeleri"
-      ]
+          "Özel Donanım Yapılandırma Tavsiyeleri",
+      ],
   )
-  
+
   if st.button("Performans Önerilerini ve Adımları Getir"):
     with st.spinner("JARVIS sistem optimizasyon motoru çalışıyor..."):
       try:
         perf_res = client.chat.completions.create(
             model=MODEL_NAME,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Sen kıdemli bir sistem ve donanım optimizasyon uzmanısın. Kullanıcının seçtiği performans konusunda net, pratik ve maddeler halinde hızlandırma rehberi hazırla."
-                },
-                {
-                    "role": "user",
-                    "content": f"Lütfen şu konuda performans ve RAM optimizasyon adımları sun: {opt_secenek}"
-                }
-            ]
+            messages=[{
+                "role": "system",
+                "content": (
+                    "Sen kıdemli bir sistem ve donanım optimizasyon uzmanısın."
+                    " Kullanıcının seçtiği performans konusunda net, pratik ve"
+                    " maddeler halinde hızlandırma rehberi hazırla."
+                ),
+            }, {
+                "role": "user",
+                "content": (
+                    "Lütfen şu konuda performans ve RAM optimizasyon adımları"
+                    f" sun: {opt_secenek}"
+                ),
+            }],
         )
         st.markdown("### 🚀 Sistem Optimizasyon ve Hızlandırma Raporu:")
         st.markdown(perf_res.choices[0].message.content)
@@ -1187,7 +1200,56 @@ elif ana_secim == "⚡ Sistem Performans Hızlandırıcı & RAM Optimizasyon":
         st.error(f"Optimizasyon hatası: {ex}")
 
 # ==========================================
-# 28. MODÜL: SİSTEM DENETİM VE LOGLAR
+# 28. MODÜL: AKILLI POMODORO ODAK & MOLA ZAMANLAYICI (YENİ)
+# ==========================================
+elif ana_secim == "⏳ Akıllı Pomodoro Odak & Mola Zamanlayıcı":
+  st.subheader("⏳ JARVIS Akıllı Pomodoro Odak & Çalışma Zamanlayıcısı")
+  st.markdown(
+      "Ders çalışırken veya kod yazarken odaklanmanı artırmak için Pomodoro"
+      " tekniklerini kullan efendim."
+  )
+
+  col_p1, col_p2, col_p3 = st.columns(3)
+  col_p1.metric("Odak Süresi", "25 Dakika", "Standart")
+  col_p2.metric("Kısa Mola", "5 Dakika", "Dinlenme")
+  col_p3.metric("Uzun Mola", "15 Dakika", "Oturum Sonu")
+
+  pomo_modu = st.selectbox(
+      "Çalışma Oturumu Seçin:",
+      [
+          "25 dk Odak / 5 dk Mola (Standart Pomodoro)",
+          "50 dk Yoğun Çalışma / 10 dk Mola (Derin Odak)",
+          "15 dk Hızlı Tekrar / 3 dk Kısa Mola",
+      ],
+  )
+
+  pomo_hedef = st.text_input(
+      "Bu Oturumda Ne Üzerinde Çalışacaksın?:",
+      placeholder="Örn: 7. Sınıf Matematik Çalışması veya Python Bot Kodlama",
+  )
+
+  if st.button("Pomodoro Oturumunu Başlat ve Sayaç Kur"):
+    if pomo_hedef:
+      st.success(
+          f"🎯 Odurum Başlatıldı: '{pomo_hedef}' için {pomo_modu} aktif edildi"
+          " efendim!"
+      )
+      st.components.v1.html(
+          '<script>titanOmegaKonus("Pomodoro odak seansı başladı efendim,'
+          ' kolay gelsin.");</script>',
+          height=0,
+      )
+      st.info(
+          "⏳ Zamanlayıcı çalışıyor. Odaklanma süreniz boyunca bildirimler"
+          " sessize alındı."
+      )
+    else:
+      st.warning(
+          "Lütfen bu oturumda çalışacağınız hedefi veya konuyu yazın efendim."
+      )
+
+# ==========================================
+# 29. MODÜL: SİSTEM DENETİM VE LOGLAR
 # ==========================================
 elif ana_secim == "📊 Sistem Denetim, Performans & Loglar":
   st.subheader("📊 TITAN Altyapı Denetim ve Siber Güvenlik Logları")
@@ -1200,7 +1262,7 @@ elif ana_secim == "📊 Sistem Denetim, Performans & Loglar":
     st.rerun()
 
 # ==========================================
-# 29. MODÜL: GÖREVLER VE NOTLAR DEFTERİ
+# 30. MODÜL: GÖREVLER VE NOTLAR DEFTERİ
 # ==========================================
 else:
   st.subheader("📌 JARVIS Otonom Görev, Hatırlatıcı ve Notlar Defteri")

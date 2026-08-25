@@ -165,37 +165,79 @@ if "hava_ozeti" not in st.session_state:
 # ==========================================
 st.markdown(
     """
+
 <script>
-    function titanOmegaKonus(metin) {
-        if (!('speechSynthesis' in window)) return;
+function jarvisKonustur(metin) {
+    if ('speechSynthesis' in window) {
+        // Tarayıcı kuyruğunu sıfırla
         window.speechSynthesis.cancel();
-        var msg = new SpeechSynthesisUtterance(metin);
-        msg.lang = 'tr-TR';
-        msg.rate = 1.05;
-        var voices = window.speechSynthesis.getVoices();
-        let selectedVoice = null;
-        for(var i = 0; i < voices.length; i++) {
-            var vName = voices[i].name.toLowerCase();
-            if(vName.includes('ahmet') || vName.includes('turkish male') || (vName.includes('microsoft') && vName.includes('tr'))) {
-                selectedVoice = voices[i];
+        
+        var konusma = new SpeechSynthesisUtterance(metin);
+        konusma.lang = 'tr-TR';
+        konusma.rate = 1.0;
+        konusma.pitch = 1.0;
+        
+        // Türkçe ses mevcutsa seçmeye çalış
+        var sesler = window.speechSynthesis.getVoices();
+        for(var i = 0; i < sesler.length; i++) {
+            if(sesler[i].lang === 'tr-TR' || sesler[i].lang === 'tr_TR') {
+                konusma.voice = sesler[i];
                 break;
             }
         }
-        if (!selectedVoice) {
-            for(var i = 0; i < voices.length; i++) {
-                if(voices[i].lang.startsWith('tr')) { selectedVoice = voices[i]; break; }
+        
+        window.speechSynthesis.speak(konusma);
+    } else {
+        console.log("Tarayıcınız ses sentezlemeyi desteklemiyor.");
+    }
+}
+
+// Ses motorunu önceden uyandırmak için boş bir tetikleyici
+if ('speechSynthesis' in window) {
+    window.speechSynthesis.getVoices();
+}
+
+function sesliDinlemeyiBaslat() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("Tarayıcınız ses tanıma özelliğini desteklemiyor efendim. Lütfen Google Chrome kullanın.");
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'tr-TR';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    document.getElementById("algilananMetin").innerText = "Dinleniyor, lütfen konuşun...";
+
+    recognition.onresult = function(event) {
+        const spokenText = event.results[0][0].transcript;
+        document.getElementById("algilananMetin").innerText = spokenText;
+        document.getElementById("jarvisYaniti").innerText = "İşleniyor, yanıt hazırlanıyor efendim...";
+        
+        setTimeout(() => {
+            let yanit = "Emredersiniz efendim, komutunuz alınmıştır.";
+            if(spokenText.toLowerCase().includes("nasılsın")) {
+                yanit = "Sistemlerim kusursuz çalışıyor efendim, size nasıl yardımcı olabilirim?";
+            } else if(spokenText.toLowerCase().includes("merhaba")) {
+                yanit = "Merhaba efendim, TITAN OMEGA komuta merkezi emrinizdedir.";
+            } else {
+                yanit = "Komutunuz işlendi efendim: " + spokenText;
             }
-        }
-        if (selectedVoice) msg.voice = selectedVoice;
-        window.speechSynthesis.speak(msg);
-    }
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
-    }
+            
+            document.getElementById("jarvisYaniti").innerText = yanit;
+            jarvisKonustur(yanit);
+        }, 500);
+    };
+
+    recognition.onerror = function(event) {
+        document.getElementById("algilananMetin").innerText = "Ses algılama hatası: " + event.error;
+    };
+
+    recognition.start();
+}
 </script>
-""",
-    unsafe_allow_html=True,
-)
 
 # ==========================================
 # 06. GİRİŞ KONTROL VE KİMLİK DOĞRULAMA EKRANI

@@ -164,7 +164,12 @@ if "hava_ozeti" not in st.session_state:
 # 05. SES SENTEZLEYİCİ JAVASCRIPT MODÜLÜ
 # ==========================================
 st.markdown(
-    """
+        """
+        ### TITAN OMEGA Komuta Paneli
+        Sistemler aktif ve çalışır durumda.
+        """,
+        unsafe_allow_html=True,
+    )
 
 <script>
 function jarvisKonustur(metin) {

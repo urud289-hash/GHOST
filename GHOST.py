@@ -1979,13 +1979,13 @@ if ana_secim == "🎙️ Gerçek Zamanlı Sesli Asistan (Jarvis Sesli Mod)":
     s_c1.metric("Ses Algılama Modülü", "Aktif (Web Speech API)", "Hazır")
     s_c2.metric("Ses Sentezleyici", "Türkçe Doğal Ses", "Optimum")
 
-    sesli_asistan_html = """
+  sesli_asistan_html = """
     <div style="background-color: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #333; text-align: center;">
-        <h3 style="color: #00ffcc; margin-top: 0;">🎤 JARVIS Sesli Komut Konsolu</h3>
+        <h3 style="color: #00ffcc; margin-top: 0;">&#127908; JARVIS Sesli Komut Konsolu</h3>
         <p style="color: #ccc; font-size: 14px;">"Dinlemeyi Başlat" butonuna bas ve konuşmaya başla efendim.</p>
         
         <button onclick="sesliDinlemeyiBaslat()" style="background-color: #ff4b4b; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 10px;">
-            🎙️ Dinlemeyi Başlat
+            &#127908; Dinlemeyi Başlat
         </button>
         
         <div style="margin-top: 15px; text-align: left; background: #111; padding: 12px; border-radius: 6px; min-height: 50px;">
@@ -1998,6 +1998,7 @@ if ana_secim == "🎙️ Gerçek Zamanlı Sesli Asistan (Jarvis Sesli Mod)":
             <p id="jarvisYaniti" style="color: #fff; margin: 5px 0 0 0;">Bekleniyor...</p>
         </div>
     </div>
+    """
 
     <script>
     function jarvisKonustur(metin) {

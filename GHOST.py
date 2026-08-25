@@ -307,35 +307,34 @@ st.sidebar.markdown(
 )
 
 ana_secim = st.sidebar.radio(
-    "Sistem Modu Seçin:",
-    [
-        "💬 JARVIS Omega Sohbet, Canlı Web & Ses",
-        "🎮 Oyuncu & Favori Oyun Taktik Asistanı",
-        "🤖 Otonom Akıllı Görev ve İşlem Zamanlayıcı",
-        "🌐 Hızlı Çeviri ve Çok Dilli Kod Açıklayıcı",
-        "📂 Akıllı Dosya ve Sideloading / IPA Rehberi",
-        "🧠 Nöral Hafıza (MEMORIES.md) Deposu",
-        "💻 Otonom Yazılım & Kod Derleme Terminali",
-        "🌍 Küresel Canlı Hava Durumu & Uydu Radarı",
-        "🪙 Döviz (Dolar, Euro, Sterlin) & Kripto Analizi",
-        "🛡️ Siber Güvenlik Duvarı & Tehdit Radarı",
-        "🌤️ Çevresel Sensör & Atmosferik İstasyon",
-        "🔒 Biyometrik İzin & Kullanıcı Matriksi",
-        "📍 Canlı GPS Konum ve Google Maps Ağı",
-        "🛰️ Uzaktan Hedef İzleme (Supabase Sync)",
-        "🎵 YouTube & Spotify Akıllı Medya Kumandası",
-        "🕹️ Anlık Hile & Konsol Komut Veritabanı",
-        "🛠️ Kendi Kendini Onaran AI Debugger & Hata Çözücü",
-        "⚡ Sistem Performans Hızlandırıcı & RAM Optimizasyon",
-        "⏳ Akıllı Pomodoro Odak & Mola Zamanlayıcı",
-        "🚀 Kuantum Holografik Ekran & Tema Hackleyicisi (YENİ)",
-        "🧠 Nöral Beyin Dalgası & Odak Senkronizasyonu BCI (YENİ)",
-        "🛰️ Yörünge Uydu Canlı Takip ve ISS Radarı (YENİ)",
-        "📊 Sistem Denetim, Performans & Loglar",
-        "📌 Otonom Görev, Hatırlatıcı & Notlar",
-    ],
-    label_visibility="collapsed",
-)
+        "Sistem Modu Seçin:",
+        [
+            "🎙️ Gerçek Zamanlı Sesli Asistan (Jarvis Sesli Mod)",
+            "💬 JARVIS Omega Sohbet, Canlı Web & Ses",
+            "🎮 Oyuncu & Favori Oyun Taktik Asistanı",
+            "🤖 Otonom Akıllı Görev ve İşlem Zamanlayıcı",
+            "🌐 Hızlı Çeviri ve Çok Dilli Kod Açıklayıcı",
+            "📁 Akıllı Dosya ve Sideloading / IPA Rehberi",
+            "🧠 Nöral Hafıza (MEMORIES.md) Deposu",
+            "💻 Otonom Yazılım & Kod Derleme Terminali",
+            "🌍 Küresel Canlı Hava Durumu & Uydu Radarı",
+            "📊 Döviz (Dolar, Euro, Sterlin) & Kripto Analizi",
+            "🛡️ Siber Güvenlik Duvarı & Tehdit Radarı",
+            "🛰️ Çevresel Sensör & Atmosferik İstasyon",
+            "👤 Biyometrik İzin & Kullanıcı Matriksi",
+            "🛰️ Canlı GPS Konum ve Google Maps Ağı",
+            "📡 Uzaktan Hedef İzleme (Supabase Sync)",
+            "🎵 YouTube & Spotify Akıllı Medya Kumandası",
+            "🕹️ Anlık Hile & Konsol Komut Veritabanı",
+            "🤖 Kendi Kendini Onaran AI Debugger & Hata Çözücü",
+            "⚡ Sistem Performans Hızlandırıcı & RAM Optimizasyon",
+            "⏳ Akıllı Pomodoro Odak & Mola Zamanlayıcı",
+            "🌐 Kuantum Holografik Ekran & Tema Hackleyicisi (YENİ)",
+            "🧠 Nöral Beyin Dalgası & Odak Senkronizasyonu BCI (YENİ)",
+            "🛰️ Yörünge Uydu Canlı Takip ve ISS Radarı (YENİ)",
+            "📊 Sistem Denetim, Performans & Loglar"
+        ]
+    )
 
 if st.sidebar.button("🔒 Oturumu Kapat ve Kilitle"):
   st.session_state.giris_yapildi = False

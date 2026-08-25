@@ -2132,8 +2132,12 @@ st.components.v1.html(sesli_asistan_html, height=420)
 
         recognition.start();
     }
-    </script>
+    # HTML ve JS içeriğini kapatan üçlü tırnak burada olmalı:
     """
+
+    # Streamlit bileşeni çağrısı
+    st.components.v1.html(sesli_asistan_html, height=420)
+    
 
     st.components.v1.html(sesli_asistan_html, height=360)
     st.markdown("---")

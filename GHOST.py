@@ -1904,3 +1904,99 @@ elif ana_secim == "🎯 Otonom Drone Filosu & Keşif Merkezi":
                     st.error(f"Drone filo hatası: {ex}")
         else:
             st.warning("Lütfen taranacak bölgeyi girin efendim.")
+
+# ==========================================
+# 43. MODÜL: GERÇEK ZAMANLI SESLİ ASİSTAN & SESLİ KOMUT MERKEZİ
+# ==========================================
+elif ana_secim == "🎙️ Gerçek Zamanlı Sesli Asistan (Jarvis Sesli Mod)":
+    st.subheader("🎙️ TITAN & JARVIS Sesli Etkileşim ve Sesli Komut Merkezi")
+    st.markdown(
+        "Mikrofonu aktif hale getirerek JARVIS ile sesli konuşabilir, komutlar verebilir ve sesli yanıtlar alabilirsin efendim."
+    )
+
+    s_c1, s_c2 = st.columns(2)
+    s_c1.metric("Ses Algılama Modülü", "Aktif (Web Speech API)", "Hazır")
+    s_c2.metric("Ses Sentezleyici", "Türkçe Doğal Ses", "Optimum")
+
+    # Tarayıcı tabanlı ses tanıma ve sesli yanıt (TTS) için özel HTML/JS bileşeni
+    sesli_asistan_html = """
+    <div style="background-color: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #333; text-align: center;">
+        <h3 style="color: #00ffcc; margin-top: 0;">🎤 JARVIS Sesli Komut Konsolu</h3>
+        <p style="color: #ccc; font-size: 14px;">"Dinlemeyi Başlat" butonuna bas ve konuşmaya başla efendim.</p>
+        
+        <button onclick="sesliDinlemeyiBaslat()" style="background-color: #ff4b4b; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 10px;">
+            🎙️ Dinlemeyi Başlat
+        </button>
+        
+        <div style="margin-top: 15px; text-align: left; background: #111; padding: 12px; border-radius: 6px; min-height: 50px;">
+            <strong style="color: #00ffcc;">Algılanan Komut:</strong>
+            <p id="algilananMetin" style="color: #fff; margin: 5px 0 0 0; font-style: italic;">Dinleniyor...</p>
+        </div>
+        
+        <div style="margin-top: 10px; text-align: left; background: #111; padding: 12px; border-radius: 6px; min-height: 50px;">
+            <strong style="color: #ff00ff;">JARVIS Yanıtı:</strong>
+            <p id="jarvisYaniti" style="color: #fff; margin: 5px 0 0 0;">Bekleniyor...</p>
+        </div>
+    </div>
+
+    <script>
+    function jarvisKonustur(metin) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // Önceki sesleri durdur
+            var konusma = new SpeechSynthesisUtterance(metin);
+            konusma.lang = 'tr-TR';
+            konusma.rate = 1.0;
+            konusma.pitch = 1.0;
+            window.speechSynthesis.speak(konusma);
+        }
+    }
+
+    function sesliDinlemeyiBaslat() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Tarayıcınız ses tanıma özelliğini desteklemiyor efendim. Lütfen Google Chrome kullanın.");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'tr-TR';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        document.getElementById("algilananMetin").innerText = "Dinleniyor, lütfen konuşun...";
+
+        recognition.onresult = function(event) {
+            const spokenText = event.results[0][0].transcript;
+            document.getElementById("algilananMetin").innerText = spokenText;
+            
+            // Yapay zekaya yanıt üretmesi için metni simüle et veya Streamlit tarafına aktar
+            document.getElementById("jarvisYaniti").innerText = "İşleniyor, yanıt hazırlanıyor efendim...";
+            
+            // Örnek akıllı yanıt simülasyonu ve sesli çıktı
+            setTimeout(() => {
+                let yanıt = "Emredersiniz efendim, '" + spokenText + "' komutunuz alınmıştır ve işleme konulmuştur.";
+                if(spokenText.toLowerCase().includes("nasılsın")) {
+                    yanıt = "Sistemlerim kusursuz çalışıyor efendim, size nasıl yardımcı olabilirim?";
+                } else if(spokenText.toLowerCase().includes("merhaba")) {
+                    yanıt = "Merhaba efendim, TITAN OMEGA komuta merkezi emrinizdedir.";
+                }
+                document.getElementById("jarvisYaniti").innerText = yanıt;
+                jarvisKonustur(yanıt);
+            }, 1000);
+        };
+
+        recognition.onerror = function(event) {
+            document.getElementById("algilananMetin").innerText = "Ses algılama hatası: " + event.error;
+        };
+
+        recognition.start();
+    }
+    </script>
+    """
+
+    st.components.v1.html(sesli_asistan_html, height=360)
+
+    st.markdown("---")
+    st.info(
+        "💡 **Not:** Sesli komut modülü doğrudan tarayıcının mikrofonunu kullanır. Tarayıcı mikrofon izni istediğinde 'İzin Ver' seçeneğine tıklayarak JARVIS ile karşılıklı sesli sohbet edebilirsin efendim!"
+    )

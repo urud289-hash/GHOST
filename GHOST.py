@@ -1751,170 +1751,42 @@ ana_secim = st.sidebar.selectbox(
 # 39. MODÜL: ÇOK BOYUTLU UZAY-ZAMAN SİMÜLATÖRÜ
 # ==========================================
 elif ana_secim == "🌌 Çok Boyutlu Uzay-Zaman Simülatörü":
-  st.subheader("🌌 TITAN Uzay-Zaman Eğriliği ve Yıldızlararası Rota Planlayıcı")
-  st.markdown(
-      "Astrofiziksel verileri kullanarak ışıktan hızlı (FTL) geçiş"
-      " simülasyonları yap ve yerçekimi dalgası sapmalarını hesapla efendim."
-  )
-
-  uzay_c1, uzay_c2, uzay_c3 = st.columns(3)
-  uzay_c1.metric("Yerçekimi Dalga Stabilitesi", "99.91%", "Normal")
-  uzay_c2.metric("Warp Faktörü Sınırı", "Warp 9.2", "Güvenli Bölge")
-  uzay_c3.metric("Evrensel Koordinat", "Sektör 4 - Delta", "Kilitli")
-
-  hedef_sektor = st.text_input(
-      "Hedef Yıldız Sistemi veya Koordinat:",
-      placeholder="Örn: Alpha Centauri Sektör 2 veya Proxima B",
-  )
-
-  if st.button("Uzay-Zaman Simülasyonunu Başlat"):
-    if hedef_sektor:
-      with st.spinner(
-          "Yerçekimi tünelleri hesaplanıyor ve rota simüle ediliyor..."
-      ):
-        try:
-          uzay_res = client.chat.completions.create(
-              model=MODEL_NAME,
-              messages=[
-                  {
-                      "role": "system",
-                      "content": (
-                          "Sen kıdemli bir astrofizikçi ve uzay-zaman"
-                          " mühendisisin. Kullanıcının hedeflediği uzay"
-                      ),
-                  },
-              ],
-          )
-        except:
-          pass
-
-# ==========================================
-# 40. MODÜL: BİYOTEKNOLOJİK GENOM ANALİZ LABORATUVARI
-# ==========================================
-elif ana_secim == "🧬 Biyoteknolojik Genom Analiz Laboratuvarı":
-  st.subheader("🧬 JARVIS Biyoteknoloji ve Hücresel Optimizasyon Labı")
-  st.markdown(
-      "Hücresel yenilenme hızını artıracak biyolojik simülasyonlar ve"
-      " yorgunluk giderici metabolik raporlar hazırla efendim."
-  )
-
-  biyo_c1, biyo_c2 = st.columns(2)
-  biyo_c1.metric("Metabolik Denge", "%96.5", "Optimum")
-  biyo_c2.metric("Hücresel Yenilenme", "Aktif", "Yüksek Verim")
-
-  biyo_girdi = st.text_input(
-      "Analiz Edilecek Biyolojik / Fiziksel Durum:",
-      placeholder="Örn: Uzun süreli kod yazma sonrası zihinsel yorgunluk giderme",
-  )
-
-  if st.button("Genom ve Biyo-Veriyi Analiz Et"):
-    if biyo_girdi:
-      with st.spinner("Biyoteknolojik yapay zeka verileri tarıyor..."):
-        try:
-          biyo_res = client.chat.completions.create(
-              model=MODEL_NAME,
-              messages=[
-                  {
-                      "role": "system",
-                      "content": (
-                          "Sen gelişmiş bir biyoteknoloji ve tıp yapay"
-                          " zekasısın. Kullanıcının durumuna göre bilimsel,"
-                          " pratik ve zindelik artırıcı öneriler sun."
-                      ),
-                  },
-                  {"role": "user", "content": biyo_girdi},
-              ],
-          )
-          st.markdown("### 🔬 Biyolojik Optimizasyon Raporu:")
-          st.markdown(biyo_res.choices[0].message.content)
-          st.success("Biyo-analiz başarıyla tamamlandı efendim!")
-        except Exception as ex:
-          st.error(f"Biyo-laboratuvar hatası: {ex}")
-    else:
-      st.warning("Lütfen analiz edilecek durumu belirtin efendim.")
-
-# ==========================================
-# 41. MODÜL: PLAZMA REAKTÖR ÇEKİRDEĞİ & GÜÇ MATRİKSİ
-# ==========================================
-elif ana_secim == "⚡ Plazma Reaktör Çekirdeği & Güç Matriksi":
-  st.subheader("⚡ TITAN Çekirdek Füzyon Reaktörü ve Enerji Dağılım Paneli")
-  st.markdown(
-      "Manyetik alan sınırlamalarını, çekirdek sıcaklığını ve plazma akış"
-      " yoğunluğunu yöneterek aşırı güç yüklemeleri gerçekleştir efendim."
-  )
-
-  p_c1, p_c2, p_c3 = st.columns(3)
-  p_c1.metric("Çekirdek Isısı", "1,420 °C", "Güvenli Sınır")
-  p_c2.metric("Manyetik Alan", "8.4 Tesla", "Kilitli")
-  p_c3.metric("Üretilen Güç", "1.21 Gigawatt", "Kararlı")
-
-  reaktor_modu = st.selectbox(
-      "Reaktör Güç Dağılım Modu:",
-      [
-          "Omega Güç Kalkanı (Tüm Enerji Savunmaya)",
-          "Kuantum Aşırı Yükleme (Maksimum İşlemci Gücü)",
-          "Sessiz Seyir Modu (%20 Minimum Tüketim)",
-          "Dengeli Otomatik Dağıtım",
-      ],
-  )
-
-  if st.button("Reaktör Protokolünü Uygula"):
-    st.success(
-        f"⚡ Reaktör başarıyla '{reaktor_modu}' moduna geçirildi efendim!"
-    )
-    st.components.v1.html(
-        '<script>titanOmegaKonus("Plazma reaktör güç matrisi güncellendi'
-        ' efendim.");</script>',
-        height=0,
+    st.subheader("🌌 TITAN Uzay-Zaman Eğriliği ve Yıldızlararası Rota Planlayıcı")
+    st.markdown(
+        "Astrofiziksel verileri kullanarak ışıktan hızlı (FTL) geçiş simülasyonları yap ve yerçekimi dalgası sapmalarını hesapla efendim."
     )
 
-# ==========================================
-# 42. MODÜL: OTONOM DRONE FİLOSU & KEŞEF MERKEZİ
-# ==========================================
-elif ana_secim == "🎯 Otonom Drone Filosu & Keşif Merkezi":
-  st.subheader("🎯 JARVIS Hava ve Kara Keşif Otonom Drone Filosu")
-  st.markdown(
-      "Keşif dronelarını hedef bölgeye göndererek 3 boyutlu termal"
-      " haritalandırma ve alan tarama raporları al efendim."
-  )
+    uzay_c1, uzay_c2, uzay_c3 = st.columns(3)
+    uzay_c1.metric("Yerçekimi Dalga Stabilitesi", "99.91%", "Normal")
+    uzay_c2.metric("Warp Faktörü Sınırı", "Warp 9.2", "Güvenli Bölge")
+    uzay_c3.metric("Evrensel Koordinat", "Sektör 4 - Delta", "Kilitli")
 
-  d_c1, d_c2 = st.columns(2)
-  d_c1.metric("Aktif Drone Sayısı", "12 İHA / 4 SİHA", "Hazır")
-  d_c2.metric("Keşif Alanı Sinyali", "%100 Kapsama", "HD Akış")
+    hedef_sektor = st.text_input(
+        "Hedef Yıldız Sistemi veya Koordinat:",
+        placeholder="Örn: Alpha Centauri Sektör 2 veya Proxima B",
+    )
 
-  drone_bolge = st.text_input(
-      "Taranacak Bölge veya Koordinat:",
-      placeholder="Örn: Komuta merkezi çevresi veya test sahası",
-  )
-
-  if st.button("Otonom Drone Filosunu Havalandır"):
-    if drone_bolge:
-      with st.spinner("Dronelar hedef bölgeye yönlendiriliyor..."):
-        try:
-          drone_res = client.chat.completions.create(
-              model=MODEL_NAME,
-              messages=[
-                  {
-                      "role": "system",
-                      "content": (
-                          "Sen askeri otonom drone filosu yönetim yapay"
-                          " zekasısın. Seçilen bölge için keşif ve termal tarama"
-                          " raporu sun."
-                      ),
-                  },
-                  {
-                      "role": "user",
-                      "content": (
-                          f"'{drone_bolge}' bölgesi için otonom keşif raporu"
-                          " oluştur."
-                      ),
-                  },
-              ],
-          )
-          st.markdown("### 📡 Otonom Keşif ve Tarama Raporu:")
-          st.markdown(drone_res.choices[0].message.content)
-          st.success("Drone operasyonu başarıyla tamamlandı efendim!")
-        except Exception as ex:
-          st.error(f"Drone filo hatası: {ex}")
-    else:
-      st.warning("Lütfen taranacak bölgeyi girin efendim.")
+    if st.button("Uzay-Zaman Simülasyonunu Başlat"):
+        if hedef_sektor:
+            with st.spinner("Yerçekimi tünelleri hesaplanıyor ve rota simüle ediliyor..."):
+                try:
+                    uzay_res = client.chat.completions.create(
+                        model=MODEL_NAME,
+                        messages=[
+                            {
+                                "role": "system",
+                                "content": "Sen kıdemli bir astrofizikçi ve uzay-zaman mühendisisin. Hedeflenen uzay sektörü için güvenli geçiş ve warp rotası raporu sun.",
+                            },
+                            {
+                                "role": "user",
+                                "content": f"'{hedef_sektor}' sektörü için uzay-zaman simülasyon raporu nedir?",
+                            },
+                        ],
+                    )
+                    st.markdown("### 🌌 Uzay-Zaman Rota Raporu:")
+                    st.markdown(uzay_res.choices[0].message.content)
+                    st.success("Uzay-zaman simülasyonu başarıyla tamamlandı efendim!")
+                except Exception as ex:
+                    st.error(f"Uzay-zaman simülasyon hatası: {ex}")
+        else:
+            st.warning("Lütfen hedef bir sektör veya koordinat girin efendim.")

@@ -82,7 +82,7 @@ st.markdown(
 # ==========================================
 # 03. API VE BULUT VERİTABANI BAĞLANTILARI
 # ==========================================
-API_KEY = "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"
+API_KEY = "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"
 client = OpenAI(api_key=API_KEY, base_url="https://api.groq.com/openai/v1")
 MODEL_NAME = "openai/gpt-oss-120b"
 

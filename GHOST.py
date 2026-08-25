@@ -124,7 +124,7 @@ if "jarvis_hafiza" not in st.session_state:
       "Sistem Çekirdeği: TITAN v20.0 OMEGA SUPREME",
       "Güvenlik Duvarı: Aktif (Kuantum Matris Koruması)",
       "Nöral Bellek: Tam Kapasite Senkronize Edildi",
-      "Yeni Eklenenler: Oyuncu Asistanı, Cron Scheduler, Çevirmen & IPA Rehberi",
+      "Yeni Eklenenler: Medya Kumandası, Oyun Kodları & AI Debugger",
   ]
 if "izinli_kisiler" not in st.session_state:
   st.session_state.izinli_kisiler = {"Yiğit": "Ana Komutan (Admin)"}
@@ -132,7 +132,7 @@ if "izinli_fotolar" not in st.session_state:
   st.session_state.izinli_fotolar = {}
 if "sistem_loglari" not in st.session_state:
   st.session_state.sistem_loglari = [
-      f"[{datetime.datetime.now().strftime('%H:%M:%S')}] TITAN v20.0 OMEGA çekirdeği ve yeni modüller yüklendi."
+      f"[{datetime.datetime.now().strftime('%H:%M:%S')}] TITAN v20.0 OMEGA yeni modüllerle yüklendi."
   ]
 if "notlar_defteri" not in st.session_state:
   st.session_state.notlar_defteri = []
@@ -145,13 +145,6 @@ if "kripto_portfoy" not in st.session_state:
   st.session_state.kripto_portfoy = [
       {"coin": "Amerikan Doları (USD/TRY)", "adet": "Döviz", "hedef": "Canlı Kur"},
       {"coin": "Euro (EUR/TRY)", "adet": "Döviz", "hedef": "Canlı Kur"},
-      {
-          "coin": "İngiliz Sterlini (GBP/TRY)",
-          "adet": "Döviz",
-          "hedef": "Canlı Kur",
-      },
-      {"coin": "Bitcoin (BTC)", "adet": 0.5, "hedef": "$120,000"},
-      {"coin": "Ethereum (ETH)", "adet": 4.2, "hedef": "$6,500"},
   ]
 
 if "anlik_sicaklik" not in st.session_state:
@@ -359,6 +352,9 @@ ana_secim = st.sidebar.radio(
         "🔒 Biyometrik İzin & Kullanıcı Matriksi",
         "📍 Canlı GPS Konum ve Google Maps Ağı",
         "🛰️ Uzaktan Hedef İzleme (Supabase Sync)",
+        "🎵 YouTube & Spotify Akıllı Medya Kumandası",
+        "🕹️ Anlık Hile & Konsol Komut Veritabanı",
+        "🛠️ Kendi Kendini Onaran AI Debugger & Hata Çözücü",
         "📊 Sistem Denetim, Performans & Loglar",
         "📌 Otonom Görev, Hatırlatıcı & Notlar",
     ],
@@ -1029,7 +1025,130 @@ elif ana_secim == "🛰️ Uzaktan Hedef İzleme (Supabase Sync)":
     st.error("Supabase bağlantısı kurulamadı efendim.")
 
 # ==========================================
-# 24. MODÜL: SİSTEM DENETİM VE LOGLAR
+# 24. MODÜL: YOUTUBE & SPOTIFY AKILLI MEDYA KUMANDASI (YENİ)
+# ==========================================
+elif ana_secim == "🎵 YouTube & Spotify Akıllı Medya Kumandası":
+  st.subheader("🎵 JARVIS Akıllı Medya ve İçerik Tarama Kumandası")
+  st.markdown(
+      "Sevdiğin içerikleri, oyun müziklerini veya takip ettiğin kanalların"
+      " videolarını hızlıca bul ve oynatma listesi oluştur efendim."
+  )
+
+  medya_sorgu = st.text_input(
+      "Aramak İstediğin Müzik, Video veya İçerik Üreticisi:",
+      placeholder="Örn: Arden Papazyan Htalks videosu veya oyun müzikleri",
+  )
+  if st.button("Medya Ağı Üzerinden Ara"):
+    if medya_sorgu:
+      with st.spinner(
+          "YouTube ve medya veritabanı taranıyor, bağlantılar getiriliyor..."
+      ):
+        bulunan_medya = titan_web_aramasi_yap(
+            f"site:youtube.com {medya_sorgu}"
+        )
+        st.markdown("### 🎬 Bulunan Medya ve Bağlantı Önerileri:")
+        st.info(f"**Medya Ağı Yanıtı:** {bulunan_medya}")
+
+        # YouTube arama linki oluşturma
+        encoded_q = urllib.parse.quote_plus(medya_sorgu)
+        st.markdown(
+            f"🔗 [YouTube'da '{medya_sorgu}' İçin Doğrudan Ara ve İzle](https://www.youtube.com/results?search_query={encoded_q})"
+        )
+        st.success("Medya komutu başarıyla işlendi efendim!")
+    else:
+      st.warning("Lütfen bir medya veya sanatçı adı girin efendim.")
+
+# ==========================================
+# 25. MODÜL: ANLIK HİLE & KONSOL KOMUT VERİTABANI (YENİ)
+# ==========================================
+elif ana_secim == "🕹️ Anlık Hile & Konsol Komut Veritabanı":
+  st.subheader("🕹️ JARVIS Oyun Hileleri ve Konsol Komut Veritabanı")
+  st.markdown(
+      "Oynadığın oyunlar için konsol komutları, şifreler veya yama"
+      " optimizasyon ipuçları al efendim."
+  )
+
+  oyun_adi_input = st.text_input(
+      "Hangi oyun için hile veya konsol komutu istiyorsun?",
+      placeholder="Örn: Minecraft, PES 2017 veya FIFA/FC",
+  )
+  if st.button("Konsol Kodlarını ve Hileleri Getir"):
+    if oyun_adi_input:
+      with st.spinner("Oyun veritabanından komutlar çekiliyor..."):
+        try:
+          hile_res = client.chat.completions.create(
+              model=MODEL_NAME,
+              messages=[{
+                  "role": "system",
+                  "content": (
+                      "Sen profesyonel bir oyun rehberisin. Kullanıcının"
+                      " istediği oyun için en popüler hileleri, konsol"
+                      " komutlarını ve ipuçlarını net maddeler halinde listele."
+                  ),
+              }, {
+                  "role": "user",
+                  "content": (
+                      f"'{oyun_adi_input}' oyunu için konsol komutları ve"
+                      " hileler nelerdir?"
+                  ),
+              }],
+          )
+          st.markdown("### 🎮 Konsol Komutları ve İpuçları Raporu:")
+          st.markdown(hile_res.choices[0].message.content)
+          st.success("Komutlar başarıyla listelendi efendim!")
+        except Exception as ex:
+          st.error(f"Veritabanı hatası: {ex}")
+    else:
+      st.warning("Lütfen oyun adını girin efendim.")
+
+# ==========================================
+# 26. KENDİ KENDİNİ ONARAN AI DEBUGGER & HATA ÇÖZÜCÜ (YENİ)
+# ==========================================
+elif ana_secim == "🛠️ Kendi Kendini Onaran AI Debugger & Hata Çözücü":
+  st.subheader("🛠️ TITAN Kendi Kendini Onaran AI Debugger (Hata Çözümcüsü)")
+  st.markdown(
+      "Yazdığın Python kodunu veya aldığın hata mesajını (Traceback)"
+      " yapıştır; JARVIS anında hatayı tespit edip düzeltsin efendim."
+  )
+
+  hatali_kod = st.text_area(
+      "Hatalı Kod veya Hata Mesajı (Traceback):",
+      placeholder=(
+          "Buraya hata veren kodunuzu veya terminal çıktısını yapıştırın..."
+      ),
+  )
+  if st.button("Hatayı Analiz Et ve Kodu Otomatik Onar"):
+    if hatali_kod:
+      with st.spinner(
+          "TITAN AI Debugger kodu tarıyor ve düzeltilmiş sürümü üretiyor..."
+      ):
+        try:
+          debug_res = client.chat.completions.create(
+              model=MODEL_NAME,
+              messages=[{
+                  "role": "system",
+                  "content": (
+                      "Sen kıdemli bir yapay zeka hata ayıklayıcısısın (AI"
+                      " Debugger). Kullanıcının verdiği hatalı kod veya"
+                      " hata mesajını incele. Nerede hata yapıldığını kısaca"
+                      " açıkla ve tamamen düzeltilmiş, çalışır haldeki kod"
+                      " bloğunu Markdown içinde sun."
+                  ),
+              }, {
+                  "role": "user",
+                  "content": hatali_kod,
+              }],
+          )
+          st.markdown("### 🔬 AI Debugger Çözüm ve Onarım Raporu:")
+          st.markdown(debug_res.choices[0].message.content)
+          st.success("✅ Kod başarıyla onarıldı ve optimize edildi efendim!")
+        except Exception as ex:
+          st.error(f"Debugger hatası: {ex}")
+    else:
+      st.warning("Lütfen hatalı kodu veya mesajı girin efendim.")
+
+# ==========================================
+# 27. MODÜL: SİSTEM DENETİM VE LOGLAR
 # ==========================================
 elif ana_secim == "📊 Sistem Denetim, Performans & Loglar":
   st.subheader("📊 TITAN Altyapı Denetim ve Siber Güvenlik Logları")
@@ -1042,7 +1161,7 @@ elif ana_secim == "📊 Sistem Denetim, Performans & Loglar":
     st.rerun()
 
 # ==========================================
-# 25. MODÜL: GÖREVLER VE NOTLAR DEFTERİ
+# 28. MODÜL: GÖREVLER VE NOTLAR DEFTERİ
 # ==========================================
 else:
   st.subheader("📌 JARVIS Otonom Görev, Hatırlatıcı ve Notlar Defteri")
@@ -1067,7 +1186,7 @@ else:
         st.write(f"**{i+1}.** {g['gorev']} — *{g['durum']}*")
       with col_g2:
         if g["durum"] != "Tamamlandı ✅":
-          if st.button("Tamamla", key=f"btn_gorev_{i}"):
+          if st.button("Tamamla", key=f"btn_gorev_{i}___"):
             st.session_state.gorevler[i]["durum"] = "Tamamlandı ✅"
             st.rerun()
 

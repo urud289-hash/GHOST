@@ -28,12 +28,12 @@ st.set_page_config(
 # ==========================================
 # 02. GELİŞMİŞ HACKER & CYBERPUNK CSS STİLLERİ
 # ==========================================
-# Dinamik tema state kontrolü
 if "tema_rengi" not in st.session_state:
-  st.session_state.tema_rengi = "#38bdf8"  # Varsayılan Mavi / Siyan
+  st.session_state.tema_rengi = "#38bdf8"
 if "arkaplan_rengi" not in st.session_state:
   st.session_state.arkaplan_rengi = "#020408"
 
+# Hata veren f-string içindeki süslü parantezler çift ({{ ve }}) olarak düzeltilmiştir:
 st.markdown(
     f"""
 <style>
@@ -48,30 +48,30 @@ st.markdown(
         overflow-y: auto;
         padding-bottom: 140px;
         padding-right: 12px;
-    }
+    }}
     
     [data-testid="stChatInput"] textarea {{
         color: #ffffff !important;
         font-weight: 700 !important;
         font-size: 16px !important;
         background-color: #0d1117 !important;
-    }
+    }}
     [data-testid="stChatInput"] {{
         background-color: #11161d !important;
         border-radius: 14px !important;
         border: 1px solid #30363d !important;
-    }
+    }}
     
     .stButton>button {{
         background: linear-gradient(135deg, {st.session_state.tema_rengi}, #059669);
         color: white; border-radius: 10px; border: 1px solid {st.session_state.tema_rengi}; 
         font-weight: 700; padding: 0.6rem 1.2rem; width: 100%;
         box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); transition: all 0.3s ease;
-    }
+    }}
     .stButton>button:hover {{ 
         background: linear-gradient(135deg, #0369a1, #047857);
         box-shadow: 0 6px 16px rgba(5, 150, 105, 0.5); border-color: #34d399;
-    }
+    }}
     [data-testid="stDataFrame"] {{ border: 1px solid #30363d; border-radius: 10px; background-color: #0d1117; }}
     .matrix-box {{ background-color: #05080f; padding: 18px; border-radius: 10px; border: 1px solid #1e293b; font-family: monospace; }}
 </style>

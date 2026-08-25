@@ -1001,7 +1001,7 @@ elif ana_secim == "📍 Canlı GPS Konum ve Google Maps Ağı":
   st.components.v1.html(
       """
     <div style="padding: 18px; background-color: #0d1117; color: white; border-radius: 10px; border: 1px solid #30363d;">
-        <h3 style="color: #38bdf8; margin-top:0;">📡 Canlı Uydu & Harita Radarı</h3>
+        <h3 style="color: #38bdf8; margin-top:0;">Canlı Uydu ve Harita Radarı</h3>
         <p id="durum_gps" style="color: #94a3b8;">Konum sinyali bekleniyor...</p>
         <div id="koord_gps" style="margin-top: 5px; font-family: monospace; font-size: 16px; color: #10b981; margin-bottom: 12px;"></div>
         <button onclick="titanKonumAl()" style="background-color: #0284c7; color: white; padding: 10px 22px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">Anlık Konumumu Al ve Haritada Göster</button>

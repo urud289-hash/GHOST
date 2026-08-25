@@ -172,32 +172,7 @@ st.markdown(
     )
 
 # Doğru kullanım şekli:
-js_kodu = """
-<script>
-    // JavaScript kodların buraya gelecek efendim
-    console.log("JARVIS aktif!");
-</script>
-"""
 
-st.components.v1.html(js_kodu, height=0)
-function jarvisKonustur(metin) {
-    if ('speechSynthesis' in window) {
-        // Tarayıcı kuyruğunu sıfırla
-        window.speechSynthesis.cancel();
-        
-        var konusma = new SpeechSynthesisUtterance(metin);
-        konusma.lang = 'tr-TR';
-        konusma.rate = 1.0;
-        konusma.pitch = 1.0;
-        
-        // Türkçe ses mevcutsa seçmeye çalış
-        var sesler = window.speechSynthesis.getVoices();
-        for(var i = 0; i < sesler.length; i++) {
-            if(sesler[i].lang === 'tr-TR' || sesler[i].lang === 'tr_TR') {
-                konusma.voice = sesler[i];
-                break;
-            }
-        }
         
         window.speechSynthesis.speak(konusma);
     } else {

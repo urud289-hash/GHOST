@@ -1573,7 +1573,7 @@ elif ana_secim == "🧠 Biyometrik Zihin-Makine Klon Bağlantısı (YENİ)":
         except Exception as ex:
           st.error(f"Nöral bağlantı hatası: {ex}")
     else:
-        st.warning("Lütfen zihinsel niyetinizi veya odaklandığınız konuyu belirtin efendim.")
+      st.warning("Lütfen zihinsel niyetinizi veya odaklandığınız konuyu belirtin efendim.")
 
 # ==========================================
 # 38. MODÜL: AGI TABANLI ÖZERK SAVUNMA PROTOKOLÜ (YENİ)
@@ -1615,3 +1615,10 @@ elif ana_secim == "🤖 AGI Tabanlı Özerk Savunma Protokolü (YENİ)":
           ' sokuldu efendim. Sistem tamamen koruma altında.");</script>',
           height=0,
       )
+
+# ==========================================
+# EN SON BLOK: GÖREVLER VE NOTLAR DEFTERİ (GENEL ELSE)
+# ==========================================
+else:
+  st.subheader("📌 JARVIS Otonom Görev, Hatırlatıcı ve Notlar Defteri")
+  # ... (kalan görevler ve notlar kodları)

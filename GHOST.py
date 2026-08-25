@@ -1992,26 +1992,96 @@ if ana_secim == "🎙️ Gerçek Zamanlı Sesli Asistan (Jarvis Sesli Mod)":
     s_c1.metric("Ses Algılama Modülü", "Aktif (Web Speech API)", "Hazır")
     s_c2.metric("Ses Sentezleyici", "Türkçe Doğal Ses", "Optimum")
 
-  sesli_asistan_html = """
-    <div style="background-color: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #333; text-align: center;">
-        <h3 style="color: #00ffcc; margin-top: 0;">&#127908; JARVIS Sesli Komut Konsolu</h3>
-        <p style="color: #ccc; font-size: 14px;">"Dinlemeyi Başlat" butonuna bas ve konuşmaya başla efendim.</p>
-        
-        <button onclick="sesliDinlemeyiBaslat()" style="background-color: #ff4b4b; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 10px;">
-            &#127908; Dinlemeyi Başlat
-        </button>
-        
-        <div style="margin-top: 15px; text-align: left; background: #111; padding: 12px; border-radius: 6px; min-height: 50px;">
-            <strong style="color: #00ffcc;">Algılanan Komut:</strong>
-            <p id="algilananMetin" style="color: #fff; margin: 5px 0 0 0; font-style: italic;">Dinleniyor...</p>
-        </div>
-        
-        <div style="margin-top: 10px; text-align: left; background: #111; padding: 12px; border-radius: 6px; min-height: 50px;">
-            <strong style="color: #ff00ff;">JARVIS Yanıtı:</strong>
-            <p id="jarvisYaniti" style="color: #fff; margin: 5px 0 0 0;">Bekleniyor...</p>
-        </div>
+ # Sesli asistan HTML ve JavaScript kod bloğu
+sesli_asistan_html = """
+<div style="background-color: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #333; text-align: center;">
+    <h3 style="color: #00ffcc; margin-top: 0;">JARVIS Sesli Komut Konsolu</h3>
+    <p style="color: #ccc; font-size: 14px;">"Dinlemeyi Başlat" butonuna bas ve konuşmaya başla efendim.</p>
+    
+    <button onclick="sesliDinlemeyiBaslat()" style="background-color: #ff4b4b; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 10px;">
+        Dinlemeyi Başlat
+    </button>
+    
+    <div style="margin-top: 15px; text-align: left; background: #111; padding: 12px; border-radius: 6px; min-height: 50px;">
+        <strong style="color: #00ffcc;">Algılanan Komut:</strong>
+        <p id="algilananMetin" style="color: #fff; margin: 5px 0 0 0; font-style: italic;">Dinleniyor...</p>
     </div>
-    """
+    
+    <div style="margin-top: 10px; text-align: left; background: #111; padding: 12px; border-radius: 6px; min-height: 50px;">
+        <strong style="color: #ff00ff;">JARVIS Yanıtı:</strong>
+        <p id="jarvisYaniti" style="color: #fff; margin: 5px 0 0 0;">Bekleniyor...</p>
+    </div>
+</div>
+
+<script>
+function jarvisKonustur(metin) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        var konusma = new SpeechSynthesisUtterance(metin);
+        konusma.lang = 'tr-TR';
+        konusma.rate = 1.0;
+        konusma.pitch = 1.0;
+        
+        var sesler = window.speechSynthesis.getVoices();
+        for(var i = 0; i < sesler.length; i++) {
+            if(sesler[i].lang === 'tr-TR' || sesler[i].lang === 'tr_TR') {
+                konusma.voice = sesler[i];
+                break;
+            }
+        }
+        window.speechSynthesis.speak(konusma);
+    }
+}
+
+if ('speechSynthesis' in window) {
+    window.speechSynthesis.getVoices();
+}
+
+function sesliDinlemeyiBaslat() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("Tarayıcınız ses tanıma özelliğini desteklemiyor efendim. Lütfen Google Chrome kullanın.");
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'tr-TR';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    document.getElementById("algilananMetin").innerText = "Dinleniyor, lütfen konuşun...";
+
+    recognition.onresult = function(event) {
+        const spokenText = event.results[0][0].transcript;
+        document.getElementById("algilananMetin").innerText = spokenText;
+        document.getElementById("jarvisYaniti").innerText = "İşleniyor, yanıt hazırlanıyor efendim...";
+        
+        setTimeout(() => {
+            let yanit = "Emredersiniz efendim, komutunuz alınmıştır.";
+            if(spokenText.toLowerCase().includes("nasılsın")) {
+                yanit = "Sistemlerim kusursuz çalışıyor efendim, size nasıl yardımcı olabilirim?";
+            } else if(spokenText.toLowerCase().includes("merhaba")) {
+                yanit = "Merhaba efendim, TITAN OMEGA komuta merkezi emrinizdedir.";
+            } else {
+                yanit = "Komutunuz işlendi efendim: " + spokenText;
+            }
+            
+            document.getElementById("jarvisYaniti").innerText = yanit;
+            jarvisKonustur(yanit);
+        }, 500);
+    };
+
+    recognition.onerror = function(event) {
+        document.getElementById("algilananMetin").innerText = "Ses algılama hatası: " + event.error;
+    };
+
+    recognition.start();
+}
+</script>
+"""
+
+# Streamlit bileşeni ile ekrana basıyoruz
+st.components.v1.html(sesli_asistan_html, height=420)
 
     <script>
     function jarvisKonustur(metin) {

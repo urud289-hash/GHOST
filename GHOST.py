@@ -1402,6 +1402,7 @@ else:
 
   for idx, not_item in enumerate(st.session_state.notlar_defteri):
     st.write(f"- 📌 **Not #{idx+1}:** {not_item}")
+
 # ==========================================
 # 34. MODÜL: NANO-TEKNOLOJİ & ZIRH ENTEGRASYONU (YENİ)
 # ==========================================

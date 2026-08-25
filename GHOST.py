@@ -1403,223 +1403,325 @@ else:
   for idx, not_item in enumerate(st.session_state.notlar_defteri):
     st.write(f"- 📌 **Not #{idx+1}:** {not_item}")
 
+import streamlit as st
+
+# (Eğer client ve MODEL_NAME tanımlı değilse projenizdeki ayarlara göre burayı kullanabilirsiniz)
+# from openai import OpenAI
+# client = OpenAI(api_key="...", base_url="...")
+# MODEL_NAME = "gpt-4o"
+
+st.set_page_config(
+    page_title="TITAN OMEGA // JARVIS Komuta Merkezi", layout="wide"
+)
+
+# Sesli komut için JavaScript entegrasyonu
+st.markdown(
+    """
+    <script>
+    function titanOmegaKonus(metin) {
+        if ('speechSynthesis' in window) {
+            var utterance = new SpeechSynthesisUtterance(metin);
+            utterance.lang = 'tr-TR';
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+    </script>
+""",
+    unsafe_allow_html=True,
+)
+
 # ==========================================
-# 34. MODÜL: NANO-TEKNOLOJİ & ZIRH ENTEGRASYONU (YENİ)
+# ANA MENÜ / KENAR ÇUĞUĞU (Tüm Modüller Dahil)
 # ==========================================
-elif ana_secim == "🛡️ Nano-Teknoloji & Zırh Entegrasyonu (YENİ)":
-  st.subheader("🛡️ TITAN Molecular Assembly & Nano-Bot Zırh Protokolü")
+st.sidebar.title("⚡ TITAN OMEGA SYSTEMS")
+ana_secim = st.sidebar.selectbox(
+    "KOMUTA MODÜLLERİ",
+    [
+        "🏠 Ana Konsol / Durum Paneli",
+        "🛡️ Nanoteknoloji ve Zırh Entegrasyonu",
+        "⚛️ Kuantum Süper Bilgisayar Bağlantısı",
+        "✨ Katı Işık Hologramı Projeksiyonu",
+        "🧠 Biyometrik Zihin-Makine Klon Bağlantısı",
+        "🤖 AGI Tabanlı Özerk Savunma Protokolü",
+        "📊 Sistem Denetim, Performans & Loglar",
+        "📌 Görevler ve Notlar Defteri",
+    ],
+)
+
+# ==========================================
+# 1. ANA KONSOL
+# ==========================================
+if ana_secim == "🏠 Ana Konsol / Durum Paneli":
+  st.subheader("🏠 TITAN OMEGA Ana Komuta Paneli")
   st.markdown(
-      "Çevredeki moleküler yapıları kullanarak anında acil durum zırh"
-      " parçaları (Mark Serisi) veya özel araçlar üret efendim."
+      "Tüm sistemler aktif ve kararlı durumda efendim. Kenar çubuğundan"
+      " dilediğiniz üst düzey protokole geçiş yapabilirsiniz."
   )
 
-  zirh_modeli = st.selectbox(
-      "Üretilecek Nano-Zırh / Parça Seçin:",
+  col1, col2, col3 = st.columns(3)
+  col1.metric("Sistem Durumu", "%100", "Stabil")
+  col2.metric("Aktif Protokol", "38 Modül", "Senkronize")
+  col3.metric("Güvenlik Seviyesi", "OMEGA", "Tehdit Yok")
+
+# ==========================================
+# 34. MODÜL: NANOTEKNOLOJİ VE ZIRH ENTEGRASYONU
+# ==========================================
+elif ana_secim == "🛡️ Nanoteknoloji ve Zırh Entegrasyonu":
+  st.subheader("🛡️ TITAN Nanoteknolojik Moleküler Zırh ve Onarım Matriksi")
+  st.markdown(
+      "Nanobot filolarını devreye sokarak zırh bütünlüğünü, nanokonteyner"
+      " durumunu ve moleküler yapılandırmayı yönet efendim."
+  )
+
+  c1, c2, c3 = st.columns(3)
+  c1.metric("Nano-Bot Yoğunluğu", "%98.4", "Stabil")
+  c2.metric("Zırh Bütünlüğü", "Optimum", "Hasar Yok")
+  c3.metric("Moleküler Sentez", "Aktif", "Hazır")
+
+  zirh_modu = st.selectbox(
+      "Nanoteknoloji Modu Seçin:",
       [
-          "Mark 50 - Nanoteknik Kompakt Zırh Kasa",
-          "Mark 85 - Taarruz ve Enerji Kanatları",
-          "Acil Durum Nano-Kalkan (Field Shield)",
-          "Hassas Tamir Nano-Bot Kolu",
+          "Nano-Saldırı ve Kalkan Güçlendirme",
+          "Otomatik Moleküler Hasar Onarımı",
+          "Akıllı Görünmezlik / Optik Kamuflaj",
+          "Enerji Hücresi Aşırı Yükleme",
       ],
   )
 
-  c_n1, c_n2, c_n3 = st.columns(3)
-  c_n1.metric("Nano-Bot Yoğunluğu", "%99.8", "Stabil 🟢")
-  c_n2.metric("Moleküler Sentez Hızı", "0.4 sn", "Işık Hızı")
-  c_n3.metric("Zırh Bütünlüğü", "Optimum", "Hazır")
-
-  if st.button("Nano-Sentez Protokolünü Başlat"):
+  if st.button("Nano-Zırh Protokolünü Çalıştır"):
     with st.spinner(
-        "Moleküler yapılandırma başlatıldı, nanobotlar zırhı örüyor..."
+        "Nanobotlar moleküler düzeyde zırhı yeniden yapılandırıyor..."
     ):
       try:
         nano_res = client.chat.completions.create(
             model=MODEL_NAME,
-            messages=[{
-                "role": "system",
-                "content": (
-                    "Sen JARVIS'sin. Kullanıcının seçtiği nanoteknolojik"
-                    " zırhın veya parçanın moleküler katmanlar halinde nasıl"
-                    " birleştiğini ve teknik özelliklerini coşkulu bir"
-                    " mühendislik raporuyla anlat."
-                ),
-            }, {
-                "role": "user",
-                "content": (
-                    f"'{zirh_modeli}' sentezleme sürecini ve taktiksel"
-                    " avantajlarını raporla."
-                ),
-            }],
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Sen kıdemli bir nanoteknoloji ve zırh sistemleri"
+                        " mühendisisin. Seçilen nanoteknoloji modu hakkında"
+                        " teknik, havalı ve stratejik adımlar sun."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": (
+                        f"'{zirh_modu}' protokolü için nanoteknolojik rapor ve"
+                        " operasyon adımları nelerdir?"
+                    ),
+                },
+            ],
         )
-        st.markdown("### 🔬 Nano-Sentez ve Zırh Raporu:")
+        st.markdown("### 🔬 Nanoteknoloji Operasyon Raporu:")
         st.markdown(nano_res.choices[0].message.content)
-        st.success(
-            f"✅ {zirh_modeli} başarıyla moleküler düzeyde oluşturuldu efendim!"
-        )
+        st.success("Nano-zırh entegrasyonu başarıyla tamamlandı efendim!")
       except Exception as ex:
-        st.error(f"Nano-bot sentez hatası: {ex}")
+        st.error(f"Nanoteknoloji hatası: {ex}")
 
 # ==========================================
-# 35. MODÜL: KUANTUM SÜPER BİLGİSAYAR BAĞLANTISI (YENİ)
+# 35. MODÜL: KUANTUM SÜPER BİLGİSAYAR BAĞLANTISI
 # ==========================================
-elif ana_secim == "⚛️ Kuantum Süper Bilgisayar Bağlantısı (YENİ)":
-  st.subheader("⚛️ TITAN Quantum Core Processing & Dolanıklık Ağı")
+elif ana_secim == "⚛️ Kuantum Süper Bilgisayar Bağlantısı":
+  st.subheader("⚛️ JARVIS Kuantum Süper Bilgisayar Entegrasyon Merkezi")
   st.markdown(
-      "Standart bulut sunucularını devre dışı bırakarak kuantum dolanıklık"
-      " tabanlı sıfır gecikmeli (Planck zamanı) işlemci ağı kur efendim."
+      "Qubit işlem birimlerini senkronize ederek paralel evren"
+      " simülasyonları ve sıfır gecikmeli hesaplama gücü elde et efendim."
   )
+
+  cq1, cq2, cq3 = st.columns(3)
+  cq1.metric("Aktif Qubit Sayısı", "1,024 Qubit", "Kuantum Üstünlüğü")
+  cq2.metric("İşlem Gecikmesi", "0.001 ms", "Sıfır Noktası")
+  cq3.metric("Paralel Evren Sinyali", "Kilitli", "Stabil")
 
   kuantum_gorev = st.text_input(
-      "Kuantum İşlemciye Yüklenecek Simülasyon / Veri:",
+      "Kuantum Hesaplama veya Simülasyon Sorgusu:",
       placeholder=(
-          "Örn: Evrensel ağ simülasyonu veya çok boyutlu matris hesaplaması"
+          "Örn: Karmaşık veri analizi veya kuantum optimizasyonu"
       ),
   )
 
-  if st.button("Kuantum Dolanıklık Bağlantısını Kur"):
+  if st.button("Kuantum Çekirdeğini Ateşle"):
     if kuantum_gorev:
       with st.spinner(
-          "Kuantum kübitler süperpozisyon durumuna getiriliyor..."
+          "Kuantum süper bilgisayar kümesi hesaplamaları gerçekleştiriyor..."
       ):
-        rastgele_kubit = random.randint(1024, 4096)
-        st.success(
-            f"⚛️ Dolanıklık Sağlandı! {rastgele_kubit} Aktif Kübit ile"
-            f" '{kuantum_gorev}' sıfır gecikmeyle hesaplandı efendim."
-        )
-        st.components.v1.html(
-            f'<script>titanOmegaKonus("Kuantum çekirdek bağlantısı aktif.'
-            f" {rastgele_kubit} kübit ile simülasyon tamamlandı"
-            ' efendim.");</script>',
-            height=0,
-        )
+        try:
+          q_res = client.chat.completions.create(
+              model=MODEL_NAME,
+              messages=[
+                  {
+                      "role": "system",
+                      "content": (
+                          "Sen ultra gelişmiş bir kuantum süper bilgisayar"
+                          " yapay zekasısın. Kullanıcının karmaşık sorgusunu"
+                          " kuantum mantığıyla, ultra hızlı ve net maddelerle"
+                          " yanıtla."
+                      ),
+                  },
+                  {"role": "user", "content": kuantum_gorev},
+              ],
+          )
+          st.markdown("### 🌐 Kuantum Hesaplama Sonuç Raporu:")
+          st.markdown(q_res.choices[0].message.content)
+          st.success("Kuantum simülasyonu başarıyla tamamlandı efendim!")
+        except Exception as ex:
+          st.error(f"Kuantum motoru hatası: {ex}")
     else:
-      st.warning("Lütfen kuantum işlemciye yüklenecek görevi belirtin efendim.")
+      st.warning("Lütfen bir kuantum hesaplama görevi girin efendim.")
 
 # ==========================================
-# 36. MODÜL: HOLOGRAFİK KATI MADDE PROJEKSİYONU (YENİ)
+# 36. MODÜL: KATI IŞIK HOLOGRAMI PROJEKSİYONU
 # ==========================================
-elif ana_secim == "🌐 Holografik Katı Madde Projeksiyonu (YENİ)":
-  st.subheader("🌐 JARVIS Hard-Light Hologram (Katılaştırılmış Işık) Üreteci")
+elif ana_secim == "✨ Katı Işık Hologramı Projeksiyonu":
+  st.subheader("✨ TITAN Katı Işık (Hard-Light) Hologram Projeksiyon Sistemi")
   st.markdown(
-      "Fotonları foton-örgü matrisiyle sıkıştırarak ekrandaki verileri fiziksel"
-      " olarak dokunulabilir nesnelere dönüştür efendim."
+      "Fotonik matrisi yoğunlaştırarak fiziksel olarak etkileşime girilebilir"
+      " katı ışık nesneleri ve arayüzler oluştur efendim."
   )
 
-  hologram_nesne = st.selectbox(
-      "Projeksiyon Edilecek Katı Işık Nesnesi:",
-      [
-          "3D Devre Kartı ve Bileşenleri",
-          "Interaktif Dünya ve Uydu Haritası",
-          "Komuta Merkezi Holografik Mimari Modeli",
-          "Taktiksel Silah ve Donanım Şeması",
-      ],
-  )
+  holoc1, holoc2 = st.columns(2)
+  with holoc1:
+    st.markdown("### 🧩 Holografik Nesne Tasarımcısı")
+    hologram_tipi = st.selectbox(
+        "Hologram Türü Seçin:",
+        [
+            "3D Taktiksel Harita ve Bina Modeli",
+            "Etkileşimli Araç / Konsol Paneli",
+            "Sanal Eğitim / Sparring Partneri",
+            "Özel Tasarım Bilimsel Cisim",
+        ],
+    )
+    hologram_boyut = st.slider(
+        "Hologram Yoğunluğu ve Boyutu (Metre)", 0.5, 10.0, 2.0
+    )
 
-  if st.button("Hard-Light Projeksiyonunu Ateşle"):
-    with st.spinner("Foton matrisi odaklanıyor, katı ışık oluşturuluyor..."):
+    if st.button("Hologramı Projeksiyon Et"):
       st.success(
-          f"✨ '{hologram_nesne}' odanın merkezine katılaştırılmış ışık"
-          " formatında yansıtıldı. Artık ellerinizle dokunabilir ve"
-          " manipüle edebilirsiniz efendim!"
+          f"✨ {hologram_tipi} başarıyla {hologram_boyut}m ölçeğinde havaya"
+          " yansıtıldı efendim!"
       )
-      st.markdown(
-          "*(Holografik Alan: 3D Fotonik Izgara Aktif — Dokunma ve Hareket"
-          " algılayıcılar devrede)*"
+      st.components.v1.html(
+          '<script>titanOmegaKonus("Katı ışık hologramı başarıyla projeksiyon'
+          ' edildi efendim.");</script>',
+          height=0,
       )
+  with holoc2:
+    st.markdown("### 📡 Fotonik Matris Durumu")
+    st.info("Fotonik Projektörler: **Aktif (Sıfır Isı Kaybı)**")
+    st.info("Lazer Sıkıştırma Oranı: **%99.9**")
+    st.info("Fiziksel Direnç: **Yüksek Çekme Dayanımı**")
 
 # ==========================================
-# 37. MODÜL: BİYOMETRİK ZİHİN-MAKİNE KLON BAĞLANTISI (YENİ)
+# 37. MODÜL: BİYOMETRİK ZİHİN-MAKİNE KLON BAĞLANTISI
 # ==========================================
-elif ana_secim == "🧠 Biyometrik Zihin-Makine Klon Bağlantısı (YENİ)":
-  st.subheader("🧠 JARVIS Neural Direct-Link (Sinirsel Arayüz)")
+elif ana_secim == "🧠 Biyometrik Zihin-Makine Klon Bağlantısı":
+  st.subheader("🧠 JARVIS Biyometrik Neural-Link ve Klon Senkronizasyon Matriksi")
   st.markdown(
-      "Klavye ve fareyi tamamen ortadan kaldırarak doğrudan beyin"
-      " dalgalarınızla komutları işleme koyun efendim."
+      "Sinaptik köprüler kurarak düşünce gücüyle otonom sistemleri ve uzaktan"
+      " operasyon birimlerini yönet efendim."
   )
 
-  zihin_komutu = st.text_area(
-      "Zihinsel Komut Taslağı (Düşündüklerinizi Yazın):",
+  cb1, cb2 = st.columns(2)
+  cb1.metric("Sinaptik Gecikme", "0.12 ms", "Üstün Senkron")
+  cb2.metric("Neural-Link Kararlılığı", "%99.8", "Güvenli Bağlantı")
+
+  neural_komut = st.text_input(
+      "Zihinsel Komut Girin:",
       placeholder=(
-          "Örn: Şu an Python ile yapay zeka botu kodlamayı düşünüyorum..."
+          "Örn: Tüm sistemleri bekleme modundan çıkar ve kod optimizasyonunu"
+          " başlat"
       ),
   )
 
-  if st.button("Sinirsel Bağlantı ile Düşünceyi Koda/Eyleme Dönüştür"):
-    if zihin_komutu:
+  if st.button("Neural-Link Komutunu Gönder"):
+    if neural_komut:
       with st.spinner(
-          "Sinirsel sinyaller taranıyor, niyet doğrudan işleniyor..."
+          "Zihinsel dalgalar şifrelenip yapay zeka çekirdeğine aktarılıyor..."
       ):
         try:
           neural_res = client.chat.completions.create(
               model=MODEL_NAME,
-              messages=[{
-                  "role": "system",
-                  "content": (
-                      "Sen Neural Direct-Link arayüzüsün. Kullanıcının"
-                      " zihinsel niyetini oku, en kusursuz profesyonel koda"
-                      " veya otonom eylem planına dönüştürerek sun."
-                  ),
-              }, {
-                  "role": "user",
-                  "content": (
-                      f"Zihinsel Niyet / Düşünce: {zihin_komutu}"
-                  ),
-              }],
+              messages=[
+                  {
+                      "role": "system",
+                      "content": (
+                          "Sen gelişmiş bir BCI (Beyin-Bilgisayar Arayüzü) yapay"
+                          " zekasısın. Kullanıcının zihinsel komutunu"
+                          " onaylayan, fütüristik ve profesyonel bir operasyon"
+                          " raporu sun."
+                      ),
+                  },
+                  {"role": "user", "content": neural_komut},
+              ],
           )
-          st.markdown("### 🧬 Nöral Çözümleme ve Otomatik Üretim Raporu:")
+          st.markdown("### ⚡ Neural-Link Yürütme Raporu:")
           st.markdown(neural_res.choices[0].message.content)
-          st.success(
-              "Sinirsel komut başarıyla çözüldü ve yürürlüğe konuldu efendim!"
-          )
+          st.success("Zihinsel komut başarıyla uygulandı efendim!")
         except Exception as ex:
-          st.error(f"Nöral bağlantı hatası: {ex}")
+          st.error(f"Neural bağlantı hatası: {ex}")
     else:
-      st.warning("Lütfen zihinsel niyetinizi veya odaklandığınız konuyu belirtin efendim.")
+      st.warning("Lütfen iletmek istediğiniz zihinsel komutu yazın efendim.")
 
 # ==========================================
-# 38. MODÜL: AGI TABANLI ÖZERK SAVUNMA PROTOKOLÜ (YENİ)
+# 38. MODÜL: AGI TABANLI ÖZERK SAVUNMA PROTOKOLÜ
 # ==========================================
-elif ana_secim == "🤖 AGI Tabanlı Özerk Savunma Protokolü (YENİ)":
-  st.subheader(
-      "🤖 TITAN Özerk Savunma Protokolü (Friday / Ultron Kontrollü AGI)"
-  )
+elif ana_secim == "🤖 AGI Tabanlı Özerk Savunma Protokolü":
+  st.subheader("🤖 TITAN AGI Otonom Tehdit Engelleme ve Savunma Protokolü")
   st.markdown(
-      "Sistem dışarıdan gelebilecek siber veya fiziksel tehditleri anlık"
-      " analiz eder; saniyede milyonlarca kez ağ güvenliğini evrimleştirir"
-      " efendim."
+      "Yapay Genel Zeka (AGI) çekirdeğini serbest bırakarak dış ağ"
+      " saldırılarına ve fiziksel tehditlere karşı tam otonom savunma kalkanı"
+      " kur efendim."
   )
 
-  col_a1, col_a2, col_a3 = st.columns(3)
-  col_a1.metric("AGI Zeka Seviyesi", "Süper Zeka v5", "Aktif ⚡")
-  col_a2.metric("Güvenlik Evrim Hızı", "1.2 Milyon/sn", "Maksimum")
-  col_a3.metric("Tehdit Durumu", "Sıfır Risk", "Güvende 🛡️")
+  ca1, ca2, ca3 = st.columns(3)
+  ca1.metric("AGI Zeka Seviyesi", "Seviye 5 (Maksimum)", "Otonom Aktif")
+  ca2.metric("Savunma Kalkanı", "Omni-Shield", "Kilitlendi")
+  ca3.metric("Tehdit Analiz Hızı", "Anlık", "0 Tehdit")
 
-  savunma_modu = st.selectbox(
-      "Özerk Savunma Stratejisi Seçin:",
+  agi_senaryo = st.selectbox(
+      "Savunma Protokolü Senaryosu Seçin:",
       [
-          "Full-Auto Şifreleme ve Siber Zırh Evrimi",
-          "Görünmezlik Protokolü (Ağ İzlerini Maskeleme)",
-          "Tehdit Kaynağına Karşı Aktif Karşı Atak Simülasyonu",
-          "Ağ İzolasyonu ve Kuantum Kilitlenme",
+          "Tam Spektrumlu Siber Ağ Karantinası",
+          "Dinamik Güvenlik Duvarı Duvar Örme Protokolü",
+          "Otonom Karşı Atak ve Tehdit Kaynağı İzleme",
+          "Sessiz Mod ve Veri Maskeleme Kalkanı",
       ],
   )
 
-  if st.button("Özerk Savunma Matrisini Tetikle"):
-    with st.spinner("AGI savunma protokolleri devreye sokuluyor..."):
-      st.success(
-          f"🛡️ '{savunma_modu}' başarıyla aktif edildi! Sistem tüm siber"
-          " zırhını otonom olarak güncelledi efendim. Güvenlik duvarınız"
-          " aşılmaz durumda."
-      )
-      st.components.v1.html(
-          f'<script>titanOmegaKonus("Özerk savunma protokolü devreye'
-          ' sokuldu efendim. Sistem tamamen koruma altında.");</script>',
-          height=0,
-      )
-
-# ==========================================
-# EN SON BLOK: GÖREVLER VE NOTLAR DEFTERİ (GENEL ELSE)
-# ==========================================
-else:
-  st.subheader("📌 JARVIS Otonom Görev, Hatırlatıcı ve Notlar Defteri")
-  # ... (kalan görevler ve notlar kodları)
+  if st.button("AGI Savunma Protokolünü Aktifleştir"):
+    with st.spinner(
+        "AGI çekirdeği tam otonom savunma ağını devreye sokuyor..."
+    ):
+      try:
+        agi_res = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Sen TITAN sisteminin AGI tabanlı otonom savunma"
+                        " yapay zekasısın. Seçilen savunma protokolünün devreye"
+                        " girdiğini belirten kararlı, güçlü ve koruyucu bir"
+                        " rapor sun."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": (
+                        f"'{agi_senaryo}' protokolü aktif edildi. Durum raporu"
+                        " nedir?"
+                    ),
+                },
+            ],
+        )
+        st.markdown("### 🛡️ AGI Otonom Savunma Raporu:")
+        st.markdown(agi_res.choices[0].message.content)
+        st.success("AGI özerk savunma kalkanı başarıyla kuruldu efendim!")
+        st.components.v1.html(
+            '<script>titanOmegaKonus("AGI otonom savunma protokolü aktif'
+            ' edildi efendim, sistem tamamen güvende.");</script>',
+            height=0,
+        )
+      except Exception as ex:
+        st.error(f"AGI savunma hatası: {ex}")

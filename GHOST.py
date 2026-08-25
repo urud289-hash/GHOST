@@ -1380,7 +1380,7 @@ elif ana_secim == "🛰️ Yörünge Uydu Canlı Takip ve ISS Radarı (YENİ)":
   st.components.v1.html(
       """
     <div style="padding: 18px; background-color: #0d1117; color: white; border-radius: 10px; border: 1px solid #30363d;">
-        <h3 style="color: #38bdf8; margin-top:0;">🛰️ ISS (Uluslararası Uzay İstasyonu) Canlı Yörünge Takibi</h3>
+       <h3 style="color: #38bdf8; margin-top:0;">ISS (Uluslararası Uzay İstasyonu) Canlı Yörünge Takibi</h3>
         <p style="color: #94a3b8;">Canlı uzay verileri uydulardan çekiliyor...</p>
         <iframe width="100%" height="450" style="border:1px solid #30363d; border-radius: 10px;" src="https://www.astroviewer.net/iss/en/"></iframe>
     </div>

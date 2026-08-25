@@ -299,9 +299,11 @@ st.title(
 # 09. KENAR ÇUBUĞU (OMEGA YÖNETİM MENÜSÜ)
 # ==========================================
 st.sidebar.markdown(
-   <h3 style="color: #38bdf8; margin-top:0;">Canlı Uydu & Harita Radarı</h3>
-    " Menü</h3>",
-    unsafe_allow_html=True,
+    """
+    <h3 style="color: #38bdf8; margin-top:0;">Omega Yönetim Menüsü</h3>
+    """,
+    unsafe_allow_html=True
+)
 )
 
 ana_secim = st.sidebar.radio(

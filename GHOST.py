@@ -171,7 +171,15 @@ st.markdown(
         unsafe_allow_html=True,
     )
 
+# Doğru kullanım şekli:
+js_kodu = """
 <script>
+    // JavaScript kodların buraya gelecek efendim
+    console.log("JARVIS aktif!");
+</script>
+"""
+
+st.components.v1.html(js_kodu, height=0)
 function jarvisKonustur(metin) {
     if ('speechSynthesis' in window) {
         // Tarayıcı kuyruğunu sıfırla

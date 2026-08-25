@@ -1748,9 +1748,12 @@ ana_secim = st.sidebar.selectbox(
 )
 
 # ==========================================
-# 39. MODÜL: ÇOK BOYUTLU UZAY-ZAMAN SİMÜLATÖRÜ
+# 38. MODÜLÜN BİTİŞİ VE 39. MODÜL (DÜZELTİLMİŞ HALİ)
 # ==========================================
-elif ana_secim == "🌌 Çok Boyutlu Uzay-Zaman Simülatörü":
+
+# (Önceki 38. modülün kodlarının en sonu bittikten sonra, yeni modülü 'if' ile başlatıyoruz:)
+
+if ana_secim == "🌌 Çok Boyutlu Uzay-Zaman Simülatörü":
     st.subheader("🌌 TITAN Uzay-Zaman Eğriliği ve Yıldızlararası Rota Planlayıcı")
     st.markdown(
         "Astrofiziksel verileri kullanarak ışıktan hızlı (FTL) geçiş simülasyonları yap ve yerçekimi dalgası sapmalarını hesapla efendim."
@@ -1790,3 +1793,7 @@ elif ana_secim == "🌌 Çok Boyutlu Uzay-Zaman Simülatörü":
                     st.error(f"Uzay-zaman simülasyon hatası: {ex}")
         else:
             st.warning("Lütfen hedef bir sektör veya koordinat girin efendim.")
+
+# Sonraki modülleri sırasıyla 'elif' ile devam ettirebilirsin:
+elif ana_secim == "🧬 Biyoteknolojik Genom Analiz Laboratuvarı":
+    # ...
